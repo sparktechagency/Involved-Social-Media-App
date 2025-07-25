@@ -43,7 +43,7 @@ class MyApp extends StatelessWidget {
         return GetBuilder<LocalizationController>(
           builder: (localizeController) {
             return ScreenUtilInit(
-              designSize: const Size(393, 852),
+              designSize: const Size(402, 874),
               minTextAdapt: true,
               splitScreenMode: true,
               builder: (_, child) {

@@ -86,4 +86,35 @@ class AppStrings {
   static String browseFiles = 'Browse Files';
   static String cancel = 'Cancel';
   static String done = 'Done';
+  //=============================> Calendar Screen <==============================
+  static String calendar = 'Calendar';
+  //=============================> Profile Screen <==============================
+  static String profile = 'Profile';
+  static String mySubscription = 'My Subscription';
+  static String manageYourSubscription = 'Manage your subscription';
+  static String myProfile = 'My Profile';
+  static String myFavoriteEventList = 'My Favorite Event List';
+  static String security = 'Security';
+  static String changePassword = 'Change Password';
+  static String aboutUs = 'About Us';
+  static String logout = 'Logout';
+  static String bESTDATE = 'BEST DATE';
+  static String editProfile = 'Edit Profile';
+  static String editProfileInformation = 'Edit Profile Information';
+  static String address = 'Address';
+  static String updateProfile = 'Update Profile';
+  static String oldPassword = 'Old Password';
+  static String newPassword = 'New Password';
+  static String areYouSureToLogout = 'Are you sure you want to log out?';
+  static String no = 'No';
+  static String yes = 'Yes';
+  //=============================> Subscription Screen <==============================
+  static String subscription = 'Subscription';
+  static String freeSubscription = 'Free subscription';
+  static String basicUsers = 'Basic Users';
+  static String oneMonth = '1 Month';
+  static String vIPUsers = 'VIP Users';
+  static String oneYear = '1 Year';
+  static String businessUsers = 'Business Users';
+  static String playNow = 'Play now';
 }
