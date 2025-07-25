@@ -13,21 +13,21 @@ class SplashScreen extends StatefulWidget {
 
 class _SplashScreenState extends State<SplashScreen> {
   @override
-  /*void initState() {
+  void initState() {
     Future.delayed(const Duration(seconds: 3), () {
-      */
-  /*  var isLogged = await PrefsHelper.getBool(AppConstants.isLogged);
+    /*var isLogged = await PrefsHelper.getBool(AppConstants.isLogged);
       if (isLogged == true) {
         Get.offAllNamed(AppRoutes.homeScreen);
       } else {
         Get.offAllNamed(AppRoutes.onboardingScreen);
-      }
-      */ /*
-      Get.offAllNamed(AppRoutes.homeScreen);
+      }*/
+
+      Get.offAllNamed(AppRoutes.getStartScreen);
     });
     // TODO: implement initState
     super.initState();
-  }*/ @override
+  }
+  @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Color(0xffFDF8EB),

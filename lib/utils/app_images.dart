@@ -8,5 +8,7 @@ class AppImages{
   static String applyPay="$baseUrl/apples.png";
   static String map="$baseUrl/map.png";
   static String appLogo ="$baseUrl/appLogo.png";
+  static String getStartBG ="$baseUrl/getStartBG.png";
+  static String logo ="$baseUrl/logo.png";
 
 }
