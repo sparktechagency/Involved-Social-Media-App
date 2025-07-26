@@ -66,7 +66,7 @@ class SignInScreen extends StatelessWidget {
                   alignment: Alignment.centerRight,
                   child: GestureDetector(
                     onTap: () {
-                      //  Get.toNamed(AppRoutes.forgotPasswordScreen);
+                      Get.toNamed(AppRoutes.forgotPasswordScreen);
                     },
                     child: CustomText(
                       text: AppStrings.forgotPasswords.tr,
