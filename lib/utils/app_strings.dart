@@ -37,6 +37,7 @@ class AppStrings {
   //=============================> Reset Password Screen <==============================
   static String resetPassword = 'Reset Password';
   static String enterNewPassword = 'Enter new password';
+  static String enterANewPassword = 'Enter a new password';
   static String confirmPassword = 'Confirm password';
   static String save = 'Save';
   static String passwordUpdateSuccessfully = 'Password Update Successfully';

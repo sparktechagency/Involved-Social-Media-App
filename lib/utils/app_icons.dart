@@ -20,5 +20,7 @@ class AppIcons{
   static String lock="$baseUrl/lock.svg";
   static String mail="$baseUrl/mail.svg";
   static String call="$baseUrl/call.svg";
+  static String clock ="$baseUrl/clock.svg";
+  static String okay ="$baseUrl/okay.svg";
 
 }

@@ -40,8 +40,8 @@ ThemeData light({Color color = const Color(0xFFFFFFFF)}) => ThemeData(
           fontSize: 18.sp,
           fontFamily: 'Satoshi',
           color: AppColors.textColor),
-      iconTheme: IconThemeData(color: AppColors.borderColor)),
-  iconTheme: IconThemeData(color: AppColors.borderColor),
+      iconTheme: IconThemeData(color: AppColors.textColor)),
+  iconTheme: IconThemeData(color: AppColors.textColor),
   checkboxTheme: CheckboxThemeData(
     shape: RoundedRectangleBorder(
       borderRadius: BorderRadius.circular(4),

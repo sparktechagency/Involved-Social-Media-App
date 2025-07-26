@@ -102,7 +102,6 @@ class _SignUpScreenState extends State<SignUpScreen> {
                 //========================> Sign Up Button <==================
                 CustomButton(
                   onTap: () {
-                    // Get.offAllNamed(AppRoutes.selectRoleScreen);
                   },
                   text: AppStrings.signUp.tr,
                 ),
@@ -202,7 +201,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
                 recognizer:
                 TapGestureRecognizer()
                   ..onTap = () {
-                    //Get.toNamed(AppRoutes.termsConditionScreen);
+                    Get.toNamed(AppRoutes.termsServicesScreen);
                   },
               ),
               const TextSpan(text: ' & '),
@@ -212,7 +211,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
                 recognizer:
                 TapGestureRecognizer()
                   ..onTap = () {
-                    //Get.toNamed(AppRoutes.privacyPolicyScreen);
+                    Get.toNamed(AppRoutes.privacyPolicyScreen);
                   },
               ),
             ],
