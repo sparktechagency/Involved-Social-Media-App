@@ -92,7 +92,7 @@ class SignInScreen extends StatelessWidget {
                     SizedBox(width: 4.w),
                     InkWell(
                       onTap: () {
-                        //Get.toNamed(AppRoutes.signUpScreen);
+                        Get.toNamed(AppRoutes.signUpScreen);
                       },
                       child: CustomText(
                         text: AppStrings.signUp.tr,
