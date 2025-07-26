@@ -16,5 +16,8 @@ class AppIcons{
   static String calenderIcon="$baseUrl/calender-card.svg";
   static String search="$baseUrl/search.svg";
   static String calender="$baseUrl/calender.svg";
+  static String user="$baseUrl/user.svg";
+  static String lock="$baseUrl/lock.svg";
+  static String mail="$baseUrl/mail.svg";
 
 }
