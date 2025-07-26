@@ -22,5 +22,15 @@ class AppIcons{
   static String call="$baseUrl/call.svg";
   static String clock ="$baseUrl/clock.svg";
   static String okay ="$baseUrl/okay.svg";
+  static String notification ="$baseUrl/notification.svg";
+  static String edit ="$baseUrl/edit.svg";
+  static String rightArrow ="$baseUrl/rightArrow.svg";
+  static String event ="$baseUrl/event.svg";
+  static String privacy ="$baseUrl/privacy.svg";
+  static String terms ="$baseUrl/terms.svg";
+  static String log ="$baseUrl/log.svg";
+  static String key ="$baseUrl/key.svg";
+  static String logout ="$baseUrl/logout.svg";
+  static String about ="$baseUrl/about.svg";
 
 }
