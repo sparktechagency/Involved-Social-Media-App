@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
+import 'package:involved/helpers/route.dart';
 import 'package:involved/utils/app_colors.dart';
 import 'package:involved/utils/app_images.dart';
 import 'package:involved/utils/app_strings.dart';
@@ -70,7 +71,9 @@ class GetStartScreen extends StatelessWidget {
                   SizedBox(height: 24.h),
                   //==================> Get Started Button <==================
                   CustomButton(
-                    onTap: () {},
+                    onTap: () {
+                      Get.toNamed(AppRoutes.signInScreen);
+                    },
                     text: AppStrings.getStarted.tr,
                   ),
                 ],

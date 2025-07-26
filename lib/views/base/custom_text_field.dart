@@ -115,9 +115,10 @@ class _CustomTextFieldState extends State<CustomTextField> {
         prefixIconConstraints: BoxConstraints(minHeight: 24.h, minWidth: 24.w),
         suffixIconConstraints: BoxConstraints(minHeight: 24.h, minWidth: 24.w),
         errorStyle: const TextStyle(color: Colors.red),
-        suffixIconColor: AppColors.greyColor,
-        prefixIconColor: AppColors.greyColor,
+        suffixIconColor: AppColors.primaryColor,
+        prefixIconColor: AppColors.primaryColor,
         labelText: widget.labelText,
+        labelStyle: TextStyle(color: AppColors.textColor, fontFamily: 'Satoshi'),
         hintText: widget.hintText,
         hintStyle: TextStyle(color: AppColors.hintColor, fontFamily: 'Satoshi'),
         border: OutlineInputBorder(
@@ -140,14 +141,13 @@ class _CustomTextFieldState extends State<CustomTextField> {
       padding: EdgeInsets.only(right: 16.w),
       child: SvgPicture.asset(
         icon,
-        color: Colors.grey,
       ),
     );
   }
 
   _buildOutlineInputBorder() {
     return OutlineInputBorder(
-      borderRadius: BorderRadius.circular(12.r),
+      borderRadius: BorderRadius.circular(8.r),
       borderSide: BorderSide(
         width: 1.w,
         color: AppColors.primaryColor,

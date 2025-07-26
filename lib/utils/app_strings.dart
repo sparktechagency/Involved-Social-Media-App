@@ -19,7 +19,8 @@ class AppStrings {
   static String userName = 'User Name';
   static String enterUsername = 'Enter username';
   static String phoneNumber = 'Phone Number';
-  static String byCreatingAnAccount = 'By creating an account, I accept the';
+  static String enterPhoneNumber = 'Enter phone number';
+  static String byCreatingAnAccount = 'By creating an account, I accept the\n';
   static String termsConditions = 'Terms & Conditions';
   static String privacyPolicy = 'Privacy Policy';
   static String alreadyHaveAccount = 'Already have account?';

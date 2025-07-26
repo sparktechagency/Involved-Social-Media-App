@@ -10,5 +10,8 @@ class AppImages{
   static String appLogo ="$baseUrl/appLogo.png";
   static String getStartBG ="$baseUrl/getStartBG.png";
   static String logo ="$baseUrl/logo.png";
+  static String bgImg ="$baseUrl/bgImg.png";
+  static String roundLogo ="$baseUrl/roundLogo.png";
+  static String googleLogo ="$baseUrl/googleLogo.png";
 
 }
