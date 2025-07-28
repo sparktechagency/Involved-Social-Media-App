@@ -15,14 +15,14 @@ import 'package:involved/views/base/custom_text_field.dart';
 
 
 
-class DriverEditProfileScreen extends StatefulWidget {
-  const DriverEditProfileScreen({super.key});
+class EditProfileScreen extends StatefulWidget {
+  const EditProfileScreen({super.key});
 
   @override
-  State<DriverEditProfileScreen> createState() => _DriverEditProfileScreenState();
+  State<EditProfileScreen> createState() => _EditProfileScreenState();
 }
 
-class _DriverEditProfileScreenState extends State<DriverEditProfileScreen> {
+class _EditProfileScreenState extends State<EditProfileScreen> {
   final ProfileController _controller = Get.put(ProfileController());
 
   @override

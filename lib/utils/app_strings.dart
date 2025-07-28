@@ -67,7 +67,7 @@ class AppStrings {
   static String noResultFound = 'No Result Found!';
   static String filters = 'Filters';
   static String location = 'Location';
-  static String eventCategories = 'Event Categories';
+  static String eventCategories = 'Event Calender';
   static String eventDate = 'Event Date';
   static String selectDate = 'Select a Date';
   static String distance = 'Distance';
