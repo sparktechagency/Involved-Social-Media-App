@@ -113,10 +113,11 @@ class _CalenderScreenState extends State<CalenderScreen> {
                                   imageUrl:
                                       'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTwaA8j3JXCUJK6s0E139bWxzBDGcLkBaAaZBUycCpQo-9_9JZf99E2r7QQrTKS7qyNNmk&usqp=CAU',
                                   height: 72.h,
-                                  width: 72,
+                                  width: 72.w,
                                   borderRadius: BorderRadius.circular(4.r),
                                 ),
-                                const SizedBox(width: 12),
+                                 SizedBox(width: 12.w),
+                                //========================> Title Container <==========================
                                 Expanded(
                                   child: Column(
                                     crossAxisAlignment:
@@ -140,6 +141,7 @@ class _CalenderScreenState extends State<CalenderScreen> {
                                     ],
                                   ),
                                 ),
+                                //========================> Status Container <==========================
                                 Container(
                                   padding: const EdgeInsets.symmetric(
                                     horizontal: 10,

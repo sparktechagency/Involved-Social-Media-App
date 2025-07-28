@@ -12,7 +12,7 @@ class BottomMenu extends StatelessWidget {
   const BottomMenu(this.menuIndex, {super.key});
 
   Color colorByIndex(ThemeData theme, int index) {
-    return index == menuIndex ? Colors.white : theme.disabledColor;
+    return index == menuIndex ? Color(0xffFFEFD1) : theme.disabledColor;
   }
 
   BottomNavigationBarItem getItem(
@@ -40,47 +40,48 @@ class BottomMenu extends StatelessWidget {
       getItem( menuIndex ==1 ? AppIcons.calender :  AppIcons.calender, 'Calendar', theme, 3),
       getItem(menuIndex ==2 ? AppIcons.profileOutline: AppIcons.profileOutline, 'Profile', theme, 4),
     ];
-
-    return Container(
-
-      decoration: BoxDecoration(
+    return Padding(
+      padding: EdgeInsets.symmetric(horizontal: 20.w),
+      child: Container(
+        decoration: BoxDecoration(
+            borderRadius: BorderRadius.only(
+                topRight: Radius.circular(20.r),topLeft: Radius.circular(20.r)
+            ),
+            boxShadow: const [
+              BoxShadow(color:Colors.black38,spreadRadius:0,blurRadius: 10)
+            ]
+        ),
+        child: ClipRRect(
           borderRadius: BorderRadius.only(
               topRight: Radius.circular(20.r),topLeft: Radius.circular(20.r)
-          ),
-          boxShadow: const [
-            BoxShadow(color:Colors.black38,spreadRadius:0,blurRadius: 10)
-          ]
-      ),
-      child: ClipRRect(
-        borderRadius: BorderRadius.only(
-            topRight: Radius.circular(20.r),topLeft: Radius.circular(20.r)
 
-        ),
-        child: BottomNavigationBar(
-           backgroundColor: AppColors.primaryColor,
-          type: BottomNavigationBarType.fixed,
-          selectedItemColor: AppColors.backgroundColor,
-          currentIndex: menuIndex,
-          onTap: (value) {
-            switch (value) {
-              case 0:
-                Get.offAndToNamed(AppRoutes.homeScreen);
-                break;
-              case 1:
-                Get.offAndToNamed(AppRoutes.calenderScreen);
-                break;
-              case 2:
-                Get.offAndToNamed(AppRoutes.calenderScreen);
-                break;
-              case 3:
-                Get.offAndToNamed(AppRoutes.calenderScreen);
-                break;
-              case 4:
-                Get.offAndToNamed(AppRoutes.profileScreen);
-                break;
-            }
-          },
-          items: menuItems,
+          ),
+          child: BottomNavigationBar(
+             backgroundColor: AppColors.primaryColor,
+            type: BottomNavigationBarType.fixed,
+            selectedItemColor: Color(0xffFFEFD1),
+            currentIndex: menuIndex,
+            onTap: (value) {
+              switch (value) {
+                case 0:
+                  Get.offAndToNamed(AppRoutes.homeScreen);
+                  break;
+                case 1:
+                  Get.offAndToNamed(AppRoutes.calenderScreen);
+                  break;
+                case 2:
+                  Get.offAndToNamed(AppRoutes.calenderScreen);
+                  break;
+                case 3:
+                  Get.offAndToNamed(AppRoutes.calenderScreen);
+                  break;
+                case 4:
+                  Get.offAndToNamed(AppRoutes.profileScreen);
+                  break;
+              }
+            },
+            items: menuItems,
+          ),
         ),
       ),
     );
