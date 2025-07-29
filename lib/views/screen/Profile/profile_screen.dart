@@ -119,16 +119,16 @@ class _ProfileScreenState extends State<ProfileScreen> {
                         //===================> Personal Information ListTile <=================
                         CustomListTile(
                           onTap: () {
-                            // Get.toNamed(AppRoutes.);
+                            Get.toNamed(AppRoutes.myProfileInfoScreen);
                           },
                           title: AppStrings.myProfile.tr,
                           prefixIcon: SvgPicture.asset(AppIcons.user),
                           suffixIcon: SvgPicture.asset(AppIcons.rightArrow),
                         ),
-                        //===================> My Wallet ListTile <=================
+                        //===================> My Favorite Event List ListTile <=================
                         CustomListTile(
                           onTap: () {
-                            // Get.toNamed(AppRoutes.);
+                            Get.toNamed(AppRoutes.myFavoriteEventScreen);
                           },
                           title: AppStrings.myFavoriteEventList.tr,
                           prefixIcon: SvgPicture.asset(AppIcons.event),

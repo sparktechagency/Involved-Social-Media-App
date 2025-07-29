@@ -77,6 +77,7 @@ class AppStrings {
   static String bACHELORETTEPARTY = 'BACHELORETTE PARTY';
   static String bESTDATENIGHTPLACE = 'BEST DATE NIGHT PLACE';
   static String fAVORITES = 'FAVORITES';
+  static String mYPLANS = 'MY PLANS';
 //=============================> Create Event Screen <==============================
   static String createEvent = 'Create Event';
   static String createNewEvent = 'Create New Event';
