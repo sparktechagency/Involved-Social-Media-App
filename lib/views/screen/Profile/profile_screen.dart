@@ -69,6 +69,53 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   child: Center(
                     child: Column(
                       children: [
+                        //===================> Subscription Container <=================
+                        Container(
+                          decoration: BoxDecoration(
+                            color: AppColors.backgroundColor,
+                            borderRadius: BorderRadius.circular(12.r),
+                            border: Border.all(
+                              width: 2.w,
+                              color: AppColors.primaryColor,
+                            ),
+                          ),
+                          child: Padding(
+                            padding: EdgeInsets.all(12.w),
+                            child: Row(
+                              children: [
+                                SvgPicture.asset(AppIcons.sub),
+                                SizedBox(width: 8.w),
+                                //===================> Subscription Pack <================
+                                Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    CustomText(
+                                      text: AppStrings.mySubscription.tr,
+                                      fontSize: 16.sp,
+                                      fontWeight: FontWeight.w500,
+                                    ),
+                                    CustomText(
+                                      text: AppStrings.manageYourSubscription.tr,
+                                      fontSize: 12.sp,
+                                    ),
+                                  ],
+                                ),
+                                Spacer(),
+                                //===================> Explore Button <================
+                                CustomButton(
+                                  onTap: () {
+                                   // Get.toNamed(AppRoutes.subscriptionScreen);
+                                  },
+                                  text: 'Explore'.tr,
+                                  fontSize: 10.sp,
+                                  width: 80.w,
+                                  height: 27.h,
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
+                        SizedBox(height: 16.h),
                         //===================> Personal Information ListTile <=================
                         CustomListTile(
                           onTap: () {
@@ -90,7 +137,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                         //===================> Change Password ListTile <=================
                         CustomListTile(
                           onTap: () {
-                            // Get.toNamed(AppRoutes.settingsScreen);
+                            Get.toNamed(AppRoutes.changePasswordScreen);
                           },
                           title: AppStrings.changePassword.tr,
                           prefixIcon: SvgPicture.asset(AppIcons.key),
@@ -99,7 +146,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                         //===================> Privacy Policy ListTile <=================
                         CustomListTile(
                           onTap: () {
-                            // Get.toNamed(AppRoutes.);
+                            Get.toNamed(AppRoutes.privacyPolicyScreen);
                           },
                           title: AppStrings.privacyPolicy.tr,
                           prefixIcon: SvgPicture.asset(AppIcons.privacy),
@@ -108,7 +155,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                         //===================> Terms & Conditions ListTile <=================
                         CustomListTile(
                           onTap: () {
-                            // Get.toNamed(AppRoutes.);
+                            Get.toNamed(AppRoutes.termsServicesScreen);
                           },
                           title: AppStrings.termsConditions.tr,
                           prefixIcon: SvgPicture.asset(AppIcons.terms),
@@ -117,7 +164,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                         //===================> About Us ListTile <=================
                         CustomListTile(
                           onTap: () {
-                            // Get.toNamed(AppRoutes.);
+                            Get.toNamed(AppRoutes.aboutUsScreen);
                           },
                           title: AppStrings.aboutUs.tr,
                           prefixIcon: SvgPicture.asset(AppIcons.about),
@@ -201,7 +248,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     CustomButton(
                       width: 134.w,
                       onTap: () {
-                        Get.back();
+                        Get.offAllNamed(AppStrings.signIn);
                       },
                       text: AppStrings.yes.tr,
                     ),
