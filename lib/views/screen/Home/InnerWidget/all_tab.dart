@@ -19,93 +19,97 @@ class _AllTabState extends State<AllTab> {
 
   @override
   Widget build(BuildContext context) {
-    return Padding(
-      padding: EdgeInsets.all(12.w),
-      child: GridView.builder(
-        itemCount: bookmarkedList.length,
-        gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-          crossAxisCount: 2,
-          mainAxisSpacing: 12.h,
-          crossAxisSpacing: 12.w,
-          childAspectRatio: 0.6,
-        ),
-        itemBuilder: (context, index) {
-          final isBookmarked = bookmarkedList[index];
-
-          return Material(
-            color: Colors.white,
-            elevation: 2,
-            borderRadius: BorderRadius.circular(12.r),
-            child: InkWell(
+    return Expanded(
+      child: Padding(
+        padding: EdgeInsets.symmetric(horizontal:  20.w),
+        child: GridView.builder(
+          padding: EdgeInsets.symmetric(vertical:  20.w),
+          itemCount: bookmarkedList.length,
+          gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+            crossAxisCount: 2,
+            mainAxisSpacing: 12.h,
+            crossAxisSpacing: 12.w,
+            childAspectRatio: 0.57,
+          ),
+          itemBuilder: (context, index) {
+            final isBookmarked = bookmarkedList[index];
+      
+            return Material(
+              color: Colors.white,
+              elevation: 2,
               borderRadius: BorderRadius.circular(12.r),
-              onTap: () => showEventDetailsDialog(
-                context: context,
-                imageUrl: 'https://images.unsplash.com/photo-1546069901-ba9599a7e63c',
-                title: 'Pasta Making Class',
-                location: 'Dhaka, Bangladesh',
-                dateTime: '18/06/25 08:30PM',
-                venue: 'Rampura Town Hall Dhaka, Bangladesh',
-                description:
-                "The event is live as soon as it's posted. You can explore various categories and locations...",
-              ),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  CustomNetworkImage(
-                    imageUrl:
-                    'https://images.unsplash.com/photo-1492684223066-81342ee5ff30',
-                    height: 240.h,
-                    width: double.infinity,
-                    borderRadius: BorderRadius.only(
-                      topLeft: Radius.circular(12.r),
-                      topRight: Radius.circular(12.r),
+              child: InkWell(
+                borderRadius: BorderRadius.circular(12.r),
+                onTap: () => showEventDetailsDialog(
+                  context: context,
+                  imageUrl: 'https://images.unsplash.com/photo-1546069901-ba9599a7e63c',
+                  title: 'Pasta Making Class',
+                  location: 'Dhaka, Bangladesh',
+                  dateTime: '18/06/25 08:30PM',
+                  venue: 'Rampura Town Hall Dhaka, Bangladesh',
+                  description:
+                  "The event is live as soon as it's posted. You can explore various categories and locations...",
+                ),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    CustomNetworkImage(
+                      imageUrl:
+                      'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRyvetnLOz5AF4JPJGxqw0EJpwpBHl9swwqww&s',
+                      height: 238.h,
+                      width: double.infinity,
+                      borderRadius: BorderRadius.only(
+                        topLeft: Radius.circular(12.r),
+                        topRight: Radius.circular(12.r),
+                      ),
                     ),
-                  ),
-                  Padding(
-                    padding: EdgeInsets.all(8.w),
-                    child: Row(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Expanded(
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              CustomText(
-                                text: 'Pasta Making Class',
-                                maxLine: 2,
-                                textOverflow: TextOverflow.ellipsis,
-                                fontWeight: FontWeight.w500,
-                              ),
-                              SizedBox(height: 4.h),
-                              CustomText(
-                                text: 'Dhaka, Bangladesh',
-                                maxLine: 1,
-                                textOverflow: TextOverflow.ellipsis,
-                                fontSize: 12.sp,
-                              ),
-                            ],
+                    Padding(
+                      padding: EdgeInsets.all(8.w),
+                      child: Row(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                CustomText(
+                                  text: 'Pasta Making Class',
+                                  maxLine: 2,
+                                  textOverflow: TextOverflow.ellipsis,
+                                  fontWeight: FontWeight.w500,
+                                ),
+                                SizedBox(height: 4.h),
+                                CustomText(
+                                  text: 'Dhaka, Bangladesh',
+                                  maxLine: 1,
+                                  textOverflow: TextOverflow.ellipsis,
+                                  fontSize: 12.sp,
+                                ),
+                              ],
+                            ),
                           ),
-                        ),
-                        GestureDetector(
-                          onTap: () {
-                            setState(() {
-                              bookmarkedList[index] = !bookmarkedList[index];
-                            });
-                          },
-                          child: Icon(
-                            isBookmarked ? Icons.bookmark : Icons.bookmark_border,
-                            color: isBookmarked ? AppColors.primaryColor : Colors.grey,
-                            size: 22.sp,
+                          GestureDetector(
+                            onTap: () {
+                              setState(() {
+                                bookmarkedList[index] = !bookmarkedList[index];
+                              });
+                            },
+                            child: Icon(
+                              isBookmarked ? Icons.bookmark : Icons.bookmark_border,
+                              color: isBookmarked ? AppColors.primaryColor : Colors.grey,
+                              size: 22.sp,
+                            ),
                           ),
-                        ),
-                      ],
+                        ],
+                      ),
                     ),
-                  ),
-                ],
+                  ],
+                ),
               ),
-            ),
-          );
-        },
+            );
+          },
+        ),
       ),
     );
   }
