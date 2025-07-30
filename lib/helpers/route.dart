@@ -10,6 +10,7 @@ import 'package:involved/views/screen/Create/create_event_screen.dart';
 import 'package:involved/views/screen/MyFavoriteEvent/my_favorite_event_screen.dart';
 import 'package:involved/views/screen/Notifications/notifications_screen.dart';
 import 'package:involved/views/screen/PrivacyPolicy/privacy_policy_screen.dart';
+import 'package:involved/views/screen/Profile/EditProfileInfro/edit_profile_screen.dart';
 import 'package:involved/views/screen/Profile/MyProfileInfo/my_plan_screen.dart';
 import 'package:involved/views/screen/Profile/MyProfileInfo/my_profile_info_screen.dart';
 import 'package:involved/views/screen/Search/search_screen.dart';
@@ -35,6 +36,7 @@ class AppRoutes{
   static String searchScreen="/search_screen";
   static String profileScreen="/profile_screen";
   static String myProfileInfoScreen="/my_profile_info_screen";
+  static String editProfileScreen="/edit_profile_screen";
   static String myPlanScreen="/my_plan_screen";
   static String calenderScreen="/calender_screen";
   static String createEventScreen="/create_event_screen";
@@ -59,6 +61,7 @@ class AppRoutes{
     GetPage(name:calenderScreen, page: ()=> CalenderScreen(),transition:Transition.noTransition),
     GetPage(name:createEventScreen, page: ()=> CreateEventScreen(),transition:Transition.noTransition),
     GetPage(name:profileScreen, page: ()=>const ProfileScreen(),transition: Transition.noTransition),
+    GetPage(name:editProfileScreen, page: ()=>const EditProfileScreen()),
     GetPage(name:myProfileInfoScreen, page: ()=>const MyProfileInfoScreen()),
     GetPage(name:myPlanScreen, page: ()=>const MyPlanScreen()),
     GetPage(name:myFavoriteEventScreen, page: ()=>const MyFavoriteEventScreen()),

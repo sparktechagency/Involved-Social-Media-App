@@ -13,8 +13,6 @@ import 'package:involved/views/base/custom_network_image.dart';
 import 'package:involved/views/base/custom_text.dart';
 import 'package:involved/views/base/custom_text_field.dart';
 
-
-
 class EditProfileScreen extends StatefulWidget {
   const EditProfileScreen({super.key});
 
@@ -38,15 +36,15 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                 CustomNetworkImage(
                   imageUrl:
                       'https://t4.ftcdn.net/jpg/02/24/86/95/360_F_224869519_aRaeLneqALfPNBzg0xxMZXghtvBXkfIA.jpg',
-                  height: 135.h,
-                  width: 135.w,
-                  borderRadius: BorderRadius.circular(24.r),
+                  height: 145.h,
+                  width: 145.w,
+                  boxShape: BoxShape.circle,
                   border: Border.all(width: 2.w, color: AppColors.primaryColor),
                 ),
                 //==============================> Edit Profile Button <=======================
                 Positioned(
-                  right: 0.w,
-                  bottom: 0.h,
+                  right: 5.w,
+                  bottom: 5.h,
                   child: InkWell(
                     onTap: () {
                       _showImagePickerOption();
@@ -79,47 +77,9 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                       ),
                       CustomTextField(
                         controller: _controller.userNameCTRL,
-                        hintText: AppStrings.userName.tr,
-                        prefixIcon: Padding(
-                          padding: EdgeInsets.symmetric(horizontal: 16.w),
-                          child: SvgPicture.asset(AppIcons.profile),
-                        ),
+                        hintText: AppStrings.enterUsername.tr,
                       ),
                       SizedBox(height: 16.h),
-                      /*//====================> Phone Number Text Field <================
-                      CustomText(
-                        text: AppStrings.phoneNumber.tr,
-                        fontSize: 16.sp,
-                        fontWeight: FontWeight.w500,
-                        bottom: 14.h,
-                      ),
-                      IntlPhoneField(
-                        decoration: InputDecoration(
-                          hintText: "Phone number",
-                          contentPadding:EdgeInsets.symmetric(horizontal: 12.h, vertical: 16.h),
-                          border: OutlineInputBorder(
-                            borderRadius: BorderRadius.all(Radius.circular(12.r)),
-                            borderSide: BorderSide(color: AppColors.borderColor),
-                          ),
-                          enabledBorder: OutlineInputBorder(
-                            borderRadius: BorderRadius.all(Radius.circular(12.r)),
-                            borderSide: BorderSide(color: AppColors.borderColor),
-                          ),
-                          focusedBorder: OutlineInputBorder(
-                            borderRadius: BorderRadius.all(Radius.circular(12.r)),
-                            borderSide: BorderSide(color: AppColors.borderColor, width: 1.w),
-                          ),
-                        ),
-                        showCountryFlag: true,
-                        initialCountryCode: 'US',
-                        flagsButtonMargin: EdgeInsets.only(left: 10.w),
-                        disableLengthCheck: true,
-                        dropdownIconPosition: IconPosition.trailing,
-                        onChanged: (phone) {
-                          print("Phone===============> ${phone.completeNumber}");
-                        },
-                      ),
-                      SizedBox(height: 16.h),*/
                       //========================> Address Text Field <==================
                       CustomText(
                         text: AppStrings.address.tr,
@@ -127,29 +87,45 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                         fontWeight: FontWeight.w500,
                         bottom: 14.h,
                       ),
-                  /*    CustomTextField(
-                        controller: _controller.addressCtrl,
+                      CustomTextField(
+                        controller: _controller.addressCTRL,
                         hintText: AppStrings.enterYourAddress.tr,
-                        prefixIcon: SvgPicture.asset(AppIcons.location),
-                      ),*/
+                      ),
+                      //========================> Phone Number Text Field <==================
+                      SizedBox(height: 16.h),
+                      CustomText(
+                        text: AppStrings.phoneNumber.tr,
+                        fontSize: 16.sp,
+                        fontWeight: FontWeight.w500,
+                        bottom: 14.h,
+                      ),
+                      CustomTextField(
+                        controller: _controller.phoneCTRL,
+                        hintText: AppStrings.enterPhoneNumber.tr,
+                      ),
                     ],
                   ),
                 ),
               ),
             ),
-            SizedBox(height: 22.h),
+            SizedBox(height: 122.h),
             //==============================> Update profile Button <=======================
             Padding(
-              padding:  EdgeInsets.symmetric(horizontal: 12.w),
-              child: CustomButton(onTap: (){}, text: AppStrings.updateProfile.tr),
+              padding: EdgeInsets.symmetric(horizontal: 12.w),
+              child: CustomButton(
+                onTap: () {
+                  Get.back();
+                },
+                text: AppStrings.updateProfile.tr,
+              ),
             ),
             SizedBox(height: 22.h),
-
           ],
         ),
       ),
     );
   }
+
   //====================================> Pick Image Gallery and Camera <====================
   void _showImagePickerOption() {
     showModalBottomSheet(
@@ -169,8 +145,11 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                   child: Column(
                     mainAxisSize: MainAxisSize.min,
                     children: [
-                      Icon(Icons.image,
-                          size: 50.w, color: AppColors.primaryColor),
+                      Icon(
+                        Icons.image,
+                        size: 50.w,
+                        color: AppColors.primaryColor,
+                      ),
                       SizedBox(height: 8.h),
                       CustomText(
                         text: 'Gallery',
@@ -191,8 +170,11 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                   child: Column(
                     mainAxisSize: MainAxisSize.min,
                     children: [
-                      Icon(Icons.camera_alt,
-                          size: 50.w, color: AppColors.primaryColor),
+                      Icon(
+                        Icons.camera_alt,
+                        size: 50.w,
+                        color: AppColors.primaryColor,
+                      ),
                       SizedBox(height: 8.h),
                       CustomText(
                         text: 'Camera',
@@ -203,7 +185,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                     ],
                   ),
                 ),
-              )
+              ),
             ],
           ),
         );

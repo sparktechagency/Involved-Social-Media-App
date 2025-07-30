@@ -19,6 +19,7 @@ class AppStrings {
   static String userName = 'User Name';
   static String enterUsername = 'Enter username';
   static String phoneNumber = 'Phone Number';
+  static String enterYourAddress = 'Enter your address';
   static String enterPhoneNumber = 'Enter phone number';
   static String byCreatingAnAccount = 'By creating an account, I accept the\n';
   static String termsConditions = 'Terms & Conditions';
