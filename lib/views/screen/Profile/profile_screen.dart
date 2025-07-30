@@ -248,7 +248,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     CustomButton(
                       width: 134.w,
                       onTap: () {
-                        Get.offAllNamed(AppStrings.signIn);
+                        Get.offAllNamed(AppRoutes.signInScreen);
                       },
                       text: AppStrings.yes.tr,
                     ),
