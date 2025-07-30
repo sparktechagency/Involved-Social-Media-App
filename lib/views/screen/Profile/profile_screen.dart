@@ -104,7 +104,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                 //===================> Explore Button <================
                                 CustomButton(
                                   onTap: () {
-                                   // Get.toNamed(AppRoutes.subscriptionScreen);
+                                   Get.toNamed(AppRoutes.subscriptionScreen);
                                   },
                                   text: 'Explore'.tr,
                                   fontSize: 10.sp,

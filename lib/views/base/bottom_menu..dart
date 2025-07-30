@@ -70,7 +70,7 @@ class BottomMenu extends StatelessWidget {
                   Get.offAndToNamed(AppRoutes.searchScreen);
                   break;
                 case 2:
-                  Get.offAndToNamed(AppRoutes.calenderScreen);
+                  Get.offAndToNamed(AppRoutes.eventScreen);
                   break;
                 case 3:
                   Get.offAndToNamed(AppRoutes.calenderScreen);

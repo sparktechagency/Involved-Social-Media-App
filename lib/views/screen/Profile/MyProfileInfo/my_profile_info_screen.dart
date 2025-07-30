@@ -40,7 +40,9 @@ class MyProfileInfoScreen extends StatelessWidget {
                 SizedBox(height: 12.h),
                 //=========================> Edit Profile Button <========================
                 CustomButton(
-                  onTap: () {},
+                  onTap: () {
+                    Get.toNamed(AppRoutes.editProfileScreen);
+                  },
                   width: 98.w,
                   height: 36.h,
                   text: AppStrings.editProfile.tr,
