@@ -102,6 +102,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
                 //========================> Sign Up Button <==================
                 CustomButton(
                   onTap: () {
+                    Get.toNamed(AppRoutes.otpScreen);
                   },
                   text: AppStrings.signUp.tr,
                 ),

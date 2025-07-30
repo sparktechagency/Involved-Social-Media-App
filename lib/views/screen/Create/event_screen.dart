@@ -130,6 +130,7 @@ class EventScreen extends StatelessWidget {
         onPressed: () {
           Get.toNamed(AppRoutes.createEventScreen);
         },
+        shape: const CircleBorder(),
         child: Icon(Icons.add, color: Colors.white),
       ),
     );

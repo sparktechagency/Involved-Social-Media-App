@@ -46,6 +46,7 @@ class _HomeScreenState extends State<HomeScreen>
         bottomNavigationBar: BottomMenu(0),
         appBar: AppBar(
           backgroundColor: Colors.white,
+            automaticallyImplyLeading: false,
           title: Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
