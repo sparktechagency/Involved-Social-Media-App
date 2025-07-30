@@ -14,6 +14,7 @@ import 'package:involved/views/screen/Profile/MyProfileInfo/my_plan_screen.dart'
 import 'package:involved/views/screen/Profile/MyProfileInfo/my_profile_info_screen.dart';
 import 'package:involved/views/screen/Search/search_screen.dart';
 import 'package:involved/views/screen/Splash/get_start_screen.dart';
+import 'package:involved/views/screen/Subscription/subscription_screen.dart';
 import 'package:involved/views/screen/TermsofServices/terms_services_screen.dart';
 import '../views/screen/Calender/calender_screen.dart';
 import '../views/screen/Home/home_screen.dart';
@@ -42,6 +43,7 @@ class AppRoutes{
   static String aboutUsScreen="/about_us_screen";
   static String termsServicesScreen="/terms_services_screen";
   static String notificationsScreen="/notifications_screen";
+  static String subscriptionScreen="/subscription_screen";
 
  static List<GetPage> page=[
     GetPage(name:splashScreen, page: ()=>const SplashScreen()),
@@ -64,5 +66,6 @@ class AppRoutes{
     GetPage(name:aboutUsScreen, page: ()=>const AboutUsScreen()),
     GetPage(name:termsServicesScreen, page: ()=>const TermsServicesScreen()),
     GetPage(name:notificationsScreen, page: ()=> NotificationsScreen()),
+    GetPage(name:subscriptionScreen, page: ()=> SubscriptionScreen()),
   ];
 }

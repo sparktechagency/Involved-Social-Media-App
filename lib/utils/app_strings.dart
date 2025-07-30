@@ -119,5 +119,5 @@ class AppStrings {
   static String vIPUsers = 'VIP Users';
   static String oneYear = '1 Year';
   static String businessUsers = 'Business Users';
-  static String playNow = 'Play now';
+  static String payNow = 'Pay now';
 }
