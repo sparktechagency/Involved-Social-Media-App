@@ -24,6 +24,8 @@ class AppStrings {
   static String byCreatingAnAccount = 'By creating an account, I accept the\n';
   static String termsConditions = 'Terms & Conditions';
   static String privacyPolicy = 'Privacy Policy';
+  static String enterEventName = 'Enter event name';
+  static String enterEventLocation = 'Enter event location';
   static String alreadyHaveAccount = 'Already have account?';
   static String signUpWithGoogle = 'Sign up with Google';
   //=============================> Forgot Password Screen <==============================
@@ -84,6 +86,7 @@ class AppStrings {
   static String createNewEvent = 'Create New Event';
   static String eventTitle = 'Event Title';
   static String eventLocation = 'Event Location';
+  static String tapToSelect = 'Tap to select';
   static String category = 'Category';
   static String occurrenceType = 'Occurrence Type';
   static String uploadImage = 'Upload image';
