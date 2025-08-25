@@ -14,5 +14,6 @@ class AppImages{
   static String roundLogo ="$baseUrl/roundLogo.png";
   static String googleLogo ="$baseUrl/googleLogo.png";
   static String filter ="$baseUrl/filter.png";
+  static String logos ="$baseUrl/logos.png";
 
 }
