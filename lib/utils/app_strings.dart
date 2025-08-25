@@ -70,7 +70,7 @@ class AppStrings {
   static String noResultFound = 'No Result Found!';
   static String filters = 'Filters';
   static String location = 'Location';
-  static String eventCategories = 'Event Calender';
+  static String eventCategories = 'Event Category';
   static String eventDate = 'Event Date';
   static String selectDate = 'Select a Date';
   static String distance = 'Distance';
@@ -85,6 +85,8 @@ class AppStrings {
   static String createEvent = 'Create Event';
   static String createNewEvent = 'Create New Event';
   static String eventTitle = 'Event Title';
+  static String eventType = 'Event Type';
+  static String giveawayGiftCard = 'Giveaway Gift Card';
   static String eventLocation = 'Event Location';
   static String tapToSelect = 'Tap to select';
   static String category = 'Category';
