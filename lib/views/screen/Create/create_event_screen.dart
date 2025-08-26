@@ -24,17 +24,23 @@ class CreateEventScreen extends StatefulWidget {
 class _CreateEventScreenState extends State<CreateEventScreen> {
   final ProfileController _controller = Get.put(ProfileController());
   final TextEditingController titleCTRL = TextEditingController();
-  final TextEditingController typeCTRL = TextEditingController();
   final TextEditingController locationCTRL = TextEditingController();
-  final TextEditingController giftCardCTRL = TextEditingController();
   final TextEditingController eventDateCTRL = TextEditingController();
   final TextEditingController eventTimeCTRL = TextEditingController();
-  final TextEditingController categoryCTRL = TextEditingController();
   final TextEditingController descriptionCTRL = TextEditingController();
-  List<String> atmosphereOptions = [
-    'Romantic', 'Casual', 'Sexy', 'Chill', 'Active', 'Party',
-    'Outdoors', 'Sophisticated', 'Bohemian', 'Professional'
-  ];
+
+  String? _selectedEventType;
+  String? _selectedGiveawayGiftCard;
+  String? _selectedEventCategory;
+  String? _selectedOccurrenceType;
+
+  List<String> eventTypes = ['Giveaway', 'Music', 'Experience', 'Night Life', 'Fitness', 'Art and Culture'];
+  List<String> giveawayGiftCards = ['\$25 Gift Card', '\$50 Gift Card', '\$100 Gift Card'];
+  List<String> eventCategories = ['Beach Club', 'Bingo', 'Book Club', 'Brunch', 'Charity'];
+  List<String> occurrenceTypes = ['One Time Event', 'Weekly Event', 'Monthly Event'];
+  List<String> atmosphereOptions =
+  ['Romantic', 'Casual', 'Sexy', 'Chill', 'Active', 'Party', 'Outdoors',
+    'Sophisticated', 'Bohemian', 'Professional'];
 
   Map<String, bool> selectedAtmospheres = {};
 
@@ -91,8 +97,9 @@ class _CreateEventScreenState extends State<CreateEventScreen> {
                     ),
                   ),
                   SizedBox(height: 16.h),
-                  //=======================> Event Type Text Field <===================
+                  //=======================> Event Type Dropdown Button <===================
                   Container(
+                    width: double.infinity,
                     decoration: BoxDecoration(
                         color: Colors.white,
                         borderRadius: BorderRadius.circular(8.r),
@@ -110,18 +117,40 @@ class _CreateEventScreenState extends State<CreateEventScreen> {
                             fontWeight: FontWeight.w700,
                             color: AppColors.primaryColor,
                           ),
-                          CustomTextField(
-                            controller: typeCTRL,
-                            borderColor: Colors.white,
-                            suffixIcon: SvgPicture.asset(AppIcons.rightArrow),
-                            hintText: 'Select Event Type'.tr,
+                          DropdownButton<String>(
+                            isExpanded: true,
+                            dropdownColor: Colors.white,
+                            value: _selectedEventType,
+                            hint:  CustomText(
+                              left: 10.w,
+                              text: 'Select Event Type'.tr,
+                              color: Colors.black,
+                            ),
+                            icon: SvgPicture.asset(AppIcons.rightArrow),
+                            onChanged: (String? newValue) {
+                              setState(() {
+                                _selectedEventType = newValue;
+                              });
+                            },
+                            underline: SizedBox(),
+                            items: eventTypes.map<DropdownMenuItem<String>>((String value) {
+                              return DropdownMenuItem<String>(
+                                value: value,
+                                child:CustomText(
+                                  left: 10.w,
+                                  text: value,
+                                  color: Colors.black,
+                                ),
+                              );
+                            }).toList(),
                           ),
+
                         ],
                       ),
                     ),
                   ),
                   SizedBox(height: 16.h),
-                  //=======================> Giveaway Gift Card Text Field <===================
+                  //=======================> Giveaway Gift Card Dropdown Button <===================
                   Container(
                     decoration: BoxDecoration(
                         color: Colors.white,
@@ -140,18 +169,39 @@ class _CreateEventScreenState extends State<CreateEventScreen> {
                             fontWeight: FontWeight.w700,
                             color: AppColors.primaryColor,
                           ),
-                          CustomTextField(
-                            controller: giftCardCTRL,
-                            borderColor: Colors.white,
-                            suffixIcon: SvgPicture.asset(AppIcons.rightArrow),
-                            hintText: 'Select Gift Card'.tr,
+                          DropdownButton<String>(
+                            isExpanded: true,
+                            dropdownColor: Colors.white,
+                            value: _selectedGiveawayGiftCard,
+                            hint:  CustomText(
+                              left: 10.w,
+                              text: 'Select Gift Card'.tr,
+                              color: Colors.black,
+                            ),
+                            icon: SvgPicture.asset(AppIcons.rightArrow),
+                            onChanged: (String? newValue) {
+                              setState(() {
+                                _selectedGiveawayGiftCard = newValue;
+                              });
+                            },
+                            underline: SizedBox(),
+                            items: giveawayGiftCards.map<DropdownMenuItem<String>>((String value) {
+                              return DropdownMenuItem<String>(
+                                value: value,
+                                child:CustomText(
+                                  left: 10.w,
+                                  text: value,
+                                  color: Colors.black,
+                                ),
+                              );
+                            }).toList(),
                           ),
                         ],
                       ),
                     ),
                   ),
                   SizedBox(height: 16.h),
-                  //=======================> Event Category Text Field <===================
+                  //=======================> Event Category Dropdown Button <===================
                   Container(
                     decoration: BoxDecoration(
                         color: Colors.white,
@@ -170,11 +220,32 @@ class _CreateEventScreenState extends State<CreateEventScreen> {
                             fontWeight: FontWeight.w700,
                             color: AppColors.primaryColor,
                           ),
-                          CustomTextField(
-                            controller: categoryCTRL,
-                            borderColor: Colors.white,
-                            suffixIcon: SvgPicture.asset(AppIcons.rightArrow),
-                            hintText: 'Select Category'.tr,
+                          DropdownButton<String>(
+                            isExpanded: true,
+                            dropdownColor: Colors.white,
+                            value: _selectedEventCategory,
+                            hint:  CustomText(
+                              left: 10.w,
+                              text: 'Select Category'.tr,
+                              color: Colors.black,
+                            ),
+                            icon: SvgPicture.asset(AppIcons.rightArrow),
+                            onChanged: (String? newValue) {
+                              setState(() {
+                                _selectedEventCategory = newValue;
+                              });
+                            },
+                            underline: SizedBox(),
+                            items: eventCategories.map<DropdownMenuItem<String>>((String value) {
+                              return DropdownMenuItem<String>(
+                                value: value,
+                                child:CustomText(
+                                  left: 10.w,
+                                  text: value,
+                                  color: Colors.black,
+                                ),
+                              );
+                            }).toList(),
                           ),
                         ],
                       ),
@@ -212,13 +283,23 @@ class _CreateEventScreenState extends State<CreateEventScreen> {
                   SizedBox(height: 16.h),
                   //=======================> Event Date Text Field <===================
                   CustomTextField(
+                    onTap: (){
+                      pickBirthDate(context);
+                    },
+                    readOnly: true,
                     controller: eventDateCTRL,
+                    suffixIcon: SvgPicture.asset(AppIcons.calender, color: AppColors.primaryColor),
                     hintText: AppStrings.eventDate.tr,
                   ),
                   SizedBox(height: 16.h),
                   //=======================> Event Time Text Field <===================
                   CustomTextField(
+                    onTap: (){
+                      selectTime(context);
+                    },
+                    readOnly: true,
                     controller: eventTimeCTRL,
+                    suffixIcon: SvgPicture.asset(AppIcons.clock, color: AppColors.primaryColor),
                     hintText: AppStrings.eventTime.tr,
                   ),
                   SizedBox(height: 16.h),
@@ -254,7 +335,6 @@ class _CreateEventScreenState extends State<CreateEventScreen> {
                       },
                     ),
                   ),
-
                   SizedBox(height: 16.h),
                   //=======================> Event Description Text Field <===================
                   Container(
@@ -305,18 +385,40 @@ class _CreateEventScreenState extends State<CreateEventScreen> {
                             fontWeight: FontWeight.w700,
                             color: AppColors.primaryColor,
                           ),
-                          CustomTextField(
-                            controller: giftCardCTRL,
-                            borderColor: Colors.white,
-                            suffixIcon: SvgPicture.asset(AppIcons.rightArrow),
-                            hintText: 'Select Occurrence Type'.tr,
+                          DropdownButton<String>(
+                            isExpanded: true,
+                            dropdownColor: Colors.white,
+                            value: _selectedOccurrenceType,
+                            hint:  CustomText(
+                              left: 10.w,
+                              text: 'Select Occurrence Type'.tr,
+                              color: Colors.black,
+                            ),
+                            icon: SvgPicture.asset(AppIcons.rightArrow),
+                            onChanged: (String? newValue) {
+                              setState(() {
+                                _selectedOccurrenceType = newValue;
+                              });
+                            },
+                            underline: SizedBox(),
+                            items: occurrenceTypes.map<DropdownMenuItem<String>>((String value) {
+                              return DropdownMenuItem<String>(
+                                value: value,
+                                child:CustomText(
+                                  left: 10.w,
+                                  text: value,
+                                  color: Colors.black,
+                                ),
+                              );
+                            }).toList(),
                           ),
+
+
                         ],
                       ),
                     ),
                   ),
                   SizedBox(height: 16.h),
-
                   //==============================> Event picture section <=======================
                   Card(
                     color: Colors.white,
@@ -381,6 +483,60 @@ class _CreateEventScreenState extends State<CreateEventScreen> {
         ),
       ),
     );
+  }
+
+  //==========================> Show Calender Function <=======================
+  Future<void> pickBirthDate(BuildContext context) async {
+    final DateTime? pickedDate = await showDatePicker(
+      context: context,
+      initialDate: DateTime.now(),
+      firstDate: DateTime(1900),
+      lastDate: DateTime(3050),
+      builder: (BuildContext context, Widget? child) {
+        return Theme(
+          data: ThemeData.light().copyWith(
+            dialogBackgroundColor: Colors.white,
+            colorScheme: ColorScheme.light(
+              primary: AppColors.primaryColor,
+              onSurface: Colors.black, // Text color
+            ),
+          ),
+          child: child!,
+        );
+      },
+    );
+    if (pickedDate != null) {
+      eventDateCTRL.text =
+      "${pickedDate.month}-${pickedDate.day}-${pickedDate.year}";
+    }
+  }
+  //==========================> Show Clock Function <=======================
+  Future<void> selectTime(BuildContext context) async {
+    final TimeOfDay? pickedTime = await showTimePicker(
+      context: context,
+      initialTime: TimeOfDay.now(),
+      builder: (BuildContext context, Widget? child) {
+        return Theme(
+          data: ThemeData.light().copyWith(
+            dialogBackgroundColor: Colors.white,
+            colorScheme: ColorScheme.light(
+              primary: AppColors.primaryColor,
+              onSurface: Colors.black, // Text color
+            ),
+          ),
+          child: child!,
+        );
+      },
+    );
+
+    if (pickedTime != null) {
+      setState(() {
+        final hours = pickedTime.hour % 12 == 0 ? 12 : pickedTime.hour % 12;
+        final minutes = pickedTime.minute.toString().padLeft(2, '0');
+        final period = pickedTime.period == DayPeriod.am ? 'AM' : 'PM';
+        eventTimeCTRL.text = "${hours.toString().padLeft(2, '0')}:$minutes $period";
+      });
+    }
   }
 
   //====================================> Pick Image Gallery and Camera <====================
