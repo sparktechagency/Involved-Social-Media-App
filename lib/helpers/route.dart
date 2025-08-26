@@ -7,6 +7,7 @@ import 'package:involved/views/screen/Auth/sign_up_screen.dart';
 import 'package:involved/views/screen/Auth/forgot_password_screen.dart';
 import 'package:involved/views/screen/Auth/otp_screen.dart';
 import 'package:involved/views/screen/Create/create_event_screen.dart';
+import 'package:involved/views/screen/Create/event_details_screen.dart';
 import 'package:involved/views/screen/Create/event_screen.dart';
 import 'package:involved/views/screen/MyFavoriteEvent/my_favorite_event_screen.dart';
 import 'package:involved/views/screen/Notifications/notifications_screen.dart';
@@ -48,6 +49,7 @@ class AppRoutes{
   static String termsServicesScreen="/terms_services_screen";
   static String notificationsScreen="/notifications_screen";
   static String subscriptionScreen="/subscription_screen";
+  static String eventDetailsScreen="/event_details_screen";
 
  static List<GetPage> page=[
     GetPage(name:splashScreen, page: ()=>const SplashScreen()),
@@ -73,5 +75,6 @@ class AppRoutes{
     GetPage(name:termsServicesScreen, page: ()=>const TermsServicesScreen()),
     GetPage(name:notificationsScreen, page: ()=> NotificationsScreen()),
     GetPage(name:subscriptionScreen, page: ()=> SubscriptionScreen()),
+    GetPage(name:eventDetailsScreen, page: ()=> EventDetailsScreen()),
   ];
 }
