@@ -571,13 +571,13 @@ class _NessaryFuncationsState extends State<NessaryFuncations> {
       initialTime: TimeOfDay.now(),
       builder: (BuildContext context, Widget? child) {
         return Theme(
-          data: Theme.of(context).copyWith(
-              colorScheme: ColorScheme.light(
-                primary: AppColors.primaryColor,
-                onPrimary: Colors.white,
-                onSurface: Colors.black,
-              ),
-              dialogBackgroundColor: AppColors.whiteColor),
+          data: ThemeData.light().copyWith(
+            dialogBackgroundColor: Colors.white,
+            colorScheme: ColorScheme.light(
+              primary: AppColors.primaryColor,
+              onSurface: Colors.black, // Text color
+            ),
+          ),
           child: child!,
         );
       },

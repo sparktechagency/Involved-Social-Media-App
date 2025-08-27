@@ -9,6 +9,7 @@ class AppStrings {
   static String email = 'Email';
   static String enterEmail = 'Enter Email';
   static String password = 'Password';
+  static String eventDetails = 'Event Details';
   static String enterPassword = 'Enter password';
   static String forgotPasswords = 'Forgot Password?';
   static String signIn = 'Sign In';

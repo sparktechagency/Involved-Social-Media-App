@@ -38,17 +38,18 @@ class EventScreen extends StatelessWidget {
                 itemBuilder: (context, index) {
                   return InkWell(
                     onTap: () {
-                      showEventDetailsDialog(
+                      /*showEventDetailsDialog(
                         context: context,
                         imageUrl:
-                            'https://images.unsplash.com/photo-1546069901-ba9599a7e63c',
+                        'https://images.unsplash.com/photo-1546069901-ba9599a7e63c',
                         title: 'Pasta Making Class',
                         location: 'Dhaka Bangladesh',
                         dateTime: '18/06/25 08:30PM',
                         venue: 'Rampura Town Hall Dhaka Bangladesh',
                         description:
-                            "The event is live as soon as it's posted. You can explore various categories and locations, or search by specific names, dates, and more. Whether you're attending a business launch, a community fundraiser, or an influencer meet-up, our platform",
-                      );
+                        "The event is live as soon as it's posted. You can explore various categories and locations, or search by specific names, dates, and more. Whether you're attending a business launch, a community fundraiser, or an influencer meet-up, our platform",
+                      );*/
+                     Get.toNamed(AppRoutes.eventDetailsScreen);
                     },
                     child: Card(
                       color: Colors.white,
