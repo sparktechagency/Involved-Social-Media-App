@@ -33,5 +33,6 @@ class AppIcons{
   static String logout ="$baseUrl/logout.svg";
   static String about ="$baseUrl/about.svg";
   static String sub ="$baseUrl/sub.svg";
+  static String location ="$baseUrl/location.svg";
 
 }
