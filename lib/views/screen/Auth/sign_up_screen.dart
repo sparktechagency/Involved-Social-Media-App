@@ -46,7 +46,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
                   },
                   child: Icon(Icons.arrow_back_ios_new_outlined),
                 ),
-                SizedBox(height: 48.h),
+                SizedBox(height: 24.h),
                 Align(
                   alignment: Alignment.topLeft,
                   child: Image.asset(
@@ -62,7 +62,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
                   fontWeight: FontWeight.w700,
                   bottom: 8.h,
                 ),
-                CustomText(text: AppStrings.welcomeBack.tr, bottom: 16.h),
+                CustomText(text: AppStrings.welcomeBack.tr, bottom: 32.h),
                 //=======================> User Name Text Field <=================
                 CustomTextField(
                   controller: userNameCTRL,

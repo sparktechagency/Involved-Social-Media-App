@@ -39,11 +39,10 @@ class SignInScreen extends StatelessWidget {
                 SizedBox(height: 24.h),
                 CustomText(
                   text: AppStrings.signInToYourAccount.tr,
-                  fontSize: 22.sp,
+                  fontSize: 24.sp,
                   fontWeight: FontWeight.w700,
-                  bottom: 8.h,
+                  bottom: 32.h,
                 ),
-                CustomText(text: AppStrings.welcomeBack.tr, bottom: 32.h),
                 //=======================> Email Text Field <=================
                 CustomTextField(
                   controller: emailCTRL,
@@ -71,8 +70,8 @@ class SignInScreen extends StatelessWidget {
                     child: CustomText(
                       text: AppStrings.forgotPasswords.tr,
                       fontWeight: FontWeight.w500,
-                      bottom: 32.h,
                       textDecoration: TextDecoration.underline,
+                      bottom: 32.h
                     ),
                   ),
                 ),

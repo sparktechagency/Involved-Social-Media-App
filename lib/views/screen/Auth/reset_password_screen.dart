@@ -126,15 +126,13 @@ class ResetPasswordScreen extends StatelessWidget {
                   fontSize: 18.sp,
                 ),
                 SizedBox(height: 24.h),
-                CustomText(text: AppStrings.returnToTheLogin.tr, maxLine: 5),
-                SizedBox(height: 24.h),
                 CustomButton(
                   onTap: () {
                     Get.toNamed(AppRoutes.signInScreen);
                   },
                   text: AppStrings.backToSignIn.tr,
                 ),
-                SizedBox(height: 32.h),
+                SizedBox(height: 72.h),
               ],
             ),
           ),
