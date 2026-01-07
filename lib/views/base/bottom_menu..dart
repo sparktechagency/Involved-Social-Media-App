@@ -2,47 +2,43 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:get/get.dart';
+import 'package:involved/views/base/custom_network_image.dart';
 import '../../helpers/route.dart';
 import '../../utils/app_colors.dart';
 import '../../utils/app_icons.dart';
 
 class BottomMenu extends StatelessWidget {
   final int menuIndex;
-  const BottomMenu(this.menuIndex, {super.key});
+  final String? profileImageUrl;
+  const BottomMenu(this.menuIndex, {this.profileImageUrl, super.key});
 
   @override
   Widget build(BuildContext context) {
     final items = [
       {
         "icon": AppIcons.homeOut ?? 'assets/icons/default_home.svg',
-        "activeIcon": AppIcons.homeOut ?? 'assets/icons/default_home.svg',
         "route": AppRoutes.homeScreen,
       },
       {
         "icon": AppIcons.search ?? 'assets/icons/default_search.svg',
-        "activeIcon": AppIcons.search ?? 'assets/icons/default_search.svg',
         "route": AppRoutes.searchScreen,
       },
       {
         "icon": AppIcons.addFill ?? 'assets/icons/default_add.svg',
-        "activeIcon": AppIcons.addFill ?? 'assets/icons/default_add.svg',
         "route": AppRoutes.eventScreen,
       },
       {
         "icon": AppIcons.calender ?? 'assets/icons/default_calendar.svg',
-        "activeIcon": AppIcons.calender ?? 'assets/icons/default_calendar.svg',
         "route": AppRoutes.calenderScreen,
       },
       {
-        "icon": AppIcons.profileOutline ?? 'assets/icons/default_profile.svg',
-        "activeIcon": AppIcons.profileOutline ?? 'assets/icons/default_profile.svg',
         "route": AppRoutes.profileScreen,
       },
     ];
 
     return Container(
-      padding: EdgeInsets.symmetric(horizontal: 24.w, vertical: 24.h),
-      margin: EdgeInsets.only(left: 20.w, right: 20.w, bottom: 48.h),
+      padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 18.h),
+      margin: EdgeInsets.only(left: 20.w, right: 20.w, bottom: 58.h),
       decoration: BoxDecoration(
         color: AppColors.whiteColor,
         borderRadius: BorderRadius.circular(24.r),
@@ -53,30 +49,41 @@ class BottomMenu extends StatelessWidget {
         children: List.generate(items.length, (index) {
           final isSelected = index == menuIndex;
           final item = items[index];
+          final isProfileRoute = item["route"] == AppRoutes.profileScreen;
+
           return GestureDetector(
             onTap: () => Get.offAndToNamed(item["route"] as String),
             child: Column(
               mainAxisSize: MainAxisSize.min,
               mainAxisAlignment: MainAxisAlignment.center,
-              crossAxisAlignment: CrossAxisAlignment.center,
               children: [
-                SvgPicture.asset(
-                  isSelected ? item["activeIcon"]! : item["icon"]!,
-                  height: 24.h,
-                  width: 24.w,
-                  color: AppColors.primaryColor,
-                ),
-                SizedBox(height: 8.h),
-                isSelected ?
-                Container(
-                  height: 3.h,
-                  width: 32.w,
-                  decoration: BoxDecoration(
-                    color: isSelected ? AppColors.primaryColor : Colors.transparent,
-                    borderRadius: BorderRadius.circular(1.r),
+                if (isProfileRoute)
+                  CustomNetworkImage(
+                    imageUrl: profileImageUrl ?? 'https://images.rawpixel.com/image_800/czNmcy1wcml2YXRlL3Jhd3BpeGVsX2ltYWdlcy93ZWJzaXRlX2NvbnRlbnQvbHIvcm0zMjgtMzY2LXRvbmctMDhfMS5qcGc.jpg',
+                    boxShape: BoxShape.circle,
+                    border: Border.all(width: 1.w, color: AppColors.primaryColor),
+                    height: 28.h,
+                    width: 28.h,
+                  )
+                else
+                  SvgPicture.asset(
+                    item["icon"]!,
+                    height: 28.h,
+                    width: 28.w,
+                    color: AppColors.primaryColor,
                   ),
-                ): SizedBox(),
-
+                SizedBox(height: 8.h),
+                if (isSelected)
+                  Container(
+                    height: 3.h,
+                    width: 32.w,
+                    decoration: BoxDecoration(
+                      color: AppColors.primaryColor,
+                      borderRadius: BorderRadius.circular(1.r),
+                    ),
+                  )
+                else
+                  SizedBox(),
               ],
             ),
           );
