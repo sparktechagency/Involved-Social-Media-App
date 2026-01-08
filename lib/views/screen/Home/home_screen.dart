@@ -25,7 +25,7 @@ class _HomeScreenState extends State<HomeScreen>
   @override
   void initState() {
     super.initState();
-    _tabController = TabController(length: 5, vsync: this);
+    _tabController = TabController(length: 6, vsync: this);
     _tabController.addListener(() {
       setState(() {});
     });
@@ -41,7 +41,7 @@ class _HomeScreenState extends State<HomeScreen>
   @override
   Widget build(BuildContext context) {
     return DefaultTabController(
-      length: 5,
+      length: 6,
       child: Scaffold(
         bottomNavigationBar: BottomMenu(0),
         appBar: AppBar(
@@ -70,75 +70,47 @@ class _HomeScreenState extends State<HomeScreen>
             tabs: [
               //========================> All Tab <====================
               Tab(
-                child: Container(
-                  decoration: BoxDecoration(
-                    color: _tabController.index == 0
-                        ? const Color(0xFFebf9ff)
-                        : Colors.transparent,
-                  ),
-                  child: Align(
-                    alignment: Alignment.center,
-                    child: CustomText(text: AppStrings.all.tr, fontSize: 12.sp),
+                child: Align(
+                  alignment: Alignment.center,
+                  child: CustomText(text: AppStrings.all.tr, fontSize: 12.sp),
+                ),
+              ),
+              //========================> Reading Tab <====================
+              Tab(
+                child: Align(
+                  alignment: Alignment.center,
+                  child: CustomText(text: 'Reading'.tr, fontSize: 12.sp),
+                ),
+              ),
+              //========================> Music Tab <====================
+              Tab(
+                child: Align(
+                  alignment: Alignment.center,
+                  child: CustomText(
+                    text: 'Music'.tr,
+                    fontSize: 12.sp,
                   ),
                 ),
               ),
-              //========================> Dining Tab <====================
+              //========================> Cooking Tab <====================
               Tab(
-                child: Container(
-                  decoration: BoxDecoration(
-                    color: _tabController.index == 1
-                        ? const Color(0xFFebf9ff)
-                        : Colors.transparent,
-                  ),
-                  child: Align(
-                    alignment: Alignment.center,
-                    child: CustomText(text: AppStrings.dining.tr, fontSize: 12.sp),
-                  ),
+                child: Align(
+                  alignment: Alignment.center,
+                  child: CustomText(text: 'Cooking'.tr, fontSize: 12.sp),
                 ),
               ),
-              //========================> Entertainment Tab <====================
+              //========================> Special Events Tab <====================
               Tab(
-                child: Container(
-                  decoration: BoxDecoration(
-                    color: _tabController.index == 2
-                        ? const Color(0xFFebf9ff)
-                        : Colors.transparent,
-                  ),
-                  child: Align(
-                    alignment: Alignment.center,
-                    child: CustomText(
-                      text: AppStrings.entertainment.tr,
-                      fontSize: 12.sp,
-                    ),
-                  ),
+                child: Align(
+                  alignment: Alignment.center,
+                  child: CustomText(text: 'Special Events'.tr, fontSize: 12.sp),
                 ),
               ),
-              //========================> Activities Tab <====================
+              //========================> Pets Tab <====================
               Tab(
-                child: Container(
-                  decoration: BoxDecoration(
-                    color: _tabController.index == 3
-                        ? const Color(0xFFebf9ff)
-                        : Colors.transparent,
-                  ),
-                  child: Align(
-                    alignment: Alignment.center,
-                    child: CustomText(text: AppStrings.activities.tr, fontSize: 12.sp),
-                  ),
-                ),
-              ),
-              //========================> Map Tab <====================
-              Tab(
-                child: Container(
-                  decoration: BoxDecoration(
-                    color: _tabController.index == 4
-                        ? const Color(0xFFebf9ff)
-                        : Colors.transparent,
-                  ),
-                  child: Align(
-                    alignment: Alignment.center,
-                    child: CustomText(text: AppStrings.map.tr, fontSize: 12.sp),
-                  ),
+                child: Align(
+                  alignment: Alignment.center,
+                  child: CustomText(text: 'Pets'.tr, fontSize: 12.sp),
                 ),
               ),
             ],
@@ -146,6 +118,7 @@ class _HomeScreenState extends State<HomeScreen>
           body:TabBarView(
             controller: _tabController,
             children:  [
+              AllTab(),
               AllTab(),
               AllTab(),
               AllTab(),

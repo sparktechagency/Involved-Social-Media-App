@@ -38,7 +38,7 @@ class BottomMenu extends StatelessWidget {
 
     return Container(
       padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 18.h),
-      margin: EdgeInsets.only(left: 20.w, right: 20.w, bottom: 58.h),
+      margin: EdgeInsets.only(left: 20.w, right: 20.w, bottom: 32.h),
       decoration: BoxDecoration(
         color: AppColors.whiteColor,
         borderRadius: BorderRadius.circular(24.r),
