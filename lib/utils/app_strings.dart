@@ -1,10 +1,8 @@
 class AppStrings {
   //=============================> Onboarding Screen <==============================
   static String getStarted = 'Get Started';
-  static String allYourEventDetails = 'All Your Event Details, Effortlessly Organized!';
-  static String easilyManageEvery = 'Easily manage every detail of your event, from planning to execution, all in one place!';
   //=============================> Sign in Screen <==============================
-  static String signInToYourAccount = 'Sign In To Your Account';
+  static String signInToYourAccount = 'Sign in to your account';
   static String welcomeBack = 'Welcome Back! Please enter your details.';
   static String email = 'Email';
   static String enterEmail = 'Enter Email';
@@ -16,7 +14,7 @@ class AppStrings {
   static String donotHaveAnAccount = 'Don’t have an account?';
   //=============================> Sign Up Screen <==============================
   static String signUp = 'Sign Up';
-  static String signUpWithEmail = 'Sign Up With Email';
+  static String signUpWithEmail = 'Sign up with email';
   static String userName = 'User Name';
   static String enterUsername = 'Enter username';
   static String phoneNumber = 'Phone Number';
@@ -30,7 +28,7 @@ class AppStrings {
   static String alreadyHaveAccount = 'Already have account?';
   static String signUpWithGoogle = 'Sign up with Google';
   //=============================> Forgot Password Screen <==============================
-  static String forgotPassword = 'Forgot Password';
+  static String forgotPassword = 'Forgot password';
   static String pleaseEnterYourEmail = 'Please enter your email to reset password.';
   static String sendOTP = 'Send OTP';
   //=============================> OTP Screen <==============================
@@ -44,8 +42,7 @@ class AppStrings {
   static String enterANewPassword = 'Enter a new password';
   static String confirmPassword = 'Confirm password';
   static String save = 'Save';
-  static String passwordUpdateSuccessfully = 'Password Update Successfully';
-  static String returnToTheLogin = 'Return to the login page to enter your account with your new password.';
+  static String passwordUpdateSuccessfully = 'Password update successfully';
   static String backToSignIn = 'Back to Sign In';
   static String skip = 'Skip';
   static String createUsername = 'Create Username';
