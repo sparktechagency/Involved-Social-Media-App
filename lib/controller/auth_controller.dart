@@ -1,4 +1,3 @@
-/*
 import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
@@ -25,13 +24,11 @@ class AuthController extends GetxController {
 
   handleSignUp() async {
     signUpLoading(true);
-    var userRole = await PrefsHelper.getString(AppConstants.userRole);
     Map<String, dynamic> body = {
       "name": nameCtrl.text.trim(),
       "email": emailCtrl.text.trim(),
       "password": passwordCtrl.text,
       "division": selectDivision.value,
-      "role": userRole,
       "fcmToken": "fcmToken..",
 
     };
@@ -61,7 +58,7 @@ class AuthController extends GetxController {
   }
 
   //======================> Select Country and Birth Day <======================
-  final TextEditingController countryCTRL = TextEditingController();
+ /* final TextEditingController countryCTRL = TextEditingController();
   final TextEditingController birthDayCTRL = TextEditingController();
   var selectCountryLoading = false.obs;
 
@@ -84,7 +81,7 @@ class AuthController extends GetxController {
 
     selectCountryLoading(false);
     update();
-  }
+  }*/
 
   //==================================> Log In <================================
   TextEditingController signInEmailCtrl = TextEditingController();
@@ -99,7 +96,7 @@ class AuthController extends GetxController {
       "fcmToken": "fcmToken..",
     };
     Response response = await ApiClient.postData(
-        ApiConstants.logInEndPoint, json.encode(body),
+        ApiConstants.signInEndPoint, json.encode(body),
         headers: headers);
     print("====> ${response.body}");
     if (response.statusCode == 200) {
@@ -107,22 +104,8 @@ class AuthController extends GetxController {
           response.body['data']['attributes']['tokens']['access']['token']);
       await PrefsHelper.setString(
           AppConstants.id, response.body['data']['attributes']['user']['id']);
-      String userRole = response.body['data']['attributes']['user']['role'];
-      await PrefsHelper.setString(AppConstants.userRole, userRole);
       await PrefsHelper.setBool(AppConstants.isLogged, true);
-      if (userRole == UserRole.player.name) {
-        Get.offAllNamed(AppRoutes.playerHomeScreen);
-        await PrefsHelper.setBool(AppConstants.isLogged, true);
-      } else if (userRole == UserRole.trainer.name) {
-        Get.offAllNamed(AppRoutes.trainerHomeScreen);
-        await PrefsHelper.setBool(AppConstants.isLogged, true);
-      } else if (userRole == UserRole.agency.name) {
-        Get.offAllNamed(AppRoutes.agencyHomeScreen);
-        await PrefsHelper.setBool(AppConstants.isLogged, true);
-      } else if (userRole == UserRole.club.name) {
-        Get.offAllNamed(AppRoutes.clubHomeScreen);
-        await PrefsHelper.setBool(AppConstants.isLogged, true);
-      }
+        Get.offAllNamed(AppRoutes.homeScreen);
       signInEmailCtrl.clear();
       signInPassCtrl.clear();
       signInLoading(false);
@@ -173,18 +156,16 @@ class AuthController extends GetxController {
       if (response.statusCode == 200) {
         print(
             'token>>>>${response.body["data"]['attributes']['tokens']['access']['token']}');
-        await PrefsHelper.setString(AppConstants.userRole,
-            response.body["data"]['attributes']['user']['role']);
         await PrefsHelper.setString(AppConstants.bearerToken,
             response.body["data"]['attributes']['tokens']['access']['token']);
         var role = response.body["data"]['attributes']['user']['role'];
         print("===> role : $role");
         otpCtrl.clear();
         if (type == "forgetPasswordScreen") {
-          Get.toNamed(AppRoutes.setNewPasswordScreen,
+          Get.toNamed(AppRoutes.resetPasswordScreen,
               parameters: {"email": email});
         } else {
-          Get.toNamed(AppRoutes.selectCountryScreen);
+          Get.toNamed(AppRoutes.signInScreen);
         }
       } else {
         ApiChecker.checkApi(response);
@@ -288,7 +269,7 @@ class AuthController extends GetxController {
 }
 
   //======================> Google login Info <============================
-  final FirebaseAuth _auth = FirebaseAuth.instance;
+ /* final FirebaseAuth _auth = FirebaseAuth.instance;
   final GoogleSignIn googleSignIn = GoogleSignIn();
   handleGoogleSignIn(BuildContext context) async {
     await _auth.signOut();
@@ -342,39 +323,5 @@ class AuthController extends GetxController {
     } else {
       print("Sign in with Google canceled by user.");
     }
-  }
+  }*/
 
-  //======================> Facebook login Info <============================
-  handleFacebookSignIn(String email,String userRole) async {
-    var fcmToken = await PrefsHelper.getString(AppConstants.fcmToken);
-
-    Map<String, dynamic> body = {
-      "email": email,
-      "fcmToken": fcmToken ?? "",
-       "role": userRole,
-      "loginType": 3
-    };
-
-    var headers = {'Content-Type': 'application/json'};
-    Response response = await ApiClient.postData(
-      ApiConstants.logInEndPoint,
-      jsonEncode(body),
-      headers: headers,
-    );
-
-    if (response.statusCode == 200) {
-      await PrefsHelper.setString(AppConstants.bearerToken, response.body['data']['attributes']['tokens']['access']['token']);
-      await PrefsHelper.setString(AppConstants.userId, response.body['data']['attributes']['user']['id']);
-      await PrefsHelper.setBool(AppConstants.isLogged, true);
-      Get.offAllNamed(AppRoutes.homeScreen);
-      await PrefsHelper.setBool(AppConstants.isLogged, true);
-      update();
-    } else {
-      ApiChecker.checkApi(response);
-      update();
-    }
-  }
-
-
-
-*/
