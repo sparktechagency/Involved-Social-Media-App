@@ -41,6 +41,7 @@ class _SearchScreenState extends State<SearchScreen> {
         padding: EdgeInsets.symmetric(horizontal: 20.w),
         child: Column(
           children: [
+            //=================================> Search Text Field and Filter Row <============================
             CustomTextField(
               controller: searchCTRL,
               prefixIcon: Icon(
@@ -50,6 +51,7 @@ class _SearchScreenState extends State<SearchScreen> {
               hintText: AppStrings.searchEvent.tr,
             ),
             SizedBox(height: 24.h),
+            //=================================> Event Card Grid View <============================
             Expanded(
               child: GridView.builder(
                 padding: EdgeInsets.symmetric(vertical: 8.h),

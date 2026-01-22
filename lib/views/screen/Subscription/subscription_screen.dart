@@ -112,7 +112,7 @@ class SubscriptionCard extends StatelessWidget {
         decoration: BoxDecoration(
           color: highlightColor,
           border: Border.all(color: borderColor, width: 1.5),
-          borderRadius: BorderRadius.circular(12.r),
+          borderRadius: BorderRadius.circular(14.r),
         ),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
