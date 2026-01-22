@@ -27,7 +27,11 @@ class _ProfileScreenState extends State<ProfileScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      bottomNavigationBar: BottomMenu(4, profileImageUrl: 'https://images.rawpixel.com/image_800/czNmcy1wcml2YXRlL3Jhd3BpeGVsX2ltYWdlcy93ZWJzaXRlX2NvbnRlbnQvbHIvcm0zMjgtMzY2LXRvbmctMDhfMS5qcGc.jpg',),
+      bottomNavigationBar: BottomMenu(
+        4,
+        profileImageUrl:
+            'https://images.rawpixel.com/image_800/czNmcy1wcml2YXRlL3Jhd3BpeGVsX2ltYWdlcy93ZWJzaXRlX2NvbnRlbnQvbHIvcm0zMjgtMzY2LXRvbmctMDhfMS5qcGc.jpg',
+      ),
       body: SingleChildScrollView(
         child: Padding(
           padding: EdgeInsets.symmetric(horizontal: 20.w, vertical: 65.h),
@@ -40,13 +44,21 @@ class _ProfileScreenState extends State<ProfileScreen> {
               ),
               SizedBox(height: 24.h),
               //====================> User Profile Image <====================
-              CustomNetworkImage(
-                imageUrl:
-                    'https://t4.ftcdn.net/jpg/02/24/86/95/360_F_224869519_aRaeLneqALfPNBzg0xxMZXghtvBXkfIA.jpg',
-                height: 145.h,
-                width: 145.w,
-                boxShape: BoxShape.circle,
-                border: Border.all(width: 4.w, color: Color(0xffFFEFD1)),
+              Stack(
+                children: [
+                  CustomNetworkImage(
+                    imageUrl:
+                        'https://t4.ftcdn.net/jpg/02/24/86/95/360_F_224869519_aRaeLneqALfPNBzg0xxMZXghtvBXkfIA.jpg',
+                    height: 145.h,
+                    width: 145.w,
+                    boxShape: BoxShape.circle,
+                    border: Border.all(width: 4.w, color: Color(0xffFFEFD1)),
+                  ),
+                  Positioned(
+                    right: 10.w,
+                    top: 10.h,
+                      child: SvgPicture.asset(AppIcons.verify))
+                ],
               ),
               SizedBox(height: 12.h),
               //=========================> User Name <========================
@@ -54,6 +66,25 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 text: 'Bashar Islam',
                 fontWeight: FontWeight.w600,
                 fontSize: 20.sp,
+              ),
+              SizedBox(height: 24.h),
+              //=========================> Upgrade to Business Profile <========================
+              GestureDetector(
+                onTap: (){},
+                child: Container(
+                  decoration: BoxDecoration(
+                    color: AppColors.primaryColor,
+                    borderRadius: BorderRadius.circular(4.r)
+                  ),
+                  child: Padding(
+                    padding: EdgeInsets.symmetric(horizontal: 24.w, vertical: 8.h),
+                    child: CustomText(
+                      text: 'Upgrade to Business Profile'.tr,
+                      color: Colors.white,
+                      fontWeight: FontWeight.w500,
+                    ),
+                  ),
+                ),
               ),
               SizedBox(height: 24.h),
               //===================================> List Tile Card <==========================================
@@ -95,7 +126,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                       fontWeight: FontWeight.w500,
                                     ),
                                     CustomText(
-                                      text: AppStrings.manageYourSubscription.tr,
+                                      text: 'Renewal date: 10/06/25',
                                       fontSize: 12.sp,
                                     ),
                                   ],
@@ -104,7 +135,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                 //===================> Explore Button <================
                                 CustomButton(
                                   onTap: () {
-                                   Get.toNamed(AppRoutes.subscriptionScreen);
+                                    Get.toNamed(AppRoutes.subscriptionScreen);
                                   },
                                   text: 'Explore'.tr,
                                   fontSize: 10.sp,

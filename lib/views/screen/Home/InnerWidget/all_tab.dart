@@ -23,10 +23,11 @@ class _AllTabState extends State<AllTab> {
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: EdgeInsets.symmetric(horizontal:  20.w),
+      padding: EdgeInsets.symmetric(horizontal: 20.w),
       child: GridView.builder(
         shrinkWrap: true,
-        padding: EdgeInsets.symmetric(vertical:  20.w),
+        physics: const ClampingScrollPhysics(), // Prevent infinite scrolling issues
+        padding: EdgeInsets.symmetric(vertical: 20.w),
         itemCount: bookmarkedList.length,
         gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
           crossAxisCount: 2,
@@ -46,68 +47,71 @@ class _AllTabState extends State<AllTab> {
               onTap: () => showEventDetailsDialog(
                 context: context,
                 imageUrl: 'https://images.unsplash.com/photo-1546069901-ba9599a7e63c',
-                title: 'Pasta Making Class',
-                location: 'Dhaka, Bangladesh',
+                title: 'Virginia philps wine testing',
                 dateTime: '18/06/25 08:30PM',
                 venue: 'Rampura Town Hall Dhaka, Bangladesh',
                 description:
                 "The event is live as soon as it's posted. You can explore various categories and locations...",
               ),
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  CustomNetworkImage(
-                    imageUrl:
-                    'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRyvetnLOz5AF4JPJGxqw0EJpwpBHl9swwqww&s',
-                    height: 238.h,
-                    width: double.infinity,
-                    borderRadius: BorderRadius.only(
-                      topLeft: Radius.circular(12.r),
-                      topRight: Radius.circular(12.r),
-                    ),
-                  ),
-                  Padding(
-                    padding: EdgeInsets.all(8.w),
-                    child: Row(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Expanded(
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              CustomText(
-                                text: 'Pasta Making Class',
-                                maxLine: 2,
-                                textOverflow: TextOverflow.ellipsis,
-                                fontWeight: FontWeight.w500,
-                              ),
-                              SizedBox(height: 4.h),
-                              CustomText(
-                                text: 'Dhaka, Bangladesh',
-                                maxLine: 1,
-                                textOverflow: TextOverflow.ellipsis,
-                                fontSize: 12.sp,
-                              ),
-                            ],
-                          ),
+              child: LayoutBuilder(
+                builder: (context, constraints) {
+                  return Column(
+                    mainAxisSize: MainAxisSize.max, // Changed from MainAxisSize.min to prevent layout conflicts
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      CustomNetworkImage(
+                        imageUrl:
+                        'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRyvetnLOz5AF4JPJGxqw0EJpwpBHl9swwqww&s',
+                        height: 238.h,
+                        width: double.infinity,
+                        borderRadius: BorderRadius.only(
+                          topLeft: Radius.circular(12.r),
+                          topRight: Radius.circular(12.r),
                         ),
-                        GestureDetector(
-                          onTap: () {
-                            setState(() {
-                              bookmarkedList[index] = !bookmarkedList[index];
-                            });
-                          },
-                          child: Icon(
-                            isBookmarked ? Icons.bookmark : Icons.bookmark_border,
-                            color: isBookmarked ? AppColors.primaryColor : Colors.grey,
-                            size: 22.sp,
-                          ),
+                      ),
+                      Padding(
+                        padding: EdgeInsets.all(8.w),
+                        child: Row(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Expanded(
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  CustomText(
+                                    text: 'Pasta Making Class',
+                                    maxLine: 2,
+                                    textOverflow: TextOverflow.ellipsis,
+                                    fontWeight: FontWeight.w500,
+                                  ),
+                                  SizedBox(height: 4.h),
+                                  CustomText(
+                                    text: 'Dhaka, Bangladesh',
+                                    maxLine: 1,
+                                    textOverflow: TextOverflow.ellipsis,
+                                    fontSize: 12.sp,
+                                  ),
+                                ],
+                              ),
+                            ),
+                            GestureDetector(
+                              onTap: () {
+                                setState(() {
+                                  bookmarkedList[index] = !bookmarkedList[index];
+                                });
+                              },
+                              child: Icon(
+                                isBookmarked ? Icons.bookmark : Icons.bookmark_border,
+                                color: isBookmarked ? AppColors.primaryColor : Colors.grey,
+                                size: 22.sp,
+                              ),
+                            ),
+                          ],
                         ),
-                      ],
-                    ),
-                  ),
-                ],
+                      ),
+                    ],
+                  );
+                },
               ),
             ),
           );
@@ -121,7 +125,6 @@ class _AllTabState extends State<AllTab> {
     required BuildContext context,
     required String imageUrl,
     required String title,
-    required String location,
     required String dateTime,
     required String venue,
     required String description,
@@ -163,24 +166,31 @@ class _AllTabState extends State<AllTab> {
                                   text: title,
                                   fontSize: 16.sp,
                                   fontWeight: FontWeight.w500,
+                                  color: AppColors.primaryColor,
                                 ),
                                 SizedBox(height: 4.h),
-                                CustomText(text: location, fontSize: 12.sp),
                               ],
                             ),
                           ),
-                          Column(
-                            crossAxisAlignment: CrossAxisAlignment.end,
-                            children: [
-                              CustomText(text: dateTime),
-                              SizedBox(height: 4.h),
-                              CustomText(
-                                text: AppStrings.eventTime.tr,
-                                fontSize: 12.sp,
-                              ),
-                            ],
-                          ),
+                          Icon(Icons.share, color: AppColors.primaryColor,)
                         ],
+                      ),
+                      SizedBox(height: 20.h),
+                      Align(
+                        alignment: Alignment.centerLeft,
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            CustomText(
+                              text: 'Event Date & Time'.tr,
+                              fontSize: 12.sp,
+                              color: AppColors.primaryColor,
+                            ),
+                            SizedBox(height: 4.h),
+                            CustomText(text: dateTime,
+                                color: AppColors.primaryColor),
+                          ],
+                        ),
                       ),
                       SizedBox(height: 20.h),
                       Align(
@@ -189,24 +199,27 @@ class _AllTabState extends State<AllTab> {
                           text: AppStrings.description.tr,
                           fontWeight: FontWeight.w500,
                           fontSize: 16.sp,
+                          color: AppColors.primaryColor,
                         ),
                       ),
                       SizedBox(height: 8.h),
                       CustomText(
                         text: description,
+                        color: AppColors.primaryColor,
                         maxLine: 20,
                         textAlign: TextAlign.start,
                       ),
-                      SizedBox(height: 20.h),
+                      SizedBox(height: 16.h),
+                      //================================> Location Container <==============================
                       Container(
                         width: double.infinity,
                         padding: EdgeInsets.all(12.w),
                         decoration: BoxDecoration(
-                          color: Colors.white,
+                          color: Color(0xffffefd1),
                           borderRadius: BorderRadius.circular(12.r),
-                          border: Border.all(color: AppColors.primaryColor),
                         ),
                         child: Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
                           children: [
                             Icon(Icons.location_on, color: AppColors.primaryColor),
                             SizedBox(width: 8.w),
@@ -222,7 +235,31 @@ class _AllTabState extends State<AllTab> {
                           ],
                         ),
                       ),
+                      SizedBox(height: 16.h),
+                      //================================> Live Container <==============================
+                      Container(
+                        width: double.infinity,
+                        padding: EdgeInsets.all(12.w),
+                        decoration: BoxDecoration(
+                          color: Color(0xffffefd1),
+                          borderRadius: BorderRadius.circular(12.r),
+                        ),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Icon(Icons.circle, color: AppColors.primaryColor, size: 12.h),
+                            SizedBox(width: 8.w),
+                            CustomText(
+                              text: 'Live',
+                              color: AppColors.primaryColor,
+                              fontWeight: FontWeight.w500,
+                              maxLine: 3,
+                            ),
+                          ],
+                        ),
+                      ),
                       SizedBox(height: 20.h),
+                      //================================> Interested, Going and Add Button <==============================
                       Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
@@ -230,6 +267,9 @@ class _AllTabState extends State<AllTab> {
                             child: CustomButton(
                               onTap: () {},
                               text: AppStrings.interested.tr,
+                              color: Color(0xffffefd1),
+                                broderColor: Color(0xffffefd1),
+                                textColor: AppColors.primaryColor
                             ),
                           ),
                           SizedBox(width: 8.w),
@@ -237,8 +277,9 @@ class _AllTabState extends State<AllTab> {
                             child: CustomButton(
                               onTap: () {},
                               text: AppStrings.going.tr,
-                              color: Colors.white,
+                              broderColor: Color(0xffffefd1),
                               textColor: AppColors.primaryColor,
+                              color: Color(0xffffefd1),
                             ),
                           ),
                           SizedBox(width: 8.w),
@@ -248,7 +289,8 @@ class _AllTabState extends State<AllTab> {
                                 addFolderDialog();
                               },
                               text: AppStrings.add.tr,
-                              color: Colors.white,
+                              color: Color(0xffffefd1),
+                              broderColor: Color(0xffffefd1),
                               textColor: AppColors.primaryColor,
                             ),
                           ),
@@ -259,13 +301,13 @@ class _AllTabState extends State<AllTab> {
                 ),
               ),
               Positioned(
-                top: -12,
-                right: -12,
+                top: -8,
+                right: -8,
                 child: GestureDetector(
                   onTap: () => Navigator.of(context).pop(),
                   child: CircleAvatar(
                     radius: 16.r,
-                    backgroundColor: Colors.red,
+                    backgroundColor: AppColors.primaryColor,
                     child: Icon(Icons.close, color: Colors.white, size: 16.sp),
                   ),
                 ),

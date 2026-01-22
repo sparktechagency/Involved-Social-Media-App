@@ -34,5 +34,6 @@ class AppIcons{
   static String about ="$baseUrl/about.svg";
   static String sub ="$baseUrl/sub.svg";
   static String location ="$baseUrl/location.svg";
+  static String verify ="$baseUrl/verify.svg";
 
 }
