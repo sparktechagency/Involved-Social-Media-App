@@ -15,10 +15,9 @@ class AuthController extends GetxController {
   final TextEditingController nameCtrl = TextEditingController();
   final TextEditingController emailCtrl = TextEditingController();
   final TextEditingController passwordCtrl = TextEditingController();
-  final TextEditingController confirmCtrl = TextEditingController();
+  final TextEditingController phoneNumberCtrl = TextEditingController();
 
   // RxBool isSelectedRole = true.obs;
-  var selectDivision = ''.obs;
   var signUpLoading = false.obs;
   var token = "";
 
@@ -28,12 +27,12 @@ class AuthController extends GetxController {
       "name": nameCtrl.text.trim(),
       "email": emailCtrl.text.trim(),
       "password": passwordCtrl.text,
-      "division": selectDivision.value,
-      "fcmToken": "fcmToken..",
+      "phone": phoneNumberCtrl.value,
+      //"fcmToken": "fcmToken..",
 
     };
 
-    var headers = {'Content-Type': 'application/json'};
+    var headers = {'Content-Type': 'multipart/form-data'};
 
     Response response = await ApiClient.postData(
         ApiConstants.signUpEndPoint, jsonEncode(body),
@@ -46,9 +45,8 @@ class AuthController extends GetxController {
       nameCtrl.clear();
       emailCtrl.clear();
       passwordCtrl.clear();
-      confirmCtrl.clear();
+      phoneNumberCtrl.clear();
       signUpLoading(false);
-      selectDivision.value ='';
       update();
     } else {
       ApiChecker.checkApi(response);
