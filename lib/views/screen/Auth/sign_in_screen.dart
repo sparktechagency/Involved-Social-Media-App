@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:get/get.dart';
+import 'package:involved/controller/auth_controller.dart';
 import 'package:involved/helpers/route.dart';
 import 'package:involved/utils/app_icons.dart';
 import 'package:involved/utils/app_images.dart';
@@ -13,8 +14,8 @@ import 'package:involved/views/base/custom_text_field.dart';
 
 class SignInScreen extends StatelessWidget {
   SignInScreen({super.key});
-  final TextEditingController emailCTRL = TextEditingController();
-  final TextEditingController passCTRL = TextEditingController();
+  final AuthController authController = Get.put(AuthController());
+  final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
 
   @override
   Widget build(BuildContext context) {
@@ -23,85 +24,104 @@ class SignInScreen extends StatelessWidget {
         child: SingleChildScrollView(
           child: Padding(
             padding: EdgeInsets.symmetric(horizontal: 20.w),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              mainAxisAlignment: MainAxisAlignment.start,
-              children: [
-                SizedBox(height: 124.h),
-                Align(
-                  alignment: Alignment.topLeft,
-                  child: Image.asset(
-                    AppImages.roundLogo,
-                    width: 84.w,
-                    height: 84.h,
-                  ),
-                ),
-                SizedBox(height: 24.h),
-                CustomText(
-                  text: AppStrings.signInToYourAccount.tr,
-                  fontSize: 24.sp,
-                  fontWeight: FontWeight.w700,
-                  bottom: 32.h,
-                ),
-                //=======================> Email Text Field <=================
-                CustomTextField(
-                  controller: emailCTRL,
-                  labelText: AppStrings.email.tr,
-                  hintText: AppStrings.enterEmail.tr,
-                  prefixIcon: SvgPicture.asset(AppIcons.mail),
-                ),
-                SizedBox(height: 24.h),
-                //=======================> Email Text Field <=================
-                CustomTextField(
-                  isPassword: true,
-                  controller: passCTRL,
-                  labelText: AppStrings.password.tr,
-                  hintText: AppStrings.enterPassword.tr,
-                  prefixIcon: SvgPicture.asset(AppIcons.lock),
-                ),
-                //========================> Forgot Passwords Button <==================
-                SizedBox(height: 16.h),
-                Align(
-                  alignment: Alignment.centerRight,
-                  child: GestureDetector(
-                    onTap: () {
-                      Get.toNamed(AppRoutes.forgotPasswordScreen);
-                    },
-                    child: CustomText(
-                      text: AppStrings.forgotPasswords.tr,
-                      fontWeight: FontWeight.w500,
-                      textDecoration: TextDecoration.underline,
-                      bottom: 32.h
+            child: Form(
+              key: _formKey,
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisAlignment: MainAxisAlignment.start,
+                children: [
+                  SizedBox(height: 124.h),
+                  Align(
+                    alignment: Alignment.topLeft,
+                    child: Image.asset(
+                      AppImages.roundLogo,
+                      width: 84.w,
+                      height: 84.h,
                     ),
                   ),
-                ),
-                //========================> Sign in Button <==================
-                CustomButton(
-                  onTap: () {
-                    Get.offAllNamed(AppRoutes.homeScreen);
-                  },
-                  text: AppStrings.signIn.tr,
-                ),
-                SizedBox(height: 32.h),
-                //========================> Don’t have an account Sign Up Button <==================
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    CustomText(text: AppStrings.donotHaveAnAccount.tr),
-                    SizedBox(width: 4.w),
-                    InkWell(
+                  SizedBox(height: 24.h),
+                  CustomText(
+                    text: AppStrings.signInToYourAccount.tr,
+                    fontSize: 24.sp,
+                    fontWeight: FontWeight.w700,
+                    bottom: 32.h,
+                  ),
+                  //=======================> Email Text Field <=================
+                  CustomTextField(
+                    controller: authController.signInEmailCtrl,
+                    labelText: AppStrings.email.tr,
+                    hintText: AppStrings.enterEmail.tr,
+                    prefixIcon: SvgPicture.asset(AppIcons.mail),
+                    validator: (value) {
+                      if (value == null || value.isEmpty) {
+                        return "Please enter your email".tr;
+                      }
+                      return null;
+                    },
+                  ),
+                  SizedBox(height: 24.h),
+                  //=======================> Password Text Field <=================
+                  CustomTextField(
+                    isPassword: true,
+                    controller: authController.signInPassCtrl,
+                    labelText: AppStrings.password.tr,
+                    hintText: AppStrings.enterPassword.tr,
+                    prefixIcon: SvgPicture.asset(AppIcons.lock),
+                    validator: (value) {
+                      if (value == null || value.isEmpty) {
+                        return "Please enter your password".tr;
+                      }
+                      return null;
+                    },
+                  ),
+                  //========================> Forgot Passwords Button <==================
+                  SizedBox(height: 16.h),
+                  Align(
+                    alignment: Alignment.centerRight,
+                    child: GestureDetector(
                       onTap: () {
-                        Get.toNamed(AppRoutes.signUpScreen);
+                        Get.toNamed(AppRoutes.forgotPasswordScreen);
                       },
                       child: CustomText(
-                        text: AppStrings.signUp.tr,
-                        fontWeight: FontWeight.w600,
+                        text: AppStrings.forgotPasswords.tr,
+                        fontWeight: FontWeight.w500,
                         textDecoration: TextDecoration.underline,
+                        bottom: 32.h
                       ),
                     ),
-                  ],
-                ),
-              ],
+                  ),
+                  //========================> Sign in Button <==================
+                  Obx(()=> CustomButton(
+                      loading: authController.signInLoading.value,
+                      onTap: () {
+                        if (_formKey.currentState!.validate()) {
+                          authController.handleSignIn();
+                        }
+                      },
+                      text: AppStrings.signIn.tr,
+                    ),
+                  ),
+                  SizedBox(height: 32.h),
+                  //========================> Don’t have an account Sign Up Button <==================
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      CustomText(text: AppStrings.donotHaveAnAccount.tr),
+                      SizedBox(width: 4.w),
+                      InkWell(
+                        onTap: () {
+                          Get.toNamed(AppRoutes.signUpScreen);
+                        },
+                        child: CustomText(
+                          text: AppStrings.signUp.tr,
+                          fontWeight: FontWeight.w600,
+                          textDecoration: TextDecoration.underline,
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
             ),
           ),
         ),
