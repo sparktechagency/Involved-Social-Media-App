@@ -148,17 +148,18 @@ class AuthController extends GetxController {
     update();
   }*/
 
-  //==================================> Log In <================================
+  //==================================> Sign In <================================
   TextEditingController signInEmailCtrl = TextEditingController();
   TextEditingController signInPassCtrl = TextEditingController();
   var signInLoading = false.obs;
-  handleLogIn() async {
+
+  handleSignIn() async {
     signInLoading(true);
     var headers = {'Content-Type': 'application/json'};
     Map<String, dynamic> body = {
       'email': signInEmailCtrl.text.trim(),
       'password': signInPassCtrl.text.trim(),
-      "fcmToken": "fcmToken..",
+     // "fcmToken": "fcmToken..",
     };
     Response response = await ApiClient.postData(
         ApiConstants.signInEndPoint, json.encode(body),
@@ -166,11 +167,11 @@ class AuthController extends GetxController {
     print("====> ${response.body}");
     if (response.statusCode == 200) {
       await PrefsHelper.setString(AppConstants.bearerToken,
-          response.body['data']['attributes']['tokens']['access']['token']);
-      await PrefsHelper.setString(
-          AppConstants.id, response.body['data']['attributes']['user']['id']);
+          response.body['data']['tokens']['accessToken']);
+      await PrefsHelper.setString(AppConstants.id,
+          response.body['data']['id']);
       await PrefsHelper.setBool(AppConstants.isLogged, true);
-        Get.offAllNamed(AppRoutes.homeScreen);
+      Get.offAllNamed(AppRoutes.homeScreen);
       signInEmailCtrl.clear();
       signInPassCtrl.clear();
       signInLoading(false);
