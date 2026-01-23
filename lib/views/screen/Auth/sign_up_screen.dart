@@ -2,9 +2,12 @@ import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/svg.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:get/get.dart';
+import 'package:involved/controller/auth_controller.dart';
 import 'package:involved/helpers/route.dart';
 import 'package:involved/utils/app_colors.dart';
+import 'package:involved/utils/app_constants.dart';
 import 'package:involved/utils/app_icons.dart';
 import 'package:involved/utils/app_images.dart';
 import 'package:involved/utils/app_strings.dart';
@@ -21,10 +24,9 @@ class SignUpScreen extends StatefulWidget {
 }
 
 class _SignUpScreenState extends State<SignUpScreen> {
-  final TextEditingController userNameCTRL = TextEditingController();
-  final TextEditingController emailCTRL = TextEditingController();
-  final TextEditingController phoneNumberCTRL = TextEditingController();
-  final TextEditingController passCTRL = TextEditingController();
+final AuthController authController = Get.put(AuthController());
+final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
+
   bool isChecked = false;
 
   @override
@@ -34,135 +36,178 @@ class _SignUpScreenState extends State<SignUpScreen> {
         child: SingleChildScrollView(
           child: Padding(
             padding: EdgeInsets.symmetric(horizontal: 20.w),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              mainAxisAlignment: MainAxisAlignment.start,
-              children: [
-                SizedBox(height: 52.h),
-                //=======================> Back Button <=================
-                InkWell(
-                  onTap: (){
-                    Get.back();
-                  },
-                  child: Icon(Icons.arrow_back_ios_new_outlined),
-                ),
-                SizedBox(height: 24.h),
-                Align(
-                  alignment: Alignment.topLeft,
-                  child: Image.asset(
-                    AppImages.roundLogo,
-                    width: 84.w,
-                    height: 84.h,
+            child: Form(
+              key: _formKey,
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisAlignment: MainAxisAlignment.start,
+                children: [
+                  SizedBox(height: 52.h),
+                  //=======================> Back Button <=================
+                  InkWell(
+                    onTap: (){
+                      Get.back();
+                    },
+                    child: Icon(Icons.arrow_back_ios_new_outlined),
                   ),
-                ),
-                SizedBox(height: 16.h),
-                CustomText(
-                  text: AppStrings.signUpWithEmail.tr,
-                  fontSize: 22.sp,
-                  fontWeight: FontWeight.w700,
-                  bottom: 8.h,
-                ),
-                CustomText(text: AppStrings.welcomeBack.tr, bottom: 32.h),
-                //=======================> User Name Text Field <=================
-                CustomTextField(
-                  controller: userNameCTRL,
-                  labelText: AppStrings.userName.tr,
-                  hintText: AppStrings.enterUsername.tr,
-                  prefixIcon: SvgPicture.asset(AppIcons.user),
-                ),
-                SizedBox(height: 16.h),
-                //=======================> Email Text Field <=================
-                CustomTextField(
-                  controller: emailCTRL,
-                  labelText: AppStrings.email.tr,
-                  hintText: AppStrings.enterEmail.tr,
-                  prefixIcon: SvgPicture.asset(AppIcons.mail),
-                ),
-                SizedBox(height: 16.h),
-                //=======================> Phone Number Text Field <=================
-                CustomTextField(
-                  keyboardType: TextInputType.number,
-                  controller: phoneNumberCTRL,
-                  labelText: AppStrings.phoneNumber.tr,
-                  hintText: AppStrings.enterPhoneNumber.tr,
-                  prefixIcon: SvgPicture.asset(AppIcons.call, color: AppColors.primaryColor),
-                ),
-                SizedBox(height: 16.h),
-                //=======================> Password Text Field <=================
-                CustomTextField(
-                  isPassword: true,
-                  controller: passCTRL,
-                  labelText: AppStrings.password.tr,
-                  hintText: AppStrings.enterPassword.tr,
-                  prefixIcon: SvgPicture.asset(AppIcons.lock),
-                ),
-                SizedBox(height: 16.h),
-                _checkboxSection(),
-                SizedBox(height: 16.h),
-                //========================> Sign Up Button <==================
-                CustomButton(
-                  onTap: () {
-                    Get.toNamed(AppRoutes.otpScreen);
-                  },
-                  text: AppStrings.signUp.tr,
-                ),
-                SizedBox(height: 16.h),
-                //========================> Already have an account Sign Up Button <==================
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    CustomText(text: AppStrings.alreadyHaveAccount.tr),
-                    SizedBox(width: 4.w),
-                    InkWell(
-                      onTap: () {
-                        Get.toNamed(AppRoutes.signInScreen);
-                      },
-                      child: CustomText(
-                        text: AppStrings.signIn.tr,
-                        fontWeight: FontWeight.w600,
-                        textDecoration: TextDecoration.underline,
-                      ),
+                  SizedBox(height: 24.h),
+                  Align(
+                    alignment: Alignment.topLeft,
+                    child: Image.asset(
+                      AppImages.roundLogo,
+                      width: 84.w,
+                      height: 84.h,
                     ),
-                  ],
-                ),
-                SizedBox(height: 8.h),
-                //=======================> Or  <=====================
-                Center(
-                  child: CustomText(
-                    text: 'OR'.tr,
+                  ),
+                  SizedBox(height: 16.h),
+                  CustomText(
+                    text: AppStrings.signUpWithEmail.tr,
+                    fontSize: 22.sp,
                     fontWeight: FontWeight.w700,
-                    fontSize: 18.sp,
                     bottom: 8.h,
                   ),
-                ),
-                //=======================> Google and Facebook Button <=====================
-                Center(
-                  child: GestureDetector(
-                    onTap: () {},
-                    child: Container(
-                        width: double.infinity,
-                        decoration: BoxDecoration(
-                            borderRadius: BorderRadius.circular(8.r),
-                            border: Border.all(
-                                width: 1.w, color: AppColors.primaryColor)),
-                        child: Padding(
-                          padding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 15.h),
-                          child: Row(
-                            mainAxisSize: MainAxisSize.min,
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              Image.asset(AppImages.googleLogo, width: 24.w, height: 24.h),
-                              SizedBox(width: 12.w),
-                              CustomText(
-                                text: AppStrings.signUpWithGoogle.tr,
-                              ),
-                            ],
-                          ),
-                        )),
+                  CustomText(text: AppStrings.welcomeBack.tr, bottom: 32.h),
+                  //=======================> User Name Text Field <=================
+                  CustomTextField(
+                    controller: authController.nameCtrl,
+                    labelText: AppStrings.userName.tr,
+                    hintText: AppStrings.enterUsername.tr,
+                    prefixIcon: SvgPicture.asset(AppIcons.user),
+                    validator: (value) {
+                      if (value == null || value.isEmpty) {
+                        return "Please enter your user name".tr;
+                      }
+                      return null;
+                    },
                   ),
-                ),
-                SizedBox(height: 32.h)
-              ],
+                  SizedBox(height: 16.h),
+                  //=======================> Email Text Field <=================
+                  CustomTextField(
+                    controller: authController.emailCtrl,
+                    labelText: AppStrings.email.tr,
+                    hintText: AppStrings.enterEmail.tr,
+                    prefixIcon: SvgPicture.asset(AppIcons.mail),
+                    validator: (value) {
+                      if (value == null || value.isEmpty) {
+                        return "Please enter your email".tr;
+                      }
+                      if (!AppConstants.emailValidator.hasMatch(value)) {
+                        return "Please enter a valid email".tr;
+                      }
+                      return null;
+                    },
+                  ),
+                  SizedBox(height: 16.h),
+                  //=======================> Phone Number Text Field <=================
+                  CustomTextField(
+                    keyboardType: TextInputType.number,
+                    controller: authController.phoneNumberCtrl,
+                    labelText: AppStrings.phoneNumber.tr,
+                    hintText: AppStrings.enterPhoneNumber.tr,
+                    prefixIcon: SvgPicture.asset(AppIcons.call, color: AppColors.primaryColor),
+                    validator: (value) {
+                      if (value == null || value.isEmpty) {
+                        return "Please enter phone number".tr;
+                      }
+                      if (!AppConstants.phoneValidator.hasMatch(value)) {
+                        return "Please enter a valid phone number".tr;
+                      }
+                      return null;
+                    },
+
+                  ),
+                  SizedBox(height: 16.h),
+                  //=======================> Password Text Field <=================
+                  CustomTextField(
+                    isPassword: true,
+                    controller: authController.passwordCtrl,
+                    labelText: AppStrings.password.tr,
+                    hintText: AppStrings.enterPassword.tr,
+                    prefixIcon: SvgPicture.asset(AppIcons.lock),
+                    validator: (value) {
+                      if (value == null || value.isEmpty) {
+                        return "Please enter your password".tr;
+                      }
+                      return null;
+                    },
+                  ),
+                  SizedBox(height: 16.h),
+                  _checkboxSection(),
+                  SizedBox(height: 16.h),
+                  //========================> Sign Up Button <==================
+                  Obx(()=> CustomButton(
+                      loading: authController.signUpLoading.value,
+                      onTap: () {
+                        if (_formKey.currentState!.validate()) {
+                          if (isChecked) {
+                            authController.handleSignUp();
+                          } else {
+                            Fluttertoast.showToast(
+                              msg: 'Please accept Terms & Conditions'.tr,
+                            );
+                          }
+                        }},
+                      text: AppStrings.signUp.tr,
+                    ),
+                  ),
+                  SizedBox(height: 16.h),
+                  //========================> Already have an account Sign Up Button <==================
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      CustomText(text: AppStrings.alreadyHaveAccount.tr),
+                      SizedBox(width: 4.w),
+                      InkWell(
+                        onTap: () {
+                          Get.toNamed(AppRoutes.signInScreen);
+                        },
+                        child: CustomText(
+                          text: AppStrings.signIn.tr,
+                          fontWeight: FontWeight.w600,
+                          textDecoration: TextDecoration.underline,
+                        ),
+                      ),
+                    ],
+                  ),
+                  SizedBox(height: 8.h),
+                  //=======================> Or  <=====================
+                  Center(
+                    child: CustomText(
+                      text: 'OR'.tr,
+                      fontWeight: FontWeight.w700,
+                      fontSize: 18.sp,
+                      bottom: 8.h,
+                    ),
+                  ),
+                  //=======================> Google and Facebook Button <=====================
+                  Center(
+                    child: GestureDetector(
+                      onTap: () {},
+                      child: Container(
+                          width: double.infinity,
+                          decoration: BoxDecoration(
+                              borderRadius: BorderRadius.circular(8.r),
+                              border: Border.all(
+                                  width: 1.w, color: AppColors.primaryColor)),
+                          child: Padding(
+                            padding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 15.h),
+                            child: Row(
+                              mainAxisSize: MainAxisSize.min,
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                Image.asset(AppImages.googleLogo, width: 24.w, height: 24.h),
+                                SizedBox(width: 12.w),
+                                CustomText(
+                                  text: AppStrings.signUpWithGoogle.tr,
+                                ),
+                              ],
+                            ),
+                          )),
+                    ),
+                  ),
+                  SizedBox(height: 32.h)
+                ],
+              ),
             ),
           ),
         ),
