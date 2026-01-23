@@ -167,9 +167,9 @@ class AuthController extends GetxController {
     print("====> ${response.body}");
     if (response.statusCode == 200) {
       await PrefsHelper.setString(AppConstants.bearerToken,
-          response.body['data']['tokens']['accessToken']);
+          response.body['tokens']['accessToken']);
       await PrefsHelper.setString(AppConstants.id,
-          response.body['data']['id']);
+          response.body['data']['_id']);
       await PrefsHelper.setBool(AppConstants.isLogged, true);
       Get.offAllNamed(AppRoutes.homeScreen);
       signInEmailCtrl.clear();
