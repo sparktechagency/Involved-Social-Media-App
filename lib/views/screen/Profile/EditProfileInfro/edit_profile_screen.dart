@@ -133,7 +133,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
       context: context,
       builder: (builder) {
         return Padding(
-          padding: const EdgeInsets.all(18.0),
+          padding: EdgeInsets.symmetric(horizontal: 18.w, vertical: 58.h),
           child: Row(
             children: [
               //=========================> Pick Image Gallery <==================

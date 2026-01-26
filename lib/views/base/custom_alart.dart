@@ -1,11 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
+import 'package:involved/helpers/route.dart';
+import 'package:involved/utils/app_colors.dart';
 import 'package:involved/views/base/custom_button.dart';
 import 'package:involved/views/base/custom_text.dart';
-import '../../../../../../helpers/route.dart';
-import '../../../../../../utils/app_colors.dart';
-import '../../../../../../utils/app_strings.dart';
 import '../../helpers/prefs_helpers.dart';
 import '../../utils/app_constants.dart';
 
@@ -53,7 +52,7 @@ class CustomAlert extends StatelessWidget {
                   textColor: Colors.white,
                   onTap: () async {
                     await PrefsHelper.remove(AppConstants.isLogged);
-                    await PrefsHelper.remove(AppConstants.id);
+                    await PrefsHelper.remove(AppConstants.userId);
                     await PrefsHelper.remove(AppConstants.bearerToken);
                     //   await PrefsHelper.remove(AppConstants.subscription);
                     Get.offAllNamed(AppRoutes.splashScreen);
