@@ -22,8 +22,6 @@ class AuthController extends GetxController {
   final TextEditingController emailCtrl = TextEditingController();
   final TextEditingController passwordCtrl = TextEditingController();
   final TextEditingController phoneNumberCtrl = TextEditingController();
-
-  // RxBool isSelectedRole = true.obs;
   var signUpLoading = false.obs;
   var token = "";
 
@@ -79,7 +77,6 @@ class AuthController extends GetxController {
           headers: headers);
       print("============${response.body} and ${response.statusCode}");
       if (response.statusCode == 200) {
-       // await PrefsHelper.setString(AppConstants.bearerToken, response.body["data"]['attributes']['tokens']['access']['token']);
         otpCtrl.clear();
         if (screenType == "forgetPasswordScreen") {
           Get.offAllNamed(
@@ -120,33 +117,6 @@ class AuthController extends GetxController {
     }
     resendOtpLoading(false);
   }
-
-
-  //======================> Select Country and Birth Day <======================
- /* final TextEditingController countryCTRL = TextEditingController();
-  final TextEditingController birthDayCTRL = TextEditingController();
-  var selectCountryLoading = false.obs;
-
-  selectCountry() async {
-    selectCountryLoading(true);
-    update();
-    Map<String, dynamic> body = {
-      "country": countryCTRL.text.trim(),
-      "dataOfBirth": birthDayCTRL.text.trim(),
-    };
-    Response response = await ApiClient.putData(
-        ApiConstants.profileDataEndPoint, jsonEncode(body));
-    if (response.statusCode == 200) {
-      Get.toNamed(AppRoutes.signInScreen);
-      countryCTRL.clear();
-      birthDayCTRL.clear();
-    } else {
-      ApiChecker.checkApi(response);
-    }
-
-    selectCountryLoading(false);
-    update();
-  }*/
 
   //==================================> Sign In <================================
   TextEditingController signInEmailCtrl = TextEditingController();
@@ -205,6 +175,7 @@ class AuthController extends GetxController {
       forgetEmailTextCtrl.clear();
     } else {
       ApiChecker.checkApi(response);
+      Fluttertoast.showToast(msg: response.statusText ?? "");
     }
     forgotLoading(false);
   }
@@ -217,20 +188,20 @@ class AuthController extends GetxController {
 
   handleChangePassword(String oldPassword, String newPassword) async {
     changeLoading(true);
+    var bearerToken = await PrefsHelper.getString(AppConstants.bearerToken);
     var body = {"oldPassword": oldPassword, "newPassword": newPassword};
-    var headers = {'Content-Type': 'application/json'};
+    var headers = {
+      'Content-Type': 'application/json',
+      'Authorization': 'Bearer $bearerToken',
+    };
+
     var response = await ApiClient.postData(
         ApiConstants.changePassEndPoint, json.encode(body),
         headers: headers);
     print("===============> ${response.body}");
     if (response.statusCode == 200) {
-      Map<String, dynamic> responseBody = json.decode(response.body);
-      Fluttertoast.showToast(
-          msg: responseBody['message'],
-          toastLength: Toast.LENGTH_LONG,
-          gravity: ToastGravity.CENTER,
-          backgroundColor: AppColors.cardLightColor,
-          textColor: Colors.white);
+      changeLoading(false);
+      Fluttertoast.showToast(msg: 'Password chang successfully.' ?? "");
       Get.back();
       Get.back();
     } else {
@@ -251,25 +222,6 @@ class AuthController extends GetxController {
         headers: header);
     if (response.statusCode == 200) {
       _showCustomBottomSheet(Get.context!);
-      /*showDialog(
-          context: Get.context!,
-          barrierDismissible: false,
-          builder: (_) => AlertDialog(
-                backgroundColor: AppColors.cardLightColor,
-                title: const Text("Password reset!"),
-                content:
-                    const Text("Your password has been reset successfully."),
-                actions: [
-                  TextButton(
-                      style: const ButtonStyle(
-                          backgroundColor:
-                              WidgetStatePropertyAll(Colors.white)),
-                      onPressed: () {
-                        Get.toNamed(AppRoutes.signInScreen);
-                      },
-                      child: const Text("Ok"))
-                ],
-              ));*/
     } else {
       debugPrint("error set password ${response.statusText}");
       Fluttertoast.showToast(
