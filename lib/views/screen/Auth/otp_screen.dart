@@ -22,11 +22,28 @@ class OtpScreen extends StatefulWidget {
 }
 
 class _OtpScreenState extends State<OtpScreen> {
-  final AuthController authController = Get.put(AuthController());
-  var parameters = Get.parameters;
+  late final AuthController authController;
+  late var parameters;
+  bool _isNavigating = false;
 
   int _start = 180;
   Timer _timer = Timer(const Duration(seconds: 1), () {});
+
+  @override
+  void initState() {
+    super.initState();
+    parameters = Get.parameters;
+    // Check if AuthController is already registered, if not, create a new instance
+    if (Get.isRegistered<AuthController>()) {
+      authController = Get.find();
+    } else {
+      authController = Get.put(AuthController());
+    }
+    startTimer();
+    if (Get.arguments != null && Get.arguments['isPassreset'] != null) {
+      getResetPass();
+    }
+  }
 
   startTimer() {
     print("Start Time$_start");
@@ -49,15 +66,6 @@ class _OtpScreenState extends State<OtpScreen> {
   }
 
   bool isResetPassword = false;
-
-  @override
-  void initState() {
-    super.initState();
-    startTimer();
-    if (Get.arguments != null && Get.arguments['isPassreset'] != null) {
-      getResetPass();
-    }
-  }
 
   void resetTimer() {
     _start = 180;
@@ -138,14 +146,16 @@ class _OtpScreenState extends State<OtpScreen> {
                 //========================> Verify Email Button <==================
                 Obx(
                   () => CustomButton(
-                    loading: authController.otpLoading.value,
+                    loading: authController.otpLoading.value || _isNavigating,
                     onTap: () {
-                      authController.handleOtpVery(
-                        email: "${parameters["email"]}",
-                        otp: authController.otpCtrl.text,
-                        screenType: "${parameters["screenType"]}",
-                      );
-                      Get.offAllNamed(AppRoutes.resetPasswordScreen);
+                      if (!authController.otpLoading.value && !_isNavigating) {
+                        _isNavigating = true;
+                        authController.handleOtpVery(
+                          email: "${parameters["email"]}",
+                          otp: authController.otpCtrl.text,
+                          screenType: "${parameters["screenType"]}",
+                        );
+                      }
                     },
                     text: AppStrings.verifyEmail.tr,
                   ),

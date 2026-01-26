@@ -3,6 +3,8 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:get/get.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:involved/helpers/prefs_helpers.dart';
+import 'package:involved/utils/app_constants.dart';
 import 'package:involved/utils/app_icons.dart';
 import 'package:involved/utils/app_strings.dart';
 import 'package:involved/views/base/custom_list_tile.dart';
@@ -278,14 +280,18 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     ),
                     CustomButton(
                       width: 134.w,
-                      onTap: () {
+                      onTap: () async {
+                        await PrefsHelper.remove(AppConstants.isLogged);
+                        await PrefsHelper.remove(AppConstants.userId);
+                        await PrefsHelper.remove(AppConstants.bearerToken);
+                       // await PrefsHelper.remove(AppConstants.hasUpdateGallery);
                         Get.offAllNamed(AppRoutes.signInScreen);
                       },
                       text: AppStrings.yes.tr,
                     ),
                   ],
                 ),
-                SizedBox(height: 32.h),
+                SizedBox(height: 58.h),
               ],
             ),
           ),
