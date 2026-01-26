@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
+import 'package:involved/helpers/prefs_helpers.dart';
+import 'package:involved/utils/app_constants.dart';
 import 'package:involved/utils/app_images.dart';
 import '../../../helpers/route.dart';
 
@@ -13,16 +15,15 @@ class SplashScreen extends StatefulWidget {
 
 class _SplashScreenState extends State<SplashScreen> {
   @override
-  void initState() {
-    Future.delayed(const Duration(seconds: 3), () {
-    /*var isLogged = await PrefsHelper.getBool(AppConstants.isLogged);
+  void initState()  {
+    Future.delayed(const Duration(seconds: 3), () async {
+    var isLogged = await PrefsHelper.getBool(AppConstants.isLogged);
       if (isLogged == true) {
         Get.offAllNamed(AppRoutes.homeScreen);
       } else {
-        Get.offAllNamed(AppRoutes.onboardingScreen);
-      }*/
-
-      Get.offAllNamed(AppRoutes.getStartScreen);
+        Get.offAllNamed(AppRoutes.getStartScreen);
+      }
+      //Get.offAllNamed(AppRoutes.getStartScreen);
     });
     // TODO: implement initState
     super.initState();

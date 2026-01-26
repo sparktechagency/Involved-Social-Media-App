@@ -56,6 +56,7 @@ class AuthController extends GetxController {
       update();
     } else {
       ApiChecker.checkApi(response);
+      Fluttertoast.showToast(msg: response.statusText ?? "");
       signUpLoading(false);
       update();
     }
@@ -78,20 +79,19 @@ class AuthController extends GetxController {
           headers: headers);
       print("============${response.body} and ${response.statusCode}");
       if (response.statusCode == 200) {
-        print('token>>>>${response.body["data"]['attributes']['tokens']['access']['token']}');
-        await PrefsHelper.setString(AppConstants.bearerToken,
-            response.body["data"]['attributes']['tokens']['access']['token']);
-        var role = response.body["data"]['attributes']['user']['role'];
-        print("===> role : $role");
+       // await PrefsHelper.setString(AppConstants.bearerToken, response.body["data"]['attributes']['tokens']['access']['token']);
         otpCtrl.clear();
         if (screenType == "forgetPasswordScreen") {
-          Get.toNamed(AppRoutes.resetPasswordScreen,
-              parameters: {"email": email});
-        } else if (screenType == "signup"){
-          Get.toNamed(AppRoutes.signInScreen);
+          Get.offAllNamed(
+            AppRoutes.resetPasswordScreen,
+            parameters: {"email": email},
+          );
+        } else {
+          Get.offAllNamed(AppRoutes.signInScreen, parameters: {"email": email});
         }
       } else {
         ApiChecker.checkApi(response);
+        Fluttertoast.showToast(msg: response.statusText ?? "");
       }
     } catch (e, s) {
       print("===> e : $e");
@@ -168,8 +168,7 @@ class AuthController extends GetxController {
     if (response.statusCode == 200) {
       await PrefsHelper.setString(AppConstants.bearerToken,
           response.body['tokens']['accessToken']);
-      await PrefsHelper.setString(AppConstants.id,
-          response.body['data']['_id']);
+      await PrefsHelper.setString(AppConstants.userId, response.body['data']['_id']);
       await PrefsHelper.setBool(AppConstants.isLogged, true);
       Get.offAllNamed(AppRoutes.homeScreen);
       signInEmailCtrl.clear();
@@ -219,11 +218,15 @@ class AuthController extends GetxController {
   handleChangePassword(String oldPassword, String newPassword) async {
     changeLoading(true);
     var body = {"oldPassword": oldPassword, "newPassword": newPassword};
-    var response = await ApiClient.postData(ApiConstants.changePassEndPoint, body);
+    var headers = {'Content-Type': 'application/json'};
+    var response = await ApiClient.postData(
+        ApiConstants.changePassEndPoint, json.encode(body),
+        headers: headers);
     print("===============> ${response.body}");
     if (response.statusCode == 200) {
+      Map<String, dynamic> responseBody = json.decode(response.body);
       Fluttertoast.showToast(
-          msg: response.body['message'],
+          msg: responseBody['message'],
           toastLength: Toast.LENGTH_LONG,
           gravity: ToastGravity.CENTER,
           backgroundColor: AppColors.cardLightColor,
