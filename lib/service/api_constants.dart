@@ -14,6 +14,7 @@ class ApiConstants {
   static const String changePassEndPoint = "/auth/update_password";
   static const String googleSignInEndPoint = "/auth/login_with_oauth";
   static const String updatePictureEndPoint = "/user/update-profile";
+  static const String getPictureEndPoint = "/user/self-profile";
   static const String setLocationEndPoint = "";
   static const String termsConditionEndPoint = "";
   static const String privacyPolicyEndPoint = "";

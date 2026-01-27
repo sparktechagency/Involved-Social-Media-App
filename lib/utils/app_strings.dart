@@ -47,6 +47,7 @@ class AppStrings {
   static String skip = 'Skip';
   static String createUsername = 'Create Username';
   static String chooseYourFavoriteEvent = 'Choose your favorite event.';
+  static String chooseYourProfilePicture = 'Choose your profile picture';
   static String next = 'Next';
   static String finish = 'Finish';
   //=============================> Home Screen <==============================

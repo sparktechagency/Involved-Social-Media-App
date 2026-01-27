@@ -1,13 +1,19 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:get/get.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:involved/helpers/prefs_helpers.dart';
+import 'package:involved/service/api_client.dart';
+import 'package:involved/service/api_constants.dart';
+import 'package:involved/utils/app_constants.dart';
 
 import '../utils/app_colors.dart';
 
 class ProfileController extends GetxController {
   File? selectedImage;
   RxString imagesPath = ''.obs;
+  RxBool isUpdatingProfile = false.obs;
   String title = "Profile Screen";
 
   @override

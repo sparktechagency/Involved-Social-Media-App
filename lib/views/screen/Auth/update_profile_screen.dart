@@ -5,6 +5,7 @@ import 'package:get/get.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:involved/controller/profile_controller.dart';
 import 'package:involved/utils/app_colors.dart';
+import 'package:involved/utils/app_strings.dart';
 import 'package:involved/views/base/custom_app_bar.dart';
 import 'package:involved/views/base/custom_button.dart';
 import 'package:involved/views/base/custom_text.dart';
@@ -30,7 +31,7 @@ class _UpdateProfileScreenState extends State<UpdateProfileScreen> {
           children: [
             //=========================> Title <====================
             CustomText(
-              text: 'Choose your profile picture'.tr,
+              text: AppStrings.chooseYourProfilePicture.tr,
               fontSize: 24.sp,
               fontWeight: FontWeight.w700,
               maxLine: 2,
@@ -113,7 +114,15 @@ class _UpdateProfileScreenState extends State<UpdateProfileScreen> {
             ),
             SizedBox(height: 60.h),
             //==================================> Next Button <=========================
-            CustomButton(onTap: (){}, text: 'Next'.tr),
+            Obx(
+              () => CustomButton(
+                onTap: () {
+                      Get.offAllNamed('/home_screen');
+                },
+                text: AppStrings.next.tr,
+                loading: _controller.isUpdatingProfile.value,
+              )
+            ),
             SizedBox(height: 48.h),
           ],
         ),
