@@ -84,6 +84,8 @@ class AuthController extends GetxController {
             parameters: {"email": email},
           );
         } else {
+          // After successful OTP verification for signup, redirect to sign in screen
+          // The sign in screen will then redirect to update profile screen
           Get.offAllNamed(AppRoutes.signInScreen, parameters: {"email": email});
         }
       } else {
@@ -140,7 +142,7 @@ class AuthController extends GetxController {
           response.body['tokens']['accessToken']);
       await PrefsHelper.setString(AppConstants.userId, response.body['data']['_id']);
       await PrefsHelper.setBool(AppConstants.isLogged, true);
-      Get.offAllNamed(AppRoutes.homeScreen);
+        Get.offAllNamed(AppRoutes.homeScreen);
       signInEmailCtrl.clear();
       signInPassCtrl.clear();
       signInLoading(false);
