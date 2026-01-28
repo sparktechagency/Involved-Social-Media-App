@@ -7,7 +7,6 @@ import '../controller/home_controller.dart';
 import '../controller/localization_controller.dart';
 import '../controller/theme_controller.dart';
 import '../controller/profile_controller.dart';
-import '../service/user_service.dart';
 import '../models/language_model.dart';
 import '../utils/app_constants.dart';
 
@@ -22,7 +21,6 @@ Future<Map<String, Map<String, String>>>  init() async {
   Get.lazyPut(() => ThemeController(sharedPreferences: Get.find()));
   Get.lazyPut(() => LocalizationController(sharedPreferences: Get.find()));
   Get.lazyPut(() => HomeController());
-  Get.lazyPut(() => UserService());
 
 
 

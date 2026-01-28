@@ -12,6 +12,7 @@ import 'package:involved/views/base/custom_button.dart';
 import 'package:involved/views/base/custom_network_image.dart';
 import 'package:involved/views/base/custom_text.dart';
 import 'package:involved/views/base/custom_text_field.dart';
+import 'package:involved/service/api_constants.dart';
 
 class EditProfileScreen extends StatefulWidget {
   const EditProfileScreen({super.key});
@@ -24,6 +25,24 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
   final ProfileController _controller = Get.put(ProfileController());
 
   @override
+  void initState() {
+    super.initState();
+    _controller.nameCTRL.text = Get.parameters['name'] ?? '';
+    _controller.addressCTRL.text = Get.parameters['address'] ?? '';
+     _controller.phoneCTRL.text = Get.parameters['phone'] ?? '';
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _populateFields();
+    });
+  }
+
+  void _populateFields() {
+    if (_controller.userProfile.value != null) {
+      _controller.nameCTRL.text = _controller.userProfile.value!.name ?? '';
+      _controller.addressCTRL.text = _controller.userProfile.value!.address ?? '';
+    }
+  }
+
+  @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: CustomAppBar(title: AppStrings.editProfileInformation.tr),
@@ -33,13 +52,36 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
             //==============================> Profile picture section <=======================
             Stack(
               children: [
-                CustomNetworkImage(
-                  imageUrl:
-                      'https://t4.ftcdn.net/jpg/02/24/86/95/360_F_224869519_aRaeLneqALfPNBzg0xxMZXghtvBXkfIA.jpg',
-                  height: 145.h,
-                  width: 145.w,
-                  boxShape: BoxShape.circle,
-                  border: Border.all(width: 2.w, color: AppColors.primaryColor),
+                Obx(() =>
+                  Stack(
+                    children: [
+                      if (_controller.selectedImage.value != null)
+                        CircleAvatar(
+                          radius: 72.5.r,
+                          backgroundImage: FileImage(_controller.selectedImage.value!),
+                          backgroundColor: Colors.grey,
+                          child: Container(
+                            decoration: BoxDecoration(
+                              shape: BoxShape.circle,
+                              border: Border.all(
+                                width: 2.w,
+                                color: AppColors.primaryColor,
+                              ),
+                            ),
+                          ),
+                        )
+                      else
+                        CustomNetworkImage(
+                          imageUrl: _controller.userProfile.value?.image != null
+                              ? '${ApiConstants.imageBaseUrl}${_controller.userProfile.value!.image}'
+                              : 'https://t4.ftcdn.net/jpg/02/24/86/95/360_F_224869519_aRaeLneqALfPNBzg0xxMZXghtvBXkfIA.jpg',
+                          height: 145.h,
+                          width: 145.w,
+                          boxShape: BoxShape.circle,
+                          border: Border.all(width: 2.w, color: AppColors.primaryColor),
+                        ),
+                    ],
+                  )
                 ),
                 //==============================> Edit Profile Button <=======================
                 Positioned(
@@ -76,7 +118,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                         bottom: 14.h,
                       ),
                       CustomTextField(
-                        controller: _controller.userNameCTRL,
+                        controller: _controller.nameCTRL,
                         hintText: AppStrings.enterUsername.tr,
                       ),
                       SizedBox(height: 16.h),
@@ -112,12 +154,19 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
             //==============================> Update profile Button <=======================
             Padding(
               padding: EdgeInsets.symmetric(horizontal: 12.w),
-              child: CustomButton(
+              child: Obx(() => CustomButton(
                 onTap: () {
-                  Get.back();
+                  _controller.updateProfile().then((success) {
+                    if (success) {
+                      Get.back();
+                    }
+                  });
                 },
-                text: AppStrings.updateProfile.tr,
-              ),
+                text: _controller.isUpdatingProfile.value
+                    ? "Updating..."
+                    : AppStrings.updateProfile.tr,
+                loading: _controller.isUpdatingProfile.value,
+              )),
             ),
             SizedBox(height: 22.h),
           ],

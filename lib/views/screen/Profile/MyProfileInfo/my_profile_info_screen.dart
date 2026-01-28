@@ -4,7 +4,6 @@ import 'package:flutter_svg/svg.dart';
 import 'package:get/get.dart';
 import 'package:involved/controller/profile_controller.dart';
 import 'package:involved/helpers/route.dart';
-import 'package:involved/service/api_constants.dart';
 import 'package:involved/utils/app_colors.dart';
 import 'package:involved/utils/app_icons.dart';
 import 'package:involved/utils/app_strings.dart';
@@ -18,10 +17,9 @@ class MyProfileInfoScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final ProfileController _controller = Get.find();
-
+    final ProfileController _controller = Get.put(ProfileController());
     return Scaffold(
-      appBar: CustomAppBar(title: AppStrings.myProfile.tr),
+        appBar: CustomAppBar(title: AppStrings.myProfile.tr),
       body: CustomScrollView(
         slivers: [
           SliverToBoxAdapter(
@@ -62,16 +60,23 @@ class MyProfileInfoScreen extends StatelessWidget {
                     }),
                     SizedBox(height: 12.h),
                     //=========================> Edit Profile Button <========================
-                    CustomButton(
-                      onTap: () {
-                        Get.toNamed(AppRoutes.editProfileScreen);
-                      },
-                      width: 98.w,
-                      height: 36.h,
-                      color: Color(0xffFAE9CB),
-                      textColor: AppColors.primaryColor,
-                      text: AppStrings.editProfile.tr,
-                    ),
+                    Obx(() {
+                      final user = _controller.userProfile.value;
+                      return CustomButton(
+                        onTap: () {
+                          Get.toNamed(AppRoutes.editProfileScreen, parameters: {
+                            'name': user?.name ?? 'Enter  name',
+                            'address': user?.address ?? 'Enter address',
+                            'phone': '', // phone field doesn't exist in user model
+                          });
+                        },
+                        width: 98.w,
+                        height: 36.h,
+                        color: Color(0xffFAE9CB),
+                        textColor: AppColors.primaryColor,
+                        text: AppStrings.editProfile.tr,
+                      );
+                    }),
                     SizedBox(height: 12.h),
                   ],
                 ),
