@@ -108,7 +108,6 @@ class ProfileController extends GetxController {
     try {
       Map<String, String> fields = {
         'name': nameCTRL.text.trim(),
-        'phone': phoneCTRL.text.trim(),
         'address': addressCTRL.text.trim(),
       };
 

@@ -31,6 +31,7 @@ class UserData {
   String? email;
   bool? isEmailVerified;
   bool? isPhoneVerified;
+  String? phone;
   String? image;
   String? role;
   String? address;
@@ -70,6 +71,7 @@ class UserData {
     email = json['email'];
     isEmailVerified = json['isEmailVerified'];
     isPhoneVerified = json['isPhoneVerified'];
+    phone = json['phone'];
     image = json['image'];
     role = json['role'];
     address = json['address'];
@@ -91,6 +93,7 @@ class UserData {
     data['email'] = email;
     data['isEmailVerified'] = isEmailVerified;
     data['isPhoneVerified'] = isPhoneVerified;
+    data['phone'] = phone;
     data['image'] = image;
     data['role'] = role;
     data['address'] = address;

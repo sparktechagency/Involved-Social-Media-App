@@ -67,7 +67,7 @@ class MyProfileInfoScreen extends StatelessWidget {
                           Get.toNamed(AppRoutes.editProfileScreen, parameters: {
                             'name': user?.name ?? 'Enter  name',
                             'address': user?.address ?? 'Enter address',
-                            'phone': '', // phone field doesn't exist in user model
+                            'phone': user?.phone ?? '',
                           });
                         },
                         width: 98.w,

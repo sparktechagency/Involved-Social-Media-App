@@ -39,6 +39,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
     if (_controller.userProfile.value != null) {
       _controller.nameCTRL.text = _controller.userProfile.value!.name ?? '';
       _controller.addressCTRL.text = _controller.userProfile.value!.address ?? '';
+      _controller.phoneCTRL.text = _controller.userProfile.value!.phone ?? '';
     }
   }
 
