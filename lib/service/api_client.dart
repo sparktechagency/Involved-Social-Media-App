@@ -151,44 +151,14 @@ class ApiClient extends GetxService {
       if (multipartBody!.isNotEmpty) {
         multipartBody.forEach((element) async {
           debugPrint("path : ${element.file.path}");
-
-          if (element.file.path.contains(".mp4")) {
-            debugPrint("media type mp4 ==== ${element.file.path}");
-            request.files.add(http.MultipartFile(
-              element.key,
-              element.file.readAsBytes().asStream(),
-              element.file.lengthSync(),
-              filename: 'video.mp4',
-              contentType: MediaType('video', 'mp4'),
-            ));
-          } else if (element.file.path.contains(".png")) {
-            debugPrint("media type png ==== ${element.file.path}");
-            request.files.add(http.MultipartFile(
-              element.key,
-              element.file.readAsBytes().asStream(),
-              element.file.lengthSync(),
-              filename: 'image.png',
-              contentType: MediaType('image', 'png'),
-            ));
-          } else if (element.file.path.contains(".jpg")) {
-            debugPrint("media type png ==== ${element.file.path}");
-            request.files.add(http.MultipartFile(
-              element.key,
-              element.file.readAsBytes().asStream(),
-              element.file.lengthSync(),
-              filename: 'image.jpg',
-              contentType: MediaType('image', 'jpg'),
-            ));
-          } else if (element.file.path.contains(".jpeg")) {
-            debugPrint("media type jpeg ==== ${element.file.path}");
-            request.files.add(http.MultipartFile(
-              element.key,
-              element.file.readAsBytes().asStream(),
-              element.file.lengthSync(),
-              filename: 'image.jpeg',
-              contentType: MediaType('image', 'jpeg'),
-            ));
-          }
+          String? mimeType = mime(element.file.path);
+          request.files.add(http.MultipartFile(
+            element.key,
+            element.file.readAsBytes().asStream(),
+            element.file.lengthSync(),
+            filename: element.file.path.split('/').last,
+            contentType: MediaType.parse(mimeType!),
+          ));
         });
       }
 
@@ -255,44 +225,14 @@ class ApiClient extends GetxService {
       if (multipartBody!.isNotEmpty) {
         multipartBody.forEach((element) async {
           debugPrint("path : ${element.file.path}");
-
-          if (element.file.path.contains(".mp4")) {
-            debugPrint("media type mp4 ==== ${element.file.path}");
-            request.files.add(http.MultipartFile(
-              element.key,
-              element.file.readAsBytes().asStream(),
-              element.file.lengthSync(),
-              filename: 'video.mp4',
-              contentType: MediaType('video', 'mp4'),
-            ));
-          } else if (element.file.path.contains(".png")) {
-            debugPrint("media type png ==== ${element.file.path}");
-            request.files.add(http.MultipartFile(
-              element.key,
-              element.file.readAsBytes().asStream(),
-              element.file.lengthSync(),
-              filename: 'image.png',
-              contentType: MediaType('image', 'png'),
-            ));
-          } else if (element.file.path.contains(".jpg")) {
-            debugPrint("media type png ==== ${element.file.path}");
-            request.files.add(http.MultipartFile(
-              element.key,
-              element.file.readAsBytes().asStream(),
-              element.file.lengthSync(),
-              filename: 'image.jpg',
-              contentType: MediaType('image', 'jpg'),
-            ));
-          } else if (element.file.path.contains(".jpeg")) {
-            debugPrint("media type jpeg ==== ${element.file.path}");
-            request.files.add(http.MultipartFile(
-              element.key,
-              element.file.readAsBytes().asStream(),
-              element.file.lengthSync(),
-              filename: 'image.jpeg',
-              contentType: MediaType('image', 'jpeg'),
-            ));
-          }
+          String? mimeType = mime(element.file.path);
+          request.files.add(http.MultipartFile(
+            element.key,
+            element.file.readAsBytes().asStream(),
+            element.file.lengthSync(),
+            filename: element.file.path.split('/').last,
+            contentType: MediaType.parse(mimeType!),
+          ));
         });
       }
 

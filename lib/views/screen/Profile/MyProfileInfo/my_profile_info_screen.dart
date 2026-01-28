@@ -4,7 +4,9 @@ import 'package:flutter_svg/svg.dart';
 import 'package:get/get.dart';
 import 'package:involved/controller/profile_controller.dart';
 import 'package:involved/helpers/route.dart';
+import 'package:involved/service/api_constants.dart';
 import 'package:involved/utils/app_colors.dart';
+import 'package:involved/utils/app_constants.dart';
 import 'package:involved/utils/app_icons.dart';
 import 'package:involved/utils/app_strings.dart';
 import 'package:involved/views/base/custom_app_bar.dart';
@@ -34,7 +36,7 @@ class MyProfileInfoScreen extends StatelessWidget {
                       return Stack(
                         children: [
                           CustomNetworkImage(
-                            imageUrl: user?.image ?? 'https://res.cloudinary.com/dl2okzz5j/image/upload/v1768475842/author_icon_udm2jo.png',
+                            imageUrl: '${ApiConstants.imageBaseUrl}${user?.image}' ?? 'https://res.cloudinary.com/dl2okzz5j/image/upload/v1768475842/author_icon_udm2jo.png',
                             height: 145.h,
                             width: 145.w,
                             boxShape: BoxShape.circle,

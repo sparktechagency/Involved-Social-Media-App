@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:get/get.dart';
+import 'package:involved/controller/profile_controller.dart';
 import 'package:involved/helpers/route.dart';
 import 'package:involved/utils/app_colors.dart';
 import 'package:involved/utils/app_icons.dart';

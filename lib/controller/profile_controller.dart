@@ -130,6 +130,8 @@ class ProfileController extends GetxController {
       if (response.statusCode == 200) {
         // Refresh the profile data after successful update
         await getUserProfile();
+        // Clear the selected image after successful upload
+        selectedImage.value = null;
         Fluttertoast.showToast(
           msg: "Profile updated successfully",
           backgroundColor: Colors.green,

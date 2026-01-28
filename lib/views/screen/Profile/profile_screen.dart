@@ -29,11 +29,11 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final user = _controller.userProfile.value;
     return Scaffold(
       bottomNavigationBar: BottomMenu(
         4,
-        profileImageUrl:
-            'https://images.rawpixel.com/image_800/czNmcy1wcml2YXRlL3Jhd3BpeGVsX2ltYWdlcy93ZWJzaXRlX2NvbnRlbnQvbHIvcm0zMjgtMzY2LXRvbmctMDhfMS5qcGc.jpg',
+        profileImageUrl: '${ApiConstants.imageBaseUrl}${user?.image}',
       ),
       body: SingleChildScrollView(
         child: Padding(
@@ -52,7 +52,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 return Stack(
                   children: [
                     CustomNetworkImage(
-                      imageUrl: user?.image ?? 'https://res.cloudinary.com/dl2okzz5j/image/upload/v1768475842/author_icon_udm2jo.png',
+                      imageUrl: '${ApiConstants.imageBaseUrl}${user?.image}' ?? 'https://res.cloudinary.com/dl2okzz5j/image/upload/v1768475842/author_icon_udm2jo.png',
                       height: 145.h,
                       width: 145.w,
                       boxShape: BoxShape.circle,
