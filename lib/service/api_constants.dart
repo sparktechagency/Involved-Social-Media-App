@@ -1,7 +1,7 @@
 class ApiConstants {
   //=========================>  Local Url <=====================
   static const String baseUrl = "https://d8001.sobhoy.com/api/v1";
-  static const String imageBaseUrl = "https://d8001.sobhoy.com";
+  static const String imageBaseUrl = "https://d8001.sobhoy.com/";
   //=========================>  Live Url <=====================
   //static const String baseUrl = "http://192.168.10.160:8080/api/v1";
   //static const String imageBaseUrl = "http://192.168.10.160:8080";
