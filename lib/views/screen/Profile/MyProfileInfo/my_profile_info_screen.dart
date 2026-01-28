@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:get/get.dart';
+import 'package:involved/controller/profile_controller.dart';
 import 'package:involved/helpers/route.dart';
 import 'package:involved/utils/app_colors.dart';
 import 'package:involved/utils/app_icons.dart';
@@ -16,8 +17,9 @@ class MyProfileInfoScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final ProfileController _controller = Get.put(ProfileController());
     return Scaffold(
-      appBar: CustomAppBar(title: AppStrings.myProfile.tr),
+        appBar: CustomAppBar(title: AppStrings.myProfile.tr),
       body: CustomScrollView(
         slivers: [
           SliverToBoxAdapter(
@@ -27,41 +29,54 @@ class MyProfileInfoScreen extends StatelessWidget {
                 child: Column(
                   children: [
                     //====================> User Profile Image <====================
-                    Stack(
-                      children: [
-                        CustomNetworkImage(
-                          imageUrl:
-                          'https://t4.ftcdn.net/jpg/02/24/86/95/360_F_224869519_aRaeLneqALfPNBzg0xxMZXghtvBXkfIA.jpg',
-                          height: 145.h,
-                          width: 145.w,
-                          boxShape: BoxShape.circle,
-                          border: Border.all(width: 4.w, color: Color(0xffFFEFD1)),
-                        ),
-                        Positioned(
-                            right: 10.w,
-                            top: 10.h,
-                            child: SvgPicture.asset(AppIcons.verify))
-                      ],
-                    ),
+                    Obx(() {
+                      final user = _controller.userProfile.value;
+                      return Stack(
+                        children: [
+                          CustomNetworkImage(
+                            imageUrl: user?.image ?? 'https://res.cloudinary.com/dl2okzz5j/image/upload/v1768475842/author_icon_udm2jo.png',
+                            height: 145.h,
+                            width: 145.w,
+                            boxShape: BoxShape.circle,
+                            border: Border.all(width: 4.w, color: Color(0xffFFEFD1)),
+                          ),
+                          if (user?.isEmailVerified == true || user?.isPhoneVerified == true)
+                            Positioned(
+                                right: 10.w,
+                                top: 10.h,
+                                child: SvgPicture.asset(AppIcons.verify))
+                        ],
+                      );
+                    }),
                     SizedBox(height: 12.h),
                     //=========================> User Name <========================
-                    CustomText(
-                      text: 'Bashar Islam',
-                      fontWeight: FontWeight.w600,
-                      fontSize: 20.sp,
-                    ),
+                    Obx(() {
+                      final user = _controller.userProfile.value;
+                      return CustomText(
+                        text: user?.name?.capitalize ?? 'User',
+                        fontWeight: FontWeight.w600,
+                        fontSize: 20.sp,
+                      );
+                    }),
                     SizedBox(height: 12.h),
                     //=========================> Edit Profile Button <========================
-                    CustomButton(
-                      onTap: () {
-                        Get.toNamed(AppRoutes.editProfileScreen);
-                      },
-                      width: 98.w,
-                      height: 36.h,
-                      color: Color(0xffFAE9CB),
-                      textColor: AppColors.primaryColor,
-                      text: AppStrings.editProfile.tr,
-                    ),
+                    Obx(() {
+                      final user = _controller.userProfile.value;
+                      return CustomButton(
+                        onTap: () {
+                          Get.toNamed(AppRoutes.editProfileScreen, parameters: {
+                            'name': user?.name ?? 'Enter  name',
+                            'address': user?.address ?? 'Enter address',
+                            'phone': user?.phone ?? '',
+                          });
+                        },
+                        width: 98.w,
+                        height: 36.h,
+                        color: Color(0xffFAE9CB),
+                        textColor: AppColors.primaryColor,
+                        text: AppStrings.editProfile.tr,
+                      );
+                    }),
                     SizedBox(height: 12.h),
                   ],
                 ),

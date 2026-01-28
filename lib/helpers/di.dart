@@ -6,6 +6,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import '../controller/home_controller.dart';
 import '../controller/localization_controller.dart';
 import '../controller/theme_controller.dart';
+import '../controller/profile_controller.dart';
 import '../models/language_model.dart';
 import '../utils/app_constants.dart';
 
