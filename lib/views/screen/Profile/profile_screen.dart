@@ -4,6 +4,7 @@ import 'package:flutter_svg/svg.dart';
 import 'package:get/get.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:involved/helpers/prefs_helpers.dart';
+import 'package:involved/service/api_constants.dart';
 import 'package:involved/utils/app_constants.dart';
 import 'package:involved/utils/app_icons.dart';
 import 'package:involved/utils/app_strings.dart';
@@ -46,29 +47,37 @@ class _ProfileScreenState extends State<ProfileScreen> {
               ),
               SizedBox(height: 24.h),
               //====================> User Profile Image <====================
-              Stack(
-                children: [
-                  CustomNetworkImage(
-                    imageUrl:
-                        'https://t4.ftcdn.net/jpg/02/24/86/95/360_F_224869519_aRaeLneqALfPNBzg0xxMZXghtvBXkfIA.jpg',
-                    height: 145.h,
-                    width: 145.w,
-                    boxShape: BoxShape.circle,
-                    border: Border.all(width: 4.w, color: Color(0xffFFEFD1)),
-                  ),
-                  Positioned(
-                    right: 10.w,
-                    top: 10.h,
-                      child: SvgPicture.asset(AppIcons.verify))
-                ],
-              ),
+              Obx(() {
+                final user = _controller.userProfile.value;
+                return Stack(
+                  children: [
+                    CustomNetworkImage(
+                      imageUrl: user?.image ?? 'https://res.cloudinary.com/dl2okzz5j/image/upload/v1768475842/author_icon_udm2jo.png',
+                      height: 145.h,
+                      width: 145.w,
+                      boxShape: BoxShape.circle,
+                      border: Border.all(width: 4.w, color: Color(0xffFFEFD1)),
+                    ),
+                    if (user?.isEmailVerified == true || user?.isPhoneVerified == true)
+                      Positioned(
+                        right: 10.w,
+                        top: 10.h,
+                        child: SvgPicture.asset(AppIcons.verify)
+                      )
+                  ],
+                );
+              }),
+
               SizedBox(height: 12.h),
               //=========================> User Name <========================
-              CustomText(
-                text: 'Bashar Islam',
-                fontWeight: FontWeight.w600,
-                fontSize: 20.sp,
-              ),
+              Obx(() {
+                final user = _controller.userProfile.value;
+                return CustomText(
+                  text: user?.name?.capitalize ?? 'User',
+                  fontWeight: FontWeight.w600,
+                  fontSize: 20.sp,
+                );
+              }),
               SizedBox(height: 24.h),
               //=========================> Upgrade to Business Profile <========================
               GestureDetector(

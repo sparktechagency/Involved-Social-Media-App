@@ -4,6 +4,7 @@ import 'package:fluttertoast/fluttertoast.dart';
 import 'package:get/get.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:involved/helpers/prefs_helpers.dart';
+import 'package:involved/models/user_model.dart';
 import 'package:involved/service/api_client.dart';
 import 'package:involved/service/api_constants.dart';
 import 'package:involved/utils/app_constants.dart';
@@ -16,6 +17,10 @@ class ProfileController extends GetxController {
   RxBool isUpdatingProfile = false.obs;
   String title = "Profile Screen";
 
+  // User profile data
+  Rx<UserData?> userProfile = Rx<UserData?>(null);
+  RxBool isLoadingProfile = false.obs;
+
   @override
   void onInit() {
     debugPrint("On Init  $title");
@@ -24,9 +29,34 @@ class ProfileController extends GetxController {
 
   @override
   void onReady() {
-    // TODO: implement onReady
+    // Load user profile when controller is ready
     debugPrint("On onReady  $title");
+    getUserProfile();
     super.onReady();
+  }
+
+  // Fetch user profile data
+  Future<void> getUserProfile() async {
+    isLoadingProfile(true);
+    try {
+      final response = await ApiClient.getData(ApiConstants.getPictureEndPoint);
+
+      if (response.statusCode == 200 && response.body != null) {
+        final userData = UserModel.fromJson(response.body);
+        if (userData.success == true) {
+          userProfile.value = userData.data;
+          update();
+        } else {
+          debugPrint('Failed to load user profile: ${userData.message}');
+        }
+      } else {
+        debugPrint('Failed to load user profile: ${response.statusText}');
+      }
+    } catch (e) {
+      debugPrint('Error getting user profile: $e');
+    } finally {
+      isLoadingProfile(false);
+    }
   }
 
   //===============================> Edit Profile Screen <=============================
