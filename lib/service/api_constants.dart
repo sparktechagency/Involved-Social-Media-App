@@ -17,8 +17,8 @@ class ApiConstants {
   static const String getProfileEndPoint = "/user/self-profile";
   static const String updateProfileEndPoint = "/user/update-profile";
   static const String setLocationEndPoint = "";
-  static const String termsConditionEndPoint = "";
-  static const String privacyPolicyEndPoint = "";
-  static const String aboutUsEndPoint = "";
+  static const String termsConditionEndPoint = "/setting-content/termsAndCondition";
+  static const String privacyPolicyEndPoint = "/setting-content/privacyPolicy";
+  static const String contactUsEndPoint = "/setting-content/contactUs";
   static const String logOutEndPoint = "/auth/logout";
 }
