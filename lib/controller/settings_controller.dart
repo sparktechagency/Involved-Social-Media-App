@@ -1,54 +1,49 @@
-/*
 import 'package:get/get.dart';
-import 'service/api_client.dart';
-import 'service/api_constants.dart';
+import 'package:involved/models/setting_content_model.dart';
+import 'package:involved/service/api_checker.dart';
+import 'package:involved/service/api_client.dart';
+import 'package:involved/service/api_constants.dart';
 
 class SettingController extends GetxController {
   //==============================> Get Terms and Condition Method <==========================
   var termsConditionLoading = false.obs;
-  RxString termContent = ''.obs;
+  Rx<SettingContentModel?> termContent = Rx<SettingContentModel?>(null);
   getTermsCondition() async {
     termsConditionLoading.value = true;
-    Map<String, String> header = {'Content-Type': 'application/json'};
-    var response = await ApiClient.getData(ApiConstants.termsConditionEndPoint,
-        headers: header);
+    Response response = await ApiClient.getData(ApiConstants.termsConditionEndPoint);
     if (response.statusCode == 200) {
-      var data = response.body;
-      var attributes = data['data']['attributes'][0]['content'];
-      termContent.value = attributes;
-      termsConditionLoading.value = false;
+      termContent.value = SettingContentModel.fromJson(response.body);
+    } else {
+      ApiChecker.checkApi(response);
     }
+    termsConditionLoading.value = false;
   }
 
 //==========================> Get Privacy Policy Method <=======================
   RxBool getPrivacyLoading = false.obs;
-  RxString privacyContent = ''.obs;
+  Rx<SettingContentModel?> privacyContent = Rx<SettingContentModel?>(null);
   getPrivacy() async {
     getPrivacyLoading.value = true;
-    Map<String, String> header = {'Content-Type': 'application/json'};
-    var response = await ApiClient.getData(ApiConstants.privacyPolicyEndPoint,
-        headers: header);
+    Response response = await ApiClient.getData(ApiConstants.privacyPolicyEndPoint);
     if (response.statusCode == 200) {
-      var data = response.body;
-      var attributes = data['data']['attributes'][0]['content'];
-      privacyContent.value = attributes;
-      getPrivacyLoading.value = false;
+      privacyContent.value = SettingContentModel.fromJson(response.body);
+    } else {
+      ApiChecker.checkApi(response);
     }
+    getPrivacyLoading.value = false;
   }
 
-  //==============================> Get About Us Method <==========================
-  RxBool getAboutUsLoading = false.obs;
-  RxString aboutContent = ''.obs;
-  getAboutUs() async {
-    getAboutUsLoading.value = true;
-    Map<String, String> header = {'Content-Type': 'application/json'};
-    var response = await ApiClient.getData(ApiConstants.aboutUsEndPoint, headers: header);
+  //==============================> Get Contact Us Method <==========================
+  RxBool getContactUsLoading = false.obs;
+  Rx<SettingContentModel?> contactUsContent = Rx<SettingContentModel?>(null);
+  getContactUs() async {
+    getContactUsLoading.value = true;
+    Response response = await ApiClient.getData(ApiConstants.contactUsEndPoint);
     if (response.statusCode == 200) {
-      var data = response.body;
-      var attributes = data['data']['attributes'][0]['content'];
-      aboutContent.value = attributes;
-      getAboutUsLoading.value = false;
+      contactUsContent.value = SettingContentModel.fromJson(response.body);
+    } else {
+      ApiChecker.checkApi(response);
     }
+    getContactUsLoading.value = false;
   }
 }
-*/

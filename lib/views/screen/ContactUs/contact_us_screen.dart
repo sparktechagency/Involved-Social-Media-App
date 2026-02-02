@@ -1,13 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
+import 'package:get/get_common/get_reset.dart';
 import '../../../controller/settings_controller.dart';
 import '../../../utils/app_strings.dart';
 import '../../base/custom_app_bar.dart';
 import '../../base/custom_text.dart';
 
-class PrivacyPolicyScreen extends StatelessWidget {
-  const PrivacyPolicyScreen({super.key});
+class ContactUsScreen extends StatelessWidget {
+  const ContactUsScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -15,14 +16,14 @@ class PrivacyPolicyScreen extends StatelessWidget {
 
     // Call the API when the screen loads
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      if (controller.privacyContent.value == null) {
-        controller.getPrivacy();
+      if (controller.contactUsContent.value == null) {
+        controller.getContactUs();
       }
     });
 
     return Scaffold(
-      appBar: CustomAppBar(title: AppStrings.privacyPolicy.tr),
-      body: Obx(() => controller.getPrivacyLoading.value
+      appBar: CustomAppBar(title: 'Contact Us'.tr),
+      body: Obx(() => controller.getContactUsLoading.value
           ? Center(child: CircularProgressIndicator())
           : SingleChildScrollView(
               child: Padding(
@@ -30,8 +31,8 @@ class PrivacyPolicyScreen extends StatelessWidget {
                 child: Column(
                   children: [
                     CustomText(
-                      text: controller.privacyContent.value?.data?.content ??
-                            'No privacy policy content available.',
+                      text: controller.contactUsContent.value?.data?.content ??
+                            'No contact us content available.',
                       fontSize: 14.sp,
                       maxLine: null,
                       textAlign: TextAlign.start,

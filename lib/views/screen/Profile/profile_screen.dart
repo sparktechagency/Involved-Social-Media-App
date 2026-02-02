@@ -206,9 +206,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
                         //===================> About Us ListTile <=================
                         CustomListTile(
                           onTap: () {
-                            Get.toNamed(AppRoutes.aboutUsScreen);
+                            Get.toNamed(AppRoutes.contactUsScreen);
                           },
-                          title: AppStrings.aboutUs.tr,
+                          title: 'Contact Us'.tr,
                           prefixIcon: SvgPicture.asset(AppIcons.about),
                           suffixIcon: SvgPicture.asset(AppIcons.rightArrow),
                         ),

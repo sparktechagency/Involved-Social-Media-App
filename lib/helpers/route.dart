@@ -1,5 +1,4 @@
 import 'package:get/get.dart';
-import 'package:involved/views/screen/AboutUs/about_us_screen.dart';
 import 'package:involved/views/screen/Auth/change_password_screen.dart';
 import 'package:involved/views/screen/Auth/interest_screen.dart';
 import 'package:involved/views/screen/Auth/reset_password_screen.dart';
@@ -8,6 +7,7 @@ import 'package:involved/views/screen/Auth/sign_up_screen.dart';
 import 'package:involved/views/screen/Auth/forgot_password_screen.dart';
 import 'package:involved/views/screen/Auth/otp_screen.dart';
 import 'package:involved/views/screen/Auth/update_profile_screen.dart';
+import 'package:involved/views/screen/ContactUs/contact_us_screen.dart';
 import 'package:involved/views/screen/Create/create_event_screen.dart';
 import 'package:involved/views/screen/Create/event_details_screen.dart';
 import 'package:involved/views/screen/Create/event_screen.dart';
@@ -47,7 +47,7 @@ class AppRoutes{
   static String createEventScreen="/create_event_screen";
   static String myFavoriteEventScreen="/my_favorite_event_screen";
   static String privacyPolicyScreen="/privacy_policy_screen";
-  static String aboutUsScreen="/about_us_screen";
+  static String contactUsScreen="/contact_us_screen";
   static String termsServicesScreen="/terms_services_screen";
   static String notificationsScreen="/notifications_screen";
   static String subscriptionScreen="/subscription_screen";
@@ -75,7 +75,7 @@ class AppRoutes{
     GetPage(name:myPlanScreen, page: ()=>const MyPlanScreen()),
     GetPage(name:myFavoriteEventScreen, page: ()=>const MyFavoriteEventScreen()),
     GetPage(name:privacyPolicyScreen, page: ()=>const PrivacyPolicyScreen()),
-    GetPage(name:aboutUsScreen, page: ()=>const AboutUsScreen()),
+    GetPage(name:contactUsScreen, page: ()=>const ContactUsScreen()),
     GetPage(name:termsServicesScreen, page: ()=>const TermsServicesScreen()),
     GetPage(name:notificationsScreen, page: ()=> NotificationsScreen()),
     GetPage(name:subscriptionScreen, page: ()=> SubscriptionScreen()),
