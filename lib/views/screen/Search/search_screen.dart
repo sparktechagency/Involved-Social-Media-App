@@ -13,6 +13,9 @@ import 'package:involved/views/base/custom_network_image.dart';
 import 'package:involved/views/base/custom_text.dart';
 import 'package:involved/views/base/custom_text_field.dart';
 
+import '../../../controller/event_controller.dart';
+import '../../../service/api_constants.dart';
+
 class SearchScreen extends StatefulWidget {
   SearchScreen({super.key});
 
@@ -22,7 +25,18 @@ class SearchScreen extends StatefulWidget {
 
 class _SearchScreenState extends State<SearchScreen> {
   final TextEditingController searchCTRL = TextEditingController();
-  final List<bool> bookmarkedList = List.generate(8, (_) => false);
+  // Initialize the controller
+  final EventController eventController = Get.put(EventController());
+
+  @override
+  void initState() {
+    super.initState();
+
+    // Wait for the frame to complete before triggering the API call
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      eventController.fetchEvents(type: "");
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -35,113 +49,104 @@ class _SearchScreenState extends State<SearchScreen> {
           fontSize: 16.sp,
         ),
         backgroundColor: Colors.white,
-        leading: SizedBox(),
+        leading: const SizedBox(),
       ),
       body: Padding(
         padding: EdgeInsets.symmetric(horizontal: 20.w),
         child: Column(
           children: [
-            //=================================> Search Text Field and Filter Row <============================
             CustomTextField(
               controller: searchCTRL,
-              prefixIcon: Icon(
-                Icons.search_rounded,
-                color: AppColors.primaryColor,
-              ),
+              prefixIcon: Icon(Icons.search_rounded, color: AppColors.primaryColor),
               hintText: AppStrings.searchEvent.tr,
+              // Trigger search on change or submit
+              // onFieldSubmitted: (value) {
+              //   eventController.fetchEvents(searchTerm: value);
+              // },
             ),
             SizedBox(height: 24.h),
-            //=================================> Event Card Grid View <============================
             Expanded(
-              child: GridView.builder(
-                padding: EdgeInsets.symmetric(vertical: 8.h),
-                itemCount: bookmarkedList.length,
-                gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                  crossAxisCount: 2,
-                  mainAxisSpacing: 12.h,
-                  crossAxisSpacing: 12.w,
-                  childAspectRatio: 0.57,
-                ),
-                itemBuilder: (context, index) {
-                  final isBookmarked = bookmarkedList[index];
-              
-                  return Material(
-                    color: Colors.white,
-                    elevation: 2,
-                    borderRadius: BorderRadius.circular(12.r),
-                    child: InkWell(
+              child: Obx(() {
+                if (eventController.isLoading.value && eventController.eventsList.isEmpty) {
+                  return const Center(child: CircularProgressIndicator());
+                }
+
+                return GridView.builder(
+                  padding: EdgeInsets.symmetric(vertical: 8.h),
+                  itemCount: eventController.eventsList.length,
+                  gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                    crossAxisCount: 2,
+                    mainAxisSpacing: 12.h,
+                    crossAxisSpacing: 12.w,
+                    childAspectRatio: 0.57,
+                  ),
+                  itemBuilder: (context, index) {
+                    final event = eventController.eventsList[index];
+                    final fullImageUrl = "${ApiConstants.imageBaseUrl}${event.image}";
+
+                    return Material(
+                      color: Colors.white,
+                      elevation: 2,
                       borderRadius: BorderRadius.circular(12.r),
-                      onTap: () => showEventDetailsDialog(
-                        context: context,
-                        imageUrl: 'https://images.unsplash.com/photo-1546069901-ba9599a7e63c',
-                        title: 'Virginia philps wine testing',
-                        dateTime: '18/06/25 08:30PM',
-                        venue: 'Rampura Town Hall Dhaka, Bangladesh',
-                        description:
-                        "The event is live as soon as it's posted. You can explore various categories and locations...",
-                      ),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          CustomNetworkImage(
-                            imageUrl:
-                            'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSeei1bJZYTGM66KOeKixxKnAAaGXqNATMBTS2Q7sBlERDOqPYHStLAXuTOXb3mn9aKFEw&usqp=CAU',
-                            height: 240.h,
-                            width: double.infinity,
-                            borderRadius: BorderRadius.only(
-                              topLeft: Radius.circular(12.r),
-                              topRight: Radius.circular(12.r),
+                      child: InkWell(
+                        borderRadius: BorderRadius.circular(12.r),
+                        onTap: () => showEventDetailsDialog(
+                          context: context,
+                          imageUrl: fullImageUrl,
+                          title: event.title,
+                          dateTime: "${event.startDate}",
+                          venue: event.address,
+                          description: event.description,
+                        ),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            CustomNetworkImage(
+                              imageUrl: fullImageUrl,
+                              height: 240.h,
+                              width: double.infinity,
+                              borderRadius: BorderRadius.only(
+                                topLeft: Radius.circular(12.r),
+                                topRight: Radius.circular(12.r),
+                              ),
                             ),
-                          ),
-                          Padding(
-                            padding: EdgeInsets.all(8.w),
-                            child: Row(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Expanded(
-                                  child: Column(
-                                    crossAxisAlignment: CrossAxisAlignment.start,
-                                    children: [
-                                      CustomText(
-                                        text: 'Pasta Making Class',
-                                        maxLine: 2,
-                                        textOverflow: TextOverflow.ellipsis,
-                                        fontWeight: FontWeight.w500,
-                                      ),
-                                      SizedBox(height: 4.h),
-                                      CustomText(
-                                        text: 'Dhaka, Bangladesh',
-                                        maxLine: 1,
-                                        textOverflow: TextOverflow.ellipsis,
-                                        fontSize: 12.sp,
-                                      ),
-                                    ],
+                            Padding(
+                              padding: EdgeInsets.all(8.w),
+                              child: Row(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Expanded(
+                                    child: Column(
+                                      crossAxisAlignment: CrossAxisAlignment.start,
+                                      children: [
+                                        CustomText(
+                                          text: event.title,
+                                          maxLine: 2,
+                                          textOverflow: TextOverflow.ellipsis,
+                                          fontWeight: FontWeight.w500,
+                                        ),
+                                        SizedBox(height: 4.h),
+                                        CustomText(
+                                          text: event.address,
+                                          maxLine: 1,
+                                          textOverflow: TextOverflow.ellipsis,
+                                          fontSize: 12.sp,
+                                        ),
+                                      ],
+                                    ),
                                   ),
-                                ),
-                                GestureDetector(
-                                  onTap: () {
-                                    setState(() {
-                                      bookmarkedList[index] = !bookmarkedList[index];
-                                    });
-                                  },
-                                  child: Icon(
-                                    isBookmarked ? Icons.bookmark : Icons.bookmark_border,
-                                    color: isBookmarked ? AppColors.primaryColor : Colors.grey,
-                                    size: 22.sp,
-                                  ),
-                                ),
-                              ],
+                                  Icon(Icons.bookmark_border, size: 22.sp),
+                                ],
+                              ),
                             ),
-                          ),
-                        ],
+                          ],
+                        ),
                       ),
-                    ),
-                  );
-                },
-              ),
+                    );
+                  },
+                );
+              }),
             ),
-
-
           ],
         ),
       ),
