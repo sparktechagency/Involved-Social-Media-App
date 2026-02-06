@@ -23,5 +23,6 @@ class ApiConstants {
   static const String logOutEndPoint = "/auth/logout";
   static const String eventFields = "/event";
   static const String selfEvent = "/event/self";
+  static const String collectionName = "/collection/names";
 
 }

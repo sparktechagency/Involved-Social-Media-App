@@ -10,6 +10,7 @@ import 'package:involved/views/base/custom_list_tile.dart';
 import 'package:involved/views/base/custom_network_image.dart';
 import 'package:involved/views/base/custom_text.dart';
 
+import '../../../../controller/collection_name_controller.dart';
 import '../../../../controller/event_controller.dart';
 import '../../../../service/api_constants.dart';
 
@@ -25,13 +26,12 @@ class _AllTabState extends State<AllTab> {
   // Unique controller for each tab to maintain independent lists/loading states
   late EventController eventController;
 
+  final CollectionController collectionController = Get.put(CollectionController());
+
   @override
   void initState() {
     super.initState();
-    // Use a unique tag for each type so tabs don't overwrite each other's data
     eventController = Get.put(EventController(), tag: widget.eventType);
-
-    // Initial fetch
     eventController.fetchEvents(type: widget.eventType);
   }
 
@@ -360,8 +360,8 @@ class _AllTabState extends State<AllTab> {
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
                           InkWell(
-                              onTap: ()=> Navigator.of(context).pop(),
-                              child: Icon(Icons.arrow_back_ios_new_outlined, size: 16.w,)),
+                              onTap: () => Navigator.of(context).pop(),
+                              child: Icon(Icons.arrow_back_ios_new_outlined, size: 16.w)),
                           CustomText(
                             text: AppStrings.save,
                             fontSize: 16.sp,
@@ -378,34 +378,45 @@ class _AllTabState extends State<AllTab> {
                           fontSize: 16.sp,
                         ),
                       ),
-                      SizedBox(height: 8.h),
-                      Container(
-                        width: double.infinity,
-                        padding: EdgeInsets.all(12.w),
-                        decoration: BoxDecoration(
-                          color: Colors.white,
-                          borderRadius: BorderRadius.circular(12.r),
-                          border: Border.all(color: AppColors.greyColor),
-                        ),
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            Icon(Icons.add_circle_outlined, color: AppColors.primaryColor),
-                            SizedBox(width: 8.w),
-                            CustomText(
-                              text: AppStrings.createNewAlbum.tr,
-                              color: AppColors.greyColor,
-                              fontWeight: FontWeight.w500,
-                              maxLine: 3,
-                              textAlign: TextAlign.start,
+                      SizedBox(height: 16.h),
+
+                      // --- Dynamic Collection List Starts Here ---
+                      Obx(() {
+                        if (collectionController.isLoading.value) {
+                          return const Center(
+                            child: Padding(
+                              padding: EdgeInsets.all(16.0),
+                              child: CircularProgressIndicator(),
                             ),
-                          ],
-                        ),
-                      ),
-                      SizedBox(height: 8.h),
-                      CustomListTile(title: AppStrings.bACHELORETTEPARTY.tr, suffixIcon: SvgPicture.asset(AppIcons.rightArrow)),
-                      CustomListTile(title: AppStrings.bESTDATENIGHTPLACE.tr, suffixIcon: SvgPicture.asset(AppIcons.rightArrow)),
-                      CustomListTile(title: AppStrings.fAVORITES.tr, suffixIcon: SvgPicture.asset(AppIcons.rightArrow)),
+                          );
+                        }
+
+                        if (collectionController.collectionList.isEmpty) {
+                          return Padding(
+                            padding: EdgeInsets.symmetric(vertical: 20.h),
+                            child: CustomText(
+                              text: "No albums found".tr,
+                              color: Colors.grey,
+                            ),
+                          );
+                        }
+
+                        return Column(
+                          children: collectionController.collectionList.map((album) {
+                            return CustomListTile(
+                              title: album,
+                              suffixIcon: SvgPicture.asset(AppIcons.rightArrow),
+                              onTap: () {
+                                // Handle saving the event to this album
+                                print("Selected Album: $album");
+                                Navigator.pop(context);
+                              },
+                            );
+                          }).toList(),
+                        );
+                      }),
+                      // --- Dynamic Collection List Ends Here ---
+
                       SizedBox(height: 20.h),
                     ],
                   ),
