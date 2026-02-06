@@ -25,7 +25,7 @@ class EventFieldsController extends GetxController {
   Future<List<String>> getFields(String middlePart) async {
     try {
       // The logic: "/event/" + "categories" + "/fields"
-      final String url = "${ApiConstants.eventFields}$middlePart/fields";
+      final String url = "${ApiConstants.eventFields}/$middlePart/fields";
 
       debugPrint("Fetching from: $url");
       final response = await ApiClient.getData(url);
