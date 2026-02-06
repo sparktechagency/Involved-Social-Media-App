@@ -21,4 +21,6 @@ class ApiConstants {
   static const String privacyPolicyEndPoint = "/setting-content/privacyPolicy";
   static const String contactUsEndPoint = "/setting-content/contactUs";
   static const String logOutEndPoint = "/auth/logout";
+  static const String eventFields = "/event/";
+
 }
