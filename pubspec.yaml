@@ -48,6 +48,7 @@ dependencies:
   mime_type: ^1.0.1
   fluttertoast: ^9.0.0
   http: ^1.2.2
+  intl: ^0.20.2
 
 dev_dependencies:
   flutter_test:

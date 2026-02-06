@@ -1,21 +1,34 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
+import 'package:intl/intl.dart';
 import 'package:involved/helpers/route.dart';
 import 'package:involved/utils/app_colors.dart';
 import 'package:involved/utils/app_strings.dart';
 import 'package:involved/views/base/bottom_menu..dart';
 import 'package:involved/views/base/custom_network_image.dart';
 import 'package:involved/views/base/custom_text.dart';
+import '../../../controller/self_event_controller.dart';
+import '../../../service/api_constants.dart';
 
 class EventScreen extends StatelessWidget {
   const EventScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
+    // Initialize the controller
+    final SelfEventController controller = Get.put(SelfEventController());
+    final ScrollController scrollController = ScrollController();
+
+    // Setup infinite scroll listener
+    scrollController.addListener(() {
+      if (scrollController.position.pixels == scrollController.position.maxScrollExtent) {
+        controller.loadMore();
+      }
+    });
+
     return Scaffold(
       bottomNavigationBar: BottomMenu(2),
-      //===========================> Appbar Section <============================
       appBar: AppBar(
         title: CustomText(
           text: AppStrings.createEvent.tr,
@@ -23,33 +36,58 @@ class EventScreen extends StatelessWidget {
           fontSize: 16.sp,
         ),
         backgroundColor: Colors.white,
-        leading: SizedBox(),
+        leading: const SizedBox(),
       ),
-      //===========================> Body Section <=============================
       body: Padding(
         padding: EdgeInsets.symmetric(horizontal: 20.w),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Expanded(
-              child: ListView.builder(
-                shrinkWrap: true,
-                itemCount: 5,
-                itemBuilder: (context, index) {
-                  return InkWell(
+        child: Obx(() {
+          // Full screen loader only for initial fetch
+          if (controller.isLoading.value && controller.selfEventsList.isEmpty) {
+            return const Center(child: CircularProgressIndicator());
+          }
+
+          if (controller.selfEventsList.isEmpty) {
+            return Center(child: CustomText(text: "No events found"));
+          }
+
+          return RefreshIndicator(
+            onRefresh: () => controller.refreshEvents(),
+            child: ListView.builder(
+              controller: scrollController,
+              padding: EdgeInsets.only(top: 8.h, bottom: 20.h),
+              itemCount: controller.selfEventsList.length + (controller.isLoading.value ? 1 : 0),
+              itemBuilder: (context, index) {
+                // Show a small loader at the bottom when fetching next page
+                if (index == controller.selfEventsList.length) {
+                  return const Center(child: Padding(
+                    padding: EdgeInsets.all(8.0),
+                    child: CircularProgressIndicator(),
+                  ));
+                }
+
+                final event = controller.selfEventsList[index];
+
+                // Construct Image URL
+                String fullImageUrl = event.image.startsWith('http')
+                    ? event.image
+                    : "${ApiConstants.imageBaseUrl}${event.image}";
+
+                // Format Date
+                String formattedDate = DateFormat('dd/MM/yy hh:mm a').format(event.startDate);
+
+                return Padding(
+                  padding: EdgeInsets.only(bottom: 12.h),
+                  child: InkWell(
                     onTap: () {
-                      /*showEventDetailsDialog(
+                      showEventDetailsDialog(
                         context: context,
-                        imageUrl:
-                        'https://images.unsplash.com/photo-1546069901-ba9599a7e63c',
-                        title: 'Pasta Making Class',
-                        location: 'Dhaka Bangladesh',
-                        dateTime: '18/06/25 08:30PM',
-                        venue: 'Rampura Town Hall Dhaka Bangladesh',
-                        description:
-                        "The event is live as soon as it's posted. You can explore various categories and locations, or search by specific names, dates, and more. Whether you're attending a business launch, a community fundraiser, or an influencer meet-up, our platform",
-                      );*/
-                     Get.toNamed(AppRoutes.eventDetailsScreen);
+                        imageUrl: fullImageUrl,
+                        title: event.title,
+                        location: event.address,
+                        dateTime: formattedDate,
+                        venue: event.address, // Or specific venue field if available
+                        description: event.description,
+                      );
                     },
                     child: Card(
                       color: Colors.white,
@@ -66,48 +104,49 @@ class EventScreen extends StatelessWidget {
                         child: Column(
                           mainAxisSize: MainAxisSize.min,
                           children: [
-                            //===========================> Event Image <================
                             CustomNetworkImage(
-                              imageUrl:
-                                  'https://images.unsplash.com/photo-1546069901-ba9599a7e63c',
+                              imageUrl: fullImageUrl,
                               height: 180.h,
                               width: double.infinity,
                               borderRadius: BorderRadius.circular(16.r),
                             ),
                             SizedBox(height: 16.h),
-                            //=======================> Title & Date Row <====================
                             Row(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
-                                /// Title & Location
                                 Expanded(
                                   child: Column(
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.start,
+                                    crossAxisAlignment: CrossAxisAlignment.start,
                                     children: [
                                       CustomText(
-                                        text: 'Pasta Making Class',
+                                        text: event.title,
                                         fontSize: 16.sp,
                                         fontWeight: FontWeight.w500,
+                                        maxLine: 1,
+                                        textOverflow: TextOverflow.ellipsis,
                                       ),
                                       SizedBox(height: 4.h),
                                       CustomText(
-                                        text: 'Dhaka Bangladesh',
+                                        text: event.address,
                                         fontSize: 12.sp,
+                                        maxLine: 1,
+                                        textOverflow: TextOverflow.ellipsis,
                                       ),
                                     ],
                                   ),
                                 ),
-
-                                /// Time
                                 Column(
                                   crossAxisAlignment: CrossAxisAlignment.end,
                                   children: [
-                                    CustomText(text: '18/06/25 08:30PM'),
+                                    CustomText(
+                                      text: formattedDate,
+                                      fontSize: 12.sp,
+                                    ),
                                     SizedBox(height: 4.h),
                                     CustomText(
                                       text: AppStrings.eventTime.tr,
                                       fontSize: 12.sp,
+                                      color: Colors.grey,
                                     ),
                                   ],
                                 ),
@@ -117,22 +156,18 @@ class EventScreen extends StatelessWidget {
                         ),
                       ),
                     ),
-                  );
-                },
-              ),
+                  ),
+                );
+              },
             ),
-          ],
-        ),
+          );
+        }),
       ),
-
-      //===========================> FloatingActionButton Section <=============================
       floatingActionButton: FloatingActionButton(
         backgroundColor: AppColors.primaryColor,
-        onPressed: () {
-          Get.toNamed(AppRoutes.createEventScreen);
-        },
+        onPressed: () => Get.toNamed(AppRoutes.createEventScreen),
         shape: const CircleBorder(),
-        child: Icon(Icons.add, color: Colors.white),
+        child: const Icon(Icons.add, color: Colors.white),
       ),
     );
   }
