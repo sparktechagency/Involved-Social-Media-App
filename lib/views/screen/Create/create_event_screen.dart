@@ -18,6 +18,7 @@ import 'package:involved/views/base/custom_text_field.dart';
 
 import '../../../controller/event_fields_controller.dart';
 import '../../../controller/event_post_controller.dart';
+import '../../../models/event_response_model.dart';
 
 
 class CreateEventScreen extends StatefulWidget {
@@ -36,10 +37,47 @@ class _CreateEventScreenState extends State<CreateEventScreen> {
   String? _selectedOccurrenceType;
   List<String> selectedAtmospheres = [];
 
+  bool isEdit = false;
+  String? eventId;
+
+  @override
+  void initState() {
+    super.initState();
+    _checkAndPopulateData();
+  }
+
+  void _checkAndPopulateData() {
+    // Check if arguments were passed (Editing mode)
+    if (Get.arguments != null && Get.arguments is Event) {
+      isEdit = true;
+      final Event event = Get.arguments;
+      eventId = event.id.toString();
+
+      // 1. Fill Text Controllers
+      postController.titleCTRL.text = event.title;
+      postController.locationCTRL.text = event.address;
+      postController.descriptionCTRL.text = event.description;
+
+      // Formatting dates for the text fields
+      postController.eventDateCTRL.text = event.startDate.toIso8601String().split('.')[0];
+      postController.eventEndTimeCTRL.text = event.endDate.toIso8601String().split('.')[0];
+
+      // 2. Preset Dropdowns and Lists
+      _selectedEventType = event.type;
+      _selectedEventCategory = event.category;
+      _selectedOccurrenceType = event.occurrenceType;
+      selectedAtmospheres = List<String>.from(event.atmosphere);
+
+      // Note: For images, we usually keep postController.imagePath empty
+      // unless the user picks a NEW one to upload.
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: CustomAppBar(title: AppStrings.createEvent.tr),
+      // Change title based on mode
+      appBar: CustomAppBar(title: isEdit ? "Edit Event" : AppStrings.createEvent.tr),
       body: Obx(() {
         if (fieldsController.isLoading.value) {
           return const Center(child: CircularProgressIndicator());
@@ -57,7 +95,6 @@ class _CreateEventScreenState extends State<CreateEventScreen> {
                     Center(child: Image.asset(AppImages.logos, width: 142.w, height: 64.h)),
                     SizedBox(height: 12.h),
 
-                    // --- Title ---
                     _buildFormContainer(
                       label: AppStrings.eventTitle.tr,
                       child: CustomTextField(
@@ -68,7 +105,6 @@ class _CreateEventScreenState extends State<CreateEventScreen> {
                     ),
                     SizedBox(height: 16.h),
 
-                    // --- Event Type ---
                     _buildDropdownContainer(
                       label: AppStrings.eventType.tr,
                       value: _selectedEventType,
@@ -78,7 +114,6 @@ class _CreateEventScreenState extends State<CreateEventScreen> {
                     ),
                     SizedBox(height: 16.h),
 
-                    // --- Category ---
                     _buildDropdownContainer(
                       label: AppStrings.eventCategories.tr,
                       value: _selectedEventCategory,
@@ -88,7 +123,6 @@ class _CreateEventScreenState extends State<CreateEventScreen> {
                     ),
                     SizedBox(height: 16.h),
 
-                    // --- Location (Address) ---
                     _buildFormContainer(
                       label: AppStrings.location.tr,
                       child: CustomTextField(
@@ -99,7 +133,6 @@ class _CreateEventScreenState extends State<CreateEventScreen> {
                     ),
                     SizedBox(height: 16.h),
 
-                    // --- Start Date ---
                     _buildFormContainer(
                       label: "Event Start",
                       child: CustomTextField(
@@ -112,7 +145,6 @@ class _CreateEventScreenState extends State<CreateEventScreen> {
                     ),
                     SizedBox(height: 16.h),
 
-                    // --- End Date ---
                     _buildFormContainer(
                       label: "Event End",
                       child: CustomTextField(
@@ -198,15 +230,25 @@ class _CreateEventScreenState extends State<CreateEventScreen> {
                     Obx(() => CustomButton(
                         loading: postController.isPosting.value,
                         onTap: () {
-                          // Passes all local state to the controller for the API call
-                          postController.createEvent(
-                            type: _selectedEventType,
-                            category: _selectedEventCategory,
-                            occurrenceType: _selectedOccurrenceType,
-                            atmosphere: selectedAtmospheres,
-                          );
+                          if (isEdit) {
+                            // Call Update Method (You need to add this to your controller)
+                            postController.updateEvent(
+                              eventId: eventId!,
+                              type: _selectedEventType,
+                              category: _selectedEventCategory,
+                              occurrenceType: _selectedOccurrenceType,
+                              atmosphere: selectedAtmospheres,
+                            );
+                          } else {
+                            postController.createEvent(
+                              type: _selectedEventType,
+                              category: _selectedEventCategory,
+                              occurrenceType: _selectedOccurrenceType,
+                              atmosphere: selectedAtmospheres,
+                            );
+                          }
                         },
-                        text: AppStrings.createEvent.tr)),
+                        text: isEdit ? "Update Event" : AppStrings.createEvent.tr)),
                     SizedBox(height: 32.h),
                   ],
                 ),

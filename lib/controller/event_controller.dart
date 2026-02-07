@@ -112,6 +112,9 @@ class EventController extends GetxController {
     }
   }
 
+
+
+
   void loadNextPage(String? type, {double? lat, double? long}) {
     if (currentPage.value < totalPages.value && !isLoading.value) {
       fetchEvents(

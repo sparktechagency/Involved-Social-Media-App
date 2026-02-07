@@ -7,6 +7,9 @@ import 'package:involved/service/api_constants.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 
+import '../models/event_response_model.dart';
+import 'event_controller.dart';
+
 class EventPostController extends GetxController {
   // --- Text Controllers ---
   final titleCTRL = TextEditingController();
@@ -134,6 +137,73 @@ class EventPostController extends GetxController {
       }
     } catch (e) {
       debugPrint("====> Exception: $e");
+    } finally {
+      isPosting(false);
+    }
+  }
+
+
+
+  // --- Fill fields with existing event data ---
+  void populateFields(Event event) {
+    titleCTRL.text = event.title;
+    locationCTRL.text = event.address;
+    descriptionCTRL.text = event.description;
+    eventDateCTRL.text = event.startDate.toIso8601String();
+    eventEndTimeCTRL.text = event.endDate.toIso8601String();
+    // For images, we usually show the network image in UI,
+    // and only use imagePath if the user picks a NEW one.
+    imagePath.value = "";
+  }
+
+  // --- Update Event Method ---
+  Future<void> updateEvent({
+    required String eventId,
+    String? type,
+    String? category,
+    List<String>? atmosphere,
+    String? occurrenceType,
+  }) async {
+    isPosting(true);
+    try {
+      Map<String, String> body = {};
+      body['title'] = titleCTRL.text.trim();
+      body['address'] = locationCTRL.text.trim();
+      body['description'] = descriptionCTRL.text.trim();
+      body['startDate'] = eventDateCTRL.text;
+      body['endDate'] = eventEndTimeCTRL.text;
+      if (type != null) body['type'] = type;
+      if (category != null) body['category'] = category;
+      if (occurrenceType != null) body['occurrenceType'] = occurrenceType;
+
+      if (atmosphere != null) {
+        for (int i = 0; i < atmosphere.length; i++) {
+          body['atmosphere[$i]'] = atmosphere[i];
+        }
+      }
+
+      List<MultipartBody> multipartFiles = [];
+      if (imagePath.value.isNotEmpty) {
+        multipartFiles.add(MultipartBody('image', File(imagePath.value)));
+      }
+
+      // Usually Update is a PATCH or PUT request
+      // Check if your ApiClient supports PATCH, otherwise use POST if the backend allows
+      String url = "${ApiConstants.eventFields}/$eventId";
+
+      Response response = await ApiClient.patchMultipartData(
+          url,
+          body,
+          multipartBody: multipartFiles
+      );
+
+      if (response.statusCode == 200 || response.statusCode == 201) {
+        Get.back(); // Go back to EventScreen
+        Get.find<EventController>().fetchEvents(); // Refresh the list
+        _showToast("Event updated successfully!", Colors.green);
+      } else {
+        _showToast("Failed to update event", Colors.red);
+      }
     } finally {
       isPosting(false);
     }

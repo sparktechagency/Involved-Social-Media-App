@@ -10,6 +10,7 @@ import 'package:involved/views/base/custom_network_image.dart';
 import 'package:involved/views/base/custom_text.dart';
 import '../../../controller/event_controller.dart';
 import '../../../controller/self_event_controller.dart';
+import '../../../models/event_response_model.dart';
 import '../../../service/api_constants.dart';
 import '../../base/custom_button.dart';
 
@@ -87,6 +88,7 @@ class EventScreen extends StatelessWidget {
                         venue: event.address,
                         description: event.description,
                         eventId: event.id.toString(),
+                        event: event,
                       );
                     },
                     child: Card(
@@ -176,6 +178,7 @@ class EventScreen extends StatelessWidget {
   void showEventDetailsDialog({
     required BuildContext context,
     required String imageUrl,
+    required Event event,
     required String title,
     required String location,
     required String dateTime,
@@ -301,8 +304,8 @@ class EventScreen extends StatelessWidget {
                           Expanded(
                             child: CustomButton(
                               onTap: () {
-                                // Navigator.pop(context);
-                                // Get.toNamed(AppRoutes.editEventScreen, arguments: eventId);
+                                Navigator.pop(context);
+                                Get.toNamed(AppRoutes.createEventScreen, arguments: event);
                               },
                               text: "Edit",
                               color: AppColors.primaryColor,

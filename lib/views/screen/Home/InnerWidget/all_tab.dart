@@ -87,6 +87,7 @@ class _AllTabState extends State<AllTab> {
                   dateTime: "${event.startDate.day}/${event.startDate.month}/${event.startDate.year}",
                   venue: event.address,
                   description: event.description,
+                  status: event.status,
                 ),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -151,6 +152,7 @@ class _AllTabState extends State<AllTab> {
     required String dateTime,
     required String venue,
     required String description,
+    required String status,
   }) {
     showDialog(
       context: context,
@@ -273,7 +275,7 @@ class _AllTabState extends State<AllTab> {
                             Icon(Icons.circle, color: AppColors.primaryColor, size: 12.h),
                             SizedBox(width: 8.w),
                             CustomText(
-                              text: 'Live',
+                              text: status,
                               color: AppColors.primaryColor,
                               fontWeight: FontWeight.w500,
                               maxLine: 3,
