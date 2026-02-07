@@ -8,43 +8,45 @@ class EventController extends GetxController {
   RxList<Event> eventsList = <Event>[].obs;
   RxBool isLoading = false.obs;
 
-  // Pagination
   RxInt currentPage = 1.obs;
   RxInt totalPages = 1.obs;
 
-
-  @override
-  void onInit() {
-    super.onInit();
-    // This is safe and runs automatically when Get.put is called
-    fetchEvents(type: "");
-  }
-
-
-  /// Fetch Events with required Type and optional Location
+  /// Fetch Events - Only adds parameters to URL if they have values
   Future<void> fetchEvents({
-    String type = "", // Default to empty
+    String? type,        // Changed to nullable
     double? lat,
     double? long,
     int page = 1,
-    String searchTerm = "", // Added for search functionality
+    String? searchTerm,  // Changed to nullable
   }) async {
     isLoading(true);
+
+    if (page == 1) eventsList.assignAll([]);
+
     try {
-      // Base URL
       String url = ApiConstants.eventFields;
       List<String> queryParams = [];
 
-      // Add params only if they exist/are needed
-      if (type.isNotEmpty) queryParams.add("type=$type");
-      if (page > 1) queryParams.add("page=$page");
-      if (searchTerm.isNotEmpty) queryParams.add("search=$searchTerm");
+      // Only add 'type' if it's not null and not empty
+      if (type != null && type.isNotEmpty) {
+        queryParams.add("type=$type");
+      }
+
+      // Only add 'search' if it's not null and not empty
+      if (searchTerm != null && searchTerm.isNotEmpty) {
+        queryParams.add("search=$searchTerm");
+      }
+
+      if (page > 1) {
+        queryParams.add("page=$page");
+      }
+
       if (lat != null && long != null) {
         queryParams.add("lat=$lat");
         queryParams.add("long=$long");
       }
 
-      // Join with '?' if params exist
+      // Build the final URL
       if (queryParams.isNotEmpty) {
         url += "?${queryParams.join("&")}";
       }
@@ -72,9 +74,7 @@ class EventController extends GetxController {
     }
   }
 
-
-  /// Load more logic
-  void loadNextPage(String type, {double? lat, double? long}) {
+  void loadNextPage(String? type, {double? lat, double? long}) {
     if (currentPage.value < totalPages.value && !isLoading.value) {
       fetchEvents(
         type: type,

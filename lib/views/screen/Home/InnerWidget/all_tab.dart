@@ -31,8 +31,15 @@ class _AllTabState extends State<AllTab> {
   @override
   void initState() {
     super.initState();
+
     eventController = Get.put(EventController(), tag: widget.eventType);
-    eventController.fetchEvents(type: widget.eventType);
+
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      // Pass the eventType directly.
+      // If widget.eventType is "", our new controller logic will
+      // automatically skip adding "type=" to the URL.
+      eventController.fetchEvents(type: widget.eventType);
+    });
   }
 
   @override
@@ -49,7 +56,7 @@ class _AllTabState extends State<AllTab> {
       return Padding(
         padding: EdgeInsets.symmetric(horizontal: 20.w),
         child: GridView.builder(
-          shrinkWrap: true,
+          shrinkWrap: false,
           physics: const AlwaysScrollableScrollPhysics(),
           padding: EdgeInsets.symmetric(vertical: 20.w),
           itemCount: eventController.eventsList.length,
