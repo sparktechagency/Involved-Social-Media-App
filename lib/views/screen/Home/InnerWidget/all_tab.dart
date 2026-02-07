@@ -13,6 +13,7 @@ import 'package:involved/views/base/custom_text.dart';
 import '../../../../controller/collection_name_controller.dart';
 import '../../../../controller/event_controller.dart';
 import '../../../../service/api_constants.dart';
+import '../../../base/custom_text_field.dart';
 
 class AllTab extends StatefulWidget {
   final String eventType;
@@ -27,6 +28,7 @@ class _AllTabState extends State<AllTab> {
   late EventController eventController;
 
   final CollectionController collectionController = Get.put(CollectionController());
+  final TextEditingController newAlbumCTRL = TextEditingController();
 
   @override
   void initState() {
@@ -88,6 +90,7 @@ class _AllTabState extends State<AllTab> {
                   venue: event.address,
                   description: event.description,
                   status: event.status,
+                  eventId: event.id.toString()
                 ),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -153,6 +156,7 @@ class _AllTabState extends State<AllTab> {
     required String venue,
     required String description,
     required String status,
+    required String eventId,
   }) {
     showDialog(
       context: context,
@@ -311,7 +315,7 @@ class _AllTabState extends State<AllTab> {
                           Expanded(
                             child: CustomButton(
                               onTap: () {
-                                addFolderDialog();
+                                addFolderDialog(eventId);
                               },
                               text: AppStrings.add.tr,
                               color: Color(0xffffefd1),
@@ -345,95 +349,129 @@ class _AllTabState extends State<AllTab> {
   }
 
   //==============================> Event Details Dialog <==============================
-  void addFolderDialog() {
+  void addFolderDialog(String eventId) {
+    bool isCreatingNew = false; // Local state to toggle UI
+
     showDialog(
       context: context,
       barrierDismissible: true,
-      builder: (_) {
-        return Dialog(
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(24.r),
-          ),
-          insetPadding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 24.h),
-          backgroundColor: Colors.white,
-          child: Stack(
-            clipBehavior: Clip.none,
-            children: [
-              Padding(
-                padding: EdgeInsets.all(16.w),
-                child: SingleChildScrollView(
-                  child: Column(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          InkWell(
-                              onTap: () => Navigator.of(context).pop(),
-                              child: Icon(Icons.arrow_back_ios_new_outlined, size: 16.w)),
-                          CustomText(
-                            text: AppStrings.save,
-                            fontSize: 16.sp,
-                            fontWeight: FontWeight.w500,
+      builder: (context) {
+        // We use StatefulBuilder to update UI (TextField toggle) inside the dialog
+        return StatefulBuilder(builder: (context, setModalState) {
+          return Dialog(
+            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24.r)),
+            insetPadding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 24.h),
+            backgroundColor: Colors.white,
+            child: Padding(
+              padding: EdgeInsets.all(16.w),
+              child: SingleChildScrollView(
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        InkWell(
+                            onTap: () => Navigator.of(context).pop(),
+                            child: Icon(Icons.arrow_back_ios_new_outlined, size: 16.w)),
+                        CustomText(text: AppStrings.save, fontSize: 16.sp, fontWeight: FontWeight.w500),
+                      ],
+                    ),
+                    SizedBox(height: 20.h),
+                    Align(
+                      alignment: Alignment.centerLeft,
+                      child: CustomText(
+                        text: AppStrings.addToAlbum.tr,
+                        fontWeight: FontWeight.w500,
+                        fontSize: 16.sp,
+                      ),
+                    ),
+                    SizedBox(height: 8.h),
+
+                    // --- Toggle between Button and TextField ---
+                    if (!isCreatingNew)
+                      GestureDetector(
+                        onTap: () => setModalState(() => isCreatingNew = true),
+                        child: Container(
+                          width: double.infinity,
+                          padding: EdgeInsets.all(12.w),
+                          decoration: BoxDecoration(
+                            color: Colors.white,
+                            borderRadius: BorderRadius.circular(12.r),
+                            border: Border.all(color: AppColors.greyColor),
                           ),
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Icon(Icons.add_circle_outlined, color: AppColors.primaryColor),
+                              SizedBox(width: 8.w),
+                              CustomText(
+                                text: AppStrings.createNewAlbum.tr,
+                                color: AppColors.greyColor,
+                                fontWeight: FontWeight.w500,
+                              ),
+                            ],
+                          ),
+                        ),
+                      )
+                    else
+                      Row(
+                        children: [
+                          Expanded(
+                            child: CustomTextField(
+                              controller: newAlbumCTRL,
+                              hintText: "Enter album name...",
+                            ),
+                          ),
+                          SizedBox(width: 8.w),
+                          // --- The Save (+) Icon Button ---
+                          IconButton(
+                            onPressed: () {
+                              if (newAlbumCTRL.text.isNotEmpty) {
+                                collectionController.saveToCollection(
+                                  albumName: newAlbumCTRL.text.trim(),
+                                  eventId: eventId,
+                                  status: "Added", // Passing Added as status
+                                );
+                                newAlbumCTRL.clear();
+                              }
+                            },
+                            icon: Icon(Icons.add_box, color: AppColors.primaryColor, size: 32.sp),
+                          )
                         ],
                       ),
-                      SizedBox(height: 20.h),
-                      Align(
-                        alignment: Alignment.centerLeft,
-                        child: CustomText(
-                          text: AppStrings.addToAlbum.tr,
-                          fontWeight: FontWeight.w500,
-                          fontSize: 16.sp,
-                        ),
-                      ),
-                      SizedBox(height: 16.h),
 
-                      // --- Dynamic Collection List Starts Here ---
-                      Obx(() {
-                        if (collectionController.isLoading.value) {
-                          return const Center(
-                            child: Padding(
-                              padding: EdgeInsets.all(16.0),
-                              child: CircularProgressIndicator(),
-                            ),
+                    SizedBox(height: 16.h),
+
+                    // --- Existing Collection List ---
+                    Obx(() {
+                      if (collectionController.isLoading.value) {
+                        return const Center(child: CircularProgressIndicator());
+                      }
+
+                      return Column(
+                        children: collectionController.collectionList.map((album) {
+                          return CustomListTile(
+                            title: album,
+                            suffixIcon: SvgPicture.asset(AppIcons.rightArrow),
+                            onTap: () {
+                              collectionController.saveToCollection(
+                                albumName: album,
+                                eventId: eventId,
+                                status: "Added",
+                              );
+                            },
                           );
-                        }
-
-                        if (collectionController.collectionList.isEmpty) {
-                          return Padding(
-                            padding: EdgeInsets.symmetric(vertical: 20.h),
-                            child: CustomText(
-                              text: "No albums found".tr,
-                              color: Colors.grey,
-                            ),
-                          );
-                        }
-
-                        return Column(
-                          children: collectionController.collectionList.map((album) {
-                            return CustomListTile(
-                              title: album,
-                              suffixIcon: SvgPicture.asset(AppIcons.rightArrow),
-                              onTap: () {
-                                // Handle saving the event to this album
-                                print("Selected Album: $album");
-                                Navigator.pop(context);
-                              },
-                            );
-                          }).toList(),
-                        );
-                      }),
-                      // --- Dynamic Collection List Ends Here ---
-
-                      SizedBox(height: 20.h),
-                    ],
-                  ),
+                        }).toList(),
+                      );
+                    }),
+                    SizedBox(height: 20.h),
+                  ],
                 ),
               ),
-            ],
-          ),
-        );
+            ),
+          );
+        });
       },
     );
   }

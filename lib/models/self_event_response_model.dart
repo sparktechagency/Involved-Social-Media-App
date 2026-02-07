@@ -65,6 +65,7 @@ class EventItem {
   final Location location;
   final String address;
   final DateTime startDate;
+  final DateTime endDate;
   final List<String> atmosphere;
   final String description;
   final String occurrenceType;
@@ -79,6 +80,7 @@ class EventItem {
     required this.location,
     required this.address,
     required this.startDate,
+    required this.endDate,
     required this.atmosphere,
     required this.description,
     required this.occurrenceType,
@@ -95,6 +97,7 @@ class EventItem {
       location: Location.fromJson(json['location'] ?? {}),
       address: json['address'] ?? '',
       startDate: DateTime.parse(json['startDate'] ?? DateTime.now().toIso8601String()),
+      endDate: DateTime.parse(json['endDate'] ?? DateTime.now().toIso8601String()),
       atmosphere: (json['atmosphere'] as List<dynamic>? ?? []).map((e) => e.toString()).toList(),
       description: json['description'] ?? '',
       occurrenceType: json['occurrenceType'] ?? '',

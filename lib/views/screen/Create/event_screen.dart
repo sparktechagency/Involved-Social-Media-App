@@ -3,6 +3,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
 import 'package:involved/helpers/route.dart';
+import 'package:involved/models/self_event_response_model.dart';
 import 'package:involved/utils/app_colors.dart';
 import 'package:involved/utils/app_strings.dart';
 import 'package:involved/views/base/bottom_menu..dart';
@@ -19,14 +20,14 @@ class EventScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // Initialize the main EventController here
-    final EventController controller = Get.put(EventController());
+    // 1. Switched to SelfEventController
+    final SelfEventController controller = Get.put(SelfEventController());
     final ScrollController scrollController = ScrollController();
 
-    // Setup infinite scroll listener - using loadNextPage from EventController
+    // 2. Setup scroll listener using the new loadMore logic
     scrollController.addListener(() {
       if (scrollController.position.pixels == scrollController.position.maxScrollExtent) {
-        controller.loadNextPage(null);
+        controller.loadMore();
       }
     });
 
@@ -44,30 +45,34 @@ class EventScreen extends StatelessWidget {
       body: Padding(
         padding: EdgeInsets.symmetric(horizontal: 20.w),
         child: Obx(() {
-          // Changed to controller.eventsList to match EventController
-          if (controller.isLoading.value && controller.eventsList.isEmpty) {
+          // Use selfEventsList and isLoading from SelfEventController
+          if (controller.isLoading.value && controller.selfEventsList.isEmpty) {
             return const Center(child: CircularProgressIndicator());
           }
 
-          if (controller.eventsList.isEmpty) {
+          if (controller.selfEventsList.isEmpty) {
             return Center(child: CustomText(text: "No events found"));
           }
 
           return RefreshIndicator(
-            onRefresh: () => controller.fetchEvents(),
+            onRefresh: () => controller.refreshEvents(),
             child: ListView.builder(
               controller: scrollController,
               padding: EdgeInsets.only(top: 8.h, bottom: 20.h),
-              itemCount: controller.eventsList.length + (controller.isLoading.value ? 1 : 0),
+              // Extra item for loading indicator at the bottom
+              itemCount: controller.selfEventsList.length +
+                  (controller.currentPage.value < controller.totalPages.value ? 1 : 0),
               itemBuilder: (context, index) {
-                if (index == controller.eventsList.length) {
-                  return const Center(child: Padding(
-                    padding: EdgeInsets.all(8.0),
-                    child: CircularProgressIndicator(),
-                  ));
+                if (index == controller.selfEventsList.length) {
+                  return const Center(
+                    child: Padding(
+                      padding: EdgeInsets.all(8.0),
+                      child: CircularProgressIndicator(),
+                    ),
+                  );
                 }
 
-                final event = controller.eventsList[index];
+                final event = controller.selfEventsList[index];
 
                 String fullImageUrl = event.image.startsWith('http')
                     ? event.image
@@ -87,17 +92,14 @@ class EventScreen extends StatelessWidget {
                         dateTime: formattedDate,
                         venue: event.address,
                         description: event.description,
-                        eventId: event.id.toString(),
+                        eventId: event.id,
                         event: event,
                       );
                     },
                     child: Card(
                       color: Colors.white,
                       shape: RoundedRectangleBorder(
-                        side: BorderSide(
-                          width: 1.w,
-                          color: AppColors.primaryColor,
-                        ),
+                        side: BorderSide(width: 1.w, color: AppColors.primaryColor),
                         borderRadius: BorderRadius.circular(12.r),
                       ),
                       elevation: 5,
@@ -140,10 +142,7 @@ class EventScreen extends StatelessWidget {
                                 Column(
                                   crossAxisAlignment: CrossAxisAlignment.end,
                                   children: [
-                                    CustomText(
-                                      text: formattedDate,
-                                      fontSize: 12.sp,
-                                    ),
+                                    CustomText(text: formattedDate, fontSize: 12.sp),
                                     SizedBox(height: 4.h),
                                     CustomText(
                                       text: AppStrings.eventTime.tr,
@@ -178,7 +177,7 @@ class EventScreen extends StatelessWidget {
   void showEventDetailsDialog({
     required BuildContext context,
     required String imageUrl,
-    required Event event,
+    required EventItem event,
     required String title,
     required String location,
     required String dateTime,
@@ -344,19 +343,13 @@ class EventScreen extends StatelessWidget {
       builder: (context) {
         return Dialog(
           backgroundColor: Colors.white,
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(24.r),
-          ),
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24.r)),
           child: Padding(
             padding: EdgeInsets.all(20.w),
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
-                CustomText(
-                  text: "Delete Event",
-                  fontSize: 18.sp,
-                  fontWeight: FontWeight.w600,
-                ),
+                CustomText(text: "Delete Event", fontSize: 18.sp, fontWeight: FontWeight.w600),
                 SizedBox(height: 12.h),
                 CustomText(
                   text: "Are you sure you want to delete this event? This action cannot be undone.",
@@ -379,8 +372,8 @@ class EventScreen extends StatelessWidget {
                     Expanded(
                       child: CustomButton(
                         onTap: () {
-                          // This correctly finds the EventController created in build()
-                          Get.find<EventController>().deleteEvent(eventId);
+                          // 3. Updated to find SelfEventController
+                          Get.find<SelfEventController>().deleteEvent(eventId);
                           Navigator.pop(context);
                         },
                         text: "Delete",
@@ -398,4 +391,5 @@ class EventScreen extends StatelessWidget {
       },
     );
   }
+
 }

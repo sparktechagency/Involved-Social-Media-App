@@ -19,6 +19,8 @@ import 'package:involved/views/base/custom_text_field.dart';
 import '../../../controller/event_fields_controller.dart';
 import '../../../controller/event_post_controller.dart';
 import '../../../models/event_response_model.dart';
+import '../../../models/self_event_response_model.dart';
+import '../../../service/api_constants.dart';
 
 
 class CreateEventScreen extends StatefulWidget {
@@ -47,31 +49,36 @@ class _CreateEventScreenState extends State<CreateEventScreen> {
   }
 
   void _checkAndPopulateData() {
-    // Check if arguments were passed (Editing mode)
-    if (Get.arguments != null && Get.arguments is Event) {
+    if (Get.arguments != null && Get.arguments is EventItem) { // Change Event to EventItem
       isEdit = true;
-      final Event event = Get.arguments;
-      eventId = event.id.toString();
+      final EventItem event = Get.arguments;
+      eventId = event.id;
 
-      // 1. Fill Text Controllers
       postController.titleCTRL.text = event.title;
       postController.locationCTRL.text = event.address;
       postController.descriptionCTRL.text = event.description;
+      String fullImageUrl = event.image.startsWith('http')
+          ? event.image
+          : "${ApiConstants.imageBaseUrl}${event.image}";
 
-      // Formatting dates for the text fields
-      postController.eventDateCTRL.text = event.startDate.toIso8601String().split('.')[0];
-      postController.eventEndTimeCTRL.text = event.endDate.toIso8601String().split('.')[0];
+      // Formatting dates correctly for your API
+      // Ensure we convert the DateTime objects to the string format your textfields expect
+      postController.eventDateCTRL.text =
+      "${event.startDate.year}-${event.startDate.month.toString().padLeft(2, '0')}-${event.startDate.day.toString().padLeft(2, '0')}T${event.startDate.hour.toString().padLeft(2, '0')}:${event.startDate.minute.toString().padLeft(2, '0')}:00";
 
-      // 2. Preset Dropdowns and Lists
+      postController.eventEndTimeCTRL.text =
+      "${event.endDate.year}-${event.endDate.month.toString().padLeft(2, '0')}-${event.endDate.day.toString().padLeft(2, '0')}T${event.endDate.hour.toString().padLeft(2, '0')}:${event.endDate.minute.toString().padLeft(2, '0')}:00";
+
       _selectedEventType = event.type;
       _selectedEventCategory = event.category;
       _selectedOccurrenceType = event.occurrenceType;
       selectedAtmospheres = List<String>.from(event.atmosphere);
-
-      // Note: For images, we usually keep postController.imagePath empty
-      // unless the user picks a NEW one to upload.
+      postController.imagePath.value = fullImageUrl;
     }
   }
+
+
+
 
   @override
   Widget build(BuildContext context) {
@@ -395,31 +402,52 @@ class _CreateEventScreenState extends State<CreateEventScreen> {
   Widget _buildImageSection() {
     return Card(
       color: Colors.white,
-      shape: RoundedRectangleBorder(side: BorderSide(width: 1.w, color: AppColors.primaryColor), borderRadius: BorderRadius.circular(12.r)),
+      shape: RoundedRectangleBorder(
+          side: BorderSide(width: 1.w, color: AppColors.primaryColor),
+          borderRadius: BorderRadius.circular(12.r)),
       child: Padding(
         padding: EdgeInsets.all(24.w),
         child: Column(
           children: [
             CustomText(text: AppStrings.uploadImage.tr, fontWeight: FontWeight.w500, fontSize: 16.sp),
             SizedBox(height: 16.h),
-            Obx(() => Container(
-              height: 200.h, width: 279.w,
-              decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(8.r),
-                border: Border.all(color: AppColors.greyColor),
-                image: postController.imagePath.value.isNotEmpty
-                    ? DecorationImage(image: FileImage(File(postController.imagePath.value)), fit: BoxFit.cover)
-                    : null,
-              ),
-              child: postController.imagePath.value.isEmpty
-                  ? Center(child: IconButton(onPressed: _showImagePickerOption, icon: const Icon(Icons.add_a_photo)))
-                  : Align(alignment: Alignment.topRight, child: IconButton(onPressed: () => postController.imagePath.value = "", icon: const Icon(Icons.cancel, color: Colors.red))),
-            )),
+            Obx(() {
+              String path = postController.imagePath.value;
+              bool isNetworkImage = path.startsWith('http');
+              bool isEmpty = path.isEmpty;
+
+              return Container(
+                height: 200.h,
+                width: 279.w,
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(8.r),
+                  border: Border.all(color: AppColors.greyColor),
+                  image: isEmpty
+                      ? null
+                      : DecorationImage(
+                    image: isNetworkImage
+                        ? NetworkImage(path) as ImageProvider
+                        : FileImage(File(path)),
+                    fit: BoxFit.cover,
+                  ),
+                ),
+                child: isEmpty
+                    ? Center(child: IconButton(onPressed: _showImagePickerOption, icon: const Icon(Icons.add_a_photo)))
+                    : Align(
+                  alignment: Alignment.topRight,
+                  child: IconButton(
+                    onPressed: () => postController.imagePath.value = "",
+                    icon: const Icon(Icons.cancel, color: Colors.red),
+                  ),
+                ),
+              );
+            }),
           ],
         ),
       ),
     );
   }
+
 
   // --- Reusable Containers ---
   Widget _buildFormContainer({required String label, required Widget child}) {

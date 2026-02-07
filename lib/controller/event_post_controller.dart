@@ -2,6 +2,7 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:get/get.dart';
+import 'package:involved/controller/self_event_controller.dart';
 import 'package:involved/service/api_client.dart';
 import 'package:involved/service/api_constants.dart';
 import 'package:image_picker/image_picker.dart';
@@ -172,23 +173,23 @@ class EventPostController extends GetxController {
       body['description'] = descriptionCTRL.text.trim();
       body['startDate'] = eventDateCTRL.text;
       body['endDate'] = eventEndTimeCTRL.text;
+
       if (type != null) body['type'] = type;
       if (category != null) body['category'] = category;
       if (occurrenceType != null) body['occurrenceType'] = occurrenceType;
 
-      if (atmosphere != null) {
+      // Fix for atmosphere array formatting
+      if (atmosphere != null && atmosphere.isNotEmpty) {
         for (int i = 0; i < atmosphere.length; i++) {
           body['atmosphere[$i]'] = atmosphere[i];
         }
       }
 
       List<MultipartBody> multipartFiles = [];
-      if (imagePath.value.isNotEmpty) {
+      if (imagePath.value.isNotEmpty && !imagePath.value.startsWith('http')) {
         multipartFiles.add(MultipartBody('image', File(imagePath.value)));
       }
 
-      // Usually Update is a PATCH or PUT request
-      // Check if your ApiClient supports PATCH, otherwise use POST if the backend allows
       String url = "${ApiConstants.eventFields}/$eventId";
 
       Response response = await ApiClient.patchMultipartData(
@@ -198,12 +199,26 @@ class EventPostController extends GetxController {
       );
 
       if (response.statusCode == 200 || response.statusCode == 201) {
-        Get.back(); // Go back to EventScreen
-        Get.find<EventController>().fetchEvents(); // Refresh the list
-        _showToast("Event updated successfully!", Colors.green);
+        // 1. Refresh the list
+        try {
+          if (Get.isRegistered<SelfEventController>()) {
+            Get.find<SelfEventController>().selfEventsList(); // Call your fetch method
+          }
+        } catch (e) {
+          debugPrint("SelfEventController refresh failed: $e");
+        }
+
+        // 2. Navigation
+        Get.back();
+        Fluttertoast.showToast(msg: "Event updated successfully", backgroundColor: Colors.green);
       } else {
-        _showToast("Failed to update event", Colors.red);
+        // Show the specific error from the server
+        String msg = response.body?['message'] ?? "Update failed";
+        Fluttertoast.showToast(msg: msg, backgroundColor: Colors.red);
       }
+    } catch (e) {
+      debugPrint("Error in updateEvent: $e");
+      Fluttertoast.showToast(msg: "An error occurred");
     } finally {
       isPosting(false);
     }

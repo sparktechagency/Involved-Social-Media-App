@@ -13,11 +13,12 @@ import 'package:involved/views/base/custom_network_image.dart';
 import 'package:involved/views/base/custom_text.dart';
 import 'package:involved/views/base/custom_text_field.dart';
 
+import '../../../controller/collection_name_controller.dart';
 import '../../../controller/event_controller.dart';
 import '../../../service/api_constants.dart';
 
 class SearchScreen extends StatefulWidget {
-  SearchScreen({super.key});
+  const SearchScreen({super.key});
 
   @override
   State<SearchScreen> createState() => _SearchScreenState();
@@ -27,6 +28,7 @@ class _SearchScreenState extends State<SearchScreen> {
   final TextEditingController searchCTRL = TextEditingController();
   // Initialize the controller
   final EventController eventController = Get.put(EventController());
+  final CollectionController collectionController = Get.put(CollectionController());
 
   @override
   void initState() {
@@ -377,8 +379,8 @@ class _SearchScreenState extends State<SearchScreen> {
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
                           InkWell(
-                           onTap: ()=> Navigator.of(context).pop(),
-                              child: Icon(Icons.arrow_back_ios_new_outlined, size: 16.w,)),
+                              onTap: () => Navigator.of(context).pop(),
+                              child: Icon(Icons.arrow_back_ios_new_outlined, size: 16.w)),
                           CustomText(
                             text: AppStrings.save,
                             fontSize: 16.sp,
@@ -420,9 +422,44 @@ class _SearchScreenState extends State<SearchScreen> {
                         ),
                       ),
                       SizedBox(height: 8.h),
-                      CustomListTile(title: AppStrings.bACHELORETTEPARTY.tr, suffixIcon: SvgPicture.asset(AppIcons.rightArrow)),
-                      CustomListTile(title: AppStrings.bESTDATENIGHTPLACE.tr, suffixIcon: SvgPicture.asset(AppIcons.rightArrow)),
-                      CustomListTile(title: AppStrings.fAVORITES.tr, suffixIcon: SvgPicture.asset(AppIcons.rightArrow)),
+
+                      // --- Dynamic Collection List Starts Here ---
+                      Obx(() {
+                        if (collectionController.isLoading.value) {
+                          return const Center(
+                            child: Padding(
+                              padding: EdgeInsets.all(16.0),
+                              child: CircularProgressIndicator(),
+                            ),
+                          );
+                        }
+
+                        if (collectionController.collectionList.isEmpty) {
+                          return Padding(
+                            padding: EdgeInsets.symmetric(vertical: 20.h),
+                            child: CustomText(
+                              text: "No albums found".tr,
+                              color: Colors.grey,
+                            ),
+                          );
+                        }
+
+                        return Column(
+                          children: collectionController.collectionList.map((album) {
+                            return CustomListTile(
+                              title: album,
+                              suffixIcon: SvgPicture.asset(AppIcons.rightArrow),
+                              onTap: () {
+                                // Handle saving the event to this album
+                                print("Selected Album: $album");
+                                Navigator.pop(context);
+                              },
+                            );
+                          }).toList(),
+                        );
+                      }),
+                      // --- Dynamic Collection List Ends Here ---
+
                       SizedBox(height: 20.h),
                     ],
                   ),
