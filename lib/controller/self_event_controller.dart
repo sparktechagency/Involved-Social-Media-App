@@ -1,5 +1,6 @@
 
 import 'package:flutter/material.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:get/get.dart';
 import 'package:involved/models/self_event_response_model.dart';
 import 'package:involved/service/api_client.dart';
@@ -55,6 +56,42 @@ class SelfEventController extends GetxController {
       isLoading(false);
     }
   }
+
+
+  Future<void> deleteEvent(String eventId) async {
+    try {
+      // Build URL: /event/697484c415b0b39a64203074
+      String url = "${ApiConstants.eventFields}/$eventId";
+
+      debugPrint("Deleting Event URL: $url");
+
+      final response = await ApiClient.deleteData(url);
+
+      if (response.statusCode == 200) {
+        // 1. Instantly remove from the local observable list
+        selfEventsList.removeWhere((event) => event.id == eventId);
+
+        // 2. Feedback to user
+        String message = response.body['message'] ?? "Event deleted successfully";
+        Fluttertoast.showToast(
+          msg: message,
+          backgroundColor: Colors.green,
+          textColor: Colors.white,
+        );
+      } else {
+        String errorMsg = response.body['message'] ?? "Failed to delete event";
+        Fluttertoast.showToast(
+          msg: errorMsg,
+          backgroundColor: Colors.red,
+          textColor: Colors.white,
+        );
+      }
+    } catch (e) {
+      debugPrint("Exception during delete: $e");
+      Fluttertoast.showToast(msg: "An error occurred");
+    }
+  }
+
 
   /// Load more logic for infinite scrolling
   void loadMore() {

@@ -18,6 +18,9 @@ import 'package:involved/views/base/custom_text_field.dart';
 
 import '../../../controller/event_fields_controller.dart';
 import '../../../controller/event_post_controller.dart';
+import '../../../models/event_response_model.dart';
+import '../../../models/self_event_response_model.dart';
+import '../../../service/api_constants.dart';
 
 
 class CreateEventScreen extends StatefulWidget {
@@ -36,10 +39,52 @@ class _CreateEventScreenState extends State<CreateEventScreen> {
   String? _selectedOccurrenceType;
   List<String> selectedAtmospheres = [];
 
+  bool isEdit = false;
+  String? eventId;
+
+  @override
+  void initState() {
+    super.initState();
+    _checkAndPopulateData();
+  }
+
+  void _checkAndPopulateData() {
+    if (Get.arguments != null && Get.arguments is EventItem) { // Change Event to EventItem
+      isEdit = true;
+      final EventItem event = Get.arguments;
+      eventId = event.id;
+
+      postController.titleCTRL.text = event.title;
+      postController.locationCTRL.text = event.address;
+      postController.descriptionCTRL.text = event.description;
+      String fullImageUrl = event.image.startsWith('http')
+          ? event.image
+          : "${ApiConstants.imageBaseUrl}${event.image}";
+
+      // Formatting dates correctly for your API
+      // Ensure we convert the DateTime objects to the string format your textfields expect
+      postController.eventDateCTRL.text =
+      "${event.startDate.year}-${event.startDate.month.toString().padLeft(2, '0')}-${event.startDate.day.toString().padLeft(2, '0')}T${event.startDate.hour.toString().padLeft(2, '0')}:${event.startDate.minute.toString().padLeft(2, '0')}:00";
+
+      postController.eventEndTimeCTRL.text =
+      "${event.endDate.year}-${event.endDate.month.toString().padLeft(2, '0')}-${event.endDate.day.toString().padLeft(2, '0')}T${event.endDate.hour.toString().padLeft(2, '0')}:${event.endDate.minute.toString().padLeft(2, '0')}:00";
+
+      _selectedEventType = event.type;
+      _selectedEventCategory = event.category;
+      _selectedOccurrenceType = event.occurrenceType;
+      selectedAtmospheres = List<String>.from(event.atmosphere);
+      postController.imagePath.value = fullImageUrl;
+    }
+  }
+
+
+
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: CustomAppBar(title: AppStrings.createEvent.tr),
+      // Change title based on mode
+      appBar: CustomAppBar(title: isEdit ? "Edit Event" : AppStrings.createEvent.tr),
       body: Obx(() {
         if (fieldsController.isLoading.value) {
           return const Center(child: CircularProgressIndicator());
@@ -57,7 +102,6 @@ class _CreateEventScreenState extends State<CreateEventScreen> {
                     Center(child: Image.asset(AppImages.logos, width: 142.w, height: 64.h)),
                     SizedBox(height: 12.h),
 
-                    // --- Title ---
                     _buildFormContainer(
                       label: AppStrings.eventTitle.tr,
                       child: CustomTextField(
@@ -68,7 +112,6 @@ class _CreateEventScreenState extends State<CreateEventScreen> {
                     ),
                     SizedBox(height: 16.h),
 
-                    // --- Event Type ---
                     _buildDropdownContainer(
                       label: AppStrings.eventType.tr,
                       value: _selectedEventType,
@@ -78,7 +121,6 @@ class _CreateEventScreenState extends State<CreateEventScreen> {
                     ),
                     SizedBox(height: 16.h),
 
-                    // --- Category ---
                     _buildDropdownContainer(
                       label: AppStrings.eventCategories.tr,
                       value: _selectedEventCategory,
@@ -88,7 +130,6 @@ class _CreateEventScreenState extends State<CreateEventScreen> {
                     ),
                     SizedBox(height: 16.h),
 
-                    // --- Location (Address) ---
                     _buildFormContainer(
                       label: AppStrings.location.tr,
                       child: CustomTextField(
@@ -99,7 +140,6 @@ class _CreateEventScreenState extends State<CreateEventScreen> {
                     ),
                     SizedBox(height: 16.h),
 
-                    // --- Start Date ---
                     _buildFormContainer(
                       label: "Event Start",
                       child: CustomTextField(
@@ -112,7 +152,6 @@ class _CreateEventScreenState extends State<CreateEventScreen> {
                     ),
                     SizedBox(height: 16.h),
 
-                    // --- End Date ---
                     _buildFormContainer(
                       label: "Event End",
                       child: CustomTextField(
@@ -198,15 +237,25 @@ class _CreateEventScreenState extends State<CreateEventScreen> {
                     Obx(() => CustomButton(
                         loading: postController.isPosting.value,
                         onTap: () {
-                          // Passes all local state to the controller for the API call
-                          postController.createEvent(
-                            type: _selectedEventType,
-                            category: _selectedEventCategory,
-                            occurrenceType: _selectedOccurrenceType,
-                            atmosphere: selectedAtmospheres,
-                          );
+                          if (isEdit) {
+                            // Call Update Method (You need to add this to your controller)
+                            postController.updateEvent(
+                              eventId: eventId!,
+                              type: _selectedEventType,
+                              category: _selectedEventCategory,
+                              occurrenceType: _selectedOccurrenceType,
+                              atmosphere: selectedAtmospheres,
+                            );
+                          } else {
+                            postController.createEvent(
+                              type: _selectedEventType,
+                              category: _selectedEventCategory,
+                              occurrenceType: _selectedOccurrenceType,
+                              atmosphere: selectedAtmospheres,
+                            );
+                          }
                         },
-                        text: AppStrings.createEvent.tr)),
+                        text: isEdit ? "Update Event" : AppStrings.createEvent.tr)),
                     SizedBox(height: 32.h),
                   ],
                 ),
@@ -353,31 +402,52 @@ class _CreateEventScreenState extends State<CreateEventScreen> {
   Widget _buildImageSection() {
     return Card(
       color: Colors.white,
-      shape: RoundedRectangleBorder(side: BorderSide(width: 1.w, color: AppColors.primaryColor), borderRadius: BorderRadius.circular(12.r)),
+      shape: RoundedRectangleBorder(
+          side: BorderSide(width: 1.w, color: AppColors.primaryColor),
+          borderRadius: BorderRadius.circular(12.r)),
       child: Padding(
         padding: EdgeInsets.all(24.w),
         child: Column(
           children: [
             CustomText(text: AppStrings.uploadImage.tr, fontWeight: FontWeight.w500, fontSize: 16.sp),
             SizedBox(height: 16.h),
-            Obx(() => Container(
-              height: 200.h, width: 279.w,
-              decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(8.r),
-                border: Border.all(color: AppColors.greyColor),
-                image: postController.imagePath.value.isNotEmpty
-                    ? DecorationImage(image: FileImage(File(postController.imagePath.value)), fit: BoxFit.cover)
-                    : null,
-              ),
-              child: postController.imagePath.value.isEmpty
-                  ? Center(child: IconButton(onPressed: _showImagePickerOption, icon: const Icon(Icons.add_a_photo)))
-                  : Align(alignment: Alignment.topRight, child: IconButton(onPressed: () => postController.imagePath.value = "", icon: const Icon(Icons.cancel, color: Colors.red))),
-            )),
+            Obx(() {
+              String path = postController.imagePath.value;
+              bool isNetworkImage = path.startsWith('http');
+              bool isEmpty = path.isEmpty;
+
+              return Container(
+                height: 200.h,
+                width: 279.w,
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(8.r),
+                  border: Border.all(color: AppColors.greyColor),
+                  image: isEmpty
+                      ? null
+                      : DecorationImage(
+                    image: isNetworkImage
+                        ? NetworkImage(path) as ImageProvider
+                        : FileImage(File(path)),
+                    fit: BoxFit.cover,
+                  ),
+                ),
+                child: isEmpty
+                    ? Center(child: IconButton(onPressed: _showImagePickerOption, icon: const Icon(Icons.add_a_photo)))
+                    : Align(
+                  alignment: Alignment.topRight,
+                  child: IconButton(
+                    onPressed: () => postController.imagePath.value = "",
+                    icon: const Icon(Icons.cancel, color: Colors.red),
+                  ),
+                ),
+              );
+            }),
           ],
         ),
       ),
     );
   }
+
 
   // --- Reusable Containers ---
   Widget _buildFormContainer({required String label, required Widget child}) {

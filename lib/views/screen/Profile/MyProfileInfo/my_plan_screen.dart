@@ -7,111 +7,147 @@ import 'package:involved/views/base/custom_app_bar.dart';
 import 'package:involved/views/base/custom_network_image.dart';
 import 'package:involved/views/base/custom_text.dart';
 
-class MyPlanScreen extends StatelessWidget {
+import '../../../../controller/collection_name_controller.dart';
+import '../../../../service/api_constants.dart';
+
+class MyPlanScreen extends StatefulWidget {
   const MyPlanScreen({super.key});
+
+  @override
+  State<MyPlanScreen> createState() => _MyPlanScreenState();
+}
+
+class _MyPlanScreenState extends State<MyPlanScreen> {
+  // 1. Find the controller
+  final CollectionController _controller = Get.find<CollectionController>();
+  late String collectionName;
+
+  @override
+  void initState() {
+    super.initState();
+    // 2. Get the name passed from Profile (default to MY PLANS if null)
+    collectionName = Get.arguments ?? AppStrings.mYPLANS.tr;
+
+    // 3. Trigger the filter API
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _controller.fetchEventsByCollection(collectionName);
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: CustomAppBar(title: AppStrings.mYPLANS.tr),
+      appBar: CustomAppBar(title: collectionName.toUpperCase()),
       body: Padding(
         padding: EdgeInsets.symmetric(horizontal: 20.w),
         child: Column(
-          mainAxisSize: MainAxisSize.min,
           children: [
-            //================================> Event Section <========================
             Expanded(
               child: Card(
-                clipBehavior: Clip.none,
+                clipBehavior: Clip.antiAlias,
                 color: Colors.white,
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(12.r),
                 ),
                 elevation: 2,
-                child: ListView.builder(
-                  shrinkWrap: true,
-                  itemCount: 5,
-                  padding: EdgeInsets.symmetric(horizontal: 16.w),
-                  itemBuilder: (context, index) {
-                    return Padding(
-                      padding: EdgeInsets.all(12.w),
-                      child: InkWell(
-                        onTap: () {
-                          showEventDetailsDialog(
-                            context: context,
-                            imageUrl:
-                                'https://images.unsplash.com/photo-1546069901-ba9599a7e63c',
-                            title: 'Pasta Making Class',
-                            location: 'Dhaka Bangladesh',
-                            dateTime: '18/06/25 08:30PM',
-                            venue: 'Rampura Town Hall Dhaka Bangladesh',
-                            description:
-                                "The event is live as soon as it's posted. You can explore various categories and locations, or search by specific names, dates, and more. Whether you're attending a business launch, a community fundraiser, or an influencer meet-up, our platform",
-                          );
-                        },
-                        child: Column(
-                          children: [
-                            Row(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                CustomNetworkImage(
-                                  imageUrl:
-                                      'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTwaA8j3JXCUJK6s0E139bWxzBDGcLkBaAaZBUycCpQo-9_9JZf99E2r7QQrTKS7qyNNmk&usqp=CAU',
-                                  height: 72.h,
-                                  width: 72.w,
-                                  borderRadius: BorderRadius.circular(4.r),
-                                ),
-                                SizedBox(width: 12.w),
-                                //========================> Title Container <==========================
-                                Expanded(
-                                  child: Column(
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.start,
-                                    children: [
-                                      CustomText(
-                                        text: 'Virginia Philips Wine Tasting',
-                                        maxLine: 2,
-                                        textAlign: TextAlign.start,
-                                      ),
-                                      SizedBox(height: 4.h),
-                                      CustomText(
-                                        text: 'Dhaka Bangladesh',
-                                        color: AppColors.greyColor,
-                                      ),
-                                      SizedBox(height: 4.h),
-                                      CustomText(
-                                        text: '18/06/25 08:30PM',
-                                        color: AppColors.greyColor,
-                                      ),
-                                    ],
-                                  ),
-                                ),
-                                //========================> Status Container <==========================
-                                Container(
-                                  padding: const EdgeInsets.symmetric(
-                                    horizontal: 10,
-                                    vertical: 6,
-                                  ),
-                                  decoration: BoxDecoration(
-                                    color: AppColors.primaryColor,
-                                    borderRadius: BorderRadius.circular(20),
-                                  ),
-                                  child: CustomText(
-                                    text: 'Interested',
-                                    color: Colors.white,
-                                  ),
-                                ),
-                              ],
-                            ),
-                            Divider(thickness: 1.5, color: Colors.grey),
-                          ],
-                        ),
-                      ),
+                child: Obx(() {
+                  // 4. Show loading state
+                  if (_controller.isFilterLoading.value) {
+                    return const Center(child: CircularProgressIndicator());
+                  }
+
+                  // 5. Show empty state
+                  if (_controller.filteredEvents.isEmpty) {
+                    return Center(
+                      child: CustomText(text: "No events found in this collection"),
                     );
-                  },
-                ),
+                  }
+
+                  return ListView.builder(
+                    itemCount: _controller.filteredEvents.length,
+                    padding: EdgeInsets.symmetric(horizontal: 8.w),
+                    itemBuilder: (context, index) {
+                      final item = _controller.filteredEvents[index];
+                      final event = item.event;
+
+                      String fullImageUrl = event.image.startsWith('http')
+                          ? event.image
+                          : "${ApiConstants.imageBaseUrl}${event.image}";
+
+                      return Column(
+                        children: [
+                          InkWell(
+                            onTap: () {
+                              showEventDetailsDialog(
+                                context: context,
+                                imageUrl: fullImageUrl,
+                                title: event.title,
+                                location: event.address,
+                                // Note: Ensure your filter model has dateTime if needed
+                                dateTime: "18/06/25 08:30PM",
+                                venue: event.address,
+                                description: "Description logic here...",
+                              );
+                            },
+                            child: Padding(
+                              padding: EdgeInsets.symmetric(vertical: 12.h, horizontal: 8.w),
+                              child: Row(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  CustomNetworkImage(
+                                    imageUrl: fullImageUrl,
+                                    height: 72.h,
+                                    width: 72.w,
+                                    borderRadius: BorderRadius.circular(4.r),
+                                  ),
+                                  SizedBox(width: 12.w),
+                                  Expanded(
+                                    child: Column(
+                                      crossAxisAlignment: CrossAxisAlignment.start,
+                                      children: [
+                                        CustomText(
+                                          text: event.title,
+                                          fontWeight: FontWeight.w600,
+                                          maxLine: 2,
+                                          textAlign: TextAlign.start,
+                                        ),
+                                        SizedBox(height: 4.h),
+                                        CustomText(
+                                          text: event.address,
+                                          fontSize: 12.sp,
+                                          color: AppColors.greyColor,
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                  //========================> Real Status Label <==========================
+                                  Container(
+                                    padding: EdgeInsets.symmetric(horizontal: 10.w, vertical: 6.h),
+                                    decoration: BoxDecoration(
+                                      // Using the primary color for status background
+                                      color: AppColors.primaryColor,
+                                      borderRadius: BorderRadius.circular(20.r),
+                                    ),
+                                    child: CustomText(
+                                      text: item.status, // Real status (Interested/Going)
+                                      color: Colors.white,
+                                      fontSize: 10.sp,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ),
+                          if (index != _controller.filteredEvents.length - 1)
+                            const Divider(thickness: 1, color: Color(0xffEEEEEE)),
+                        ],
+                      );
+                    },
+                  );
+                }),
               ),
             ),
+            SizedBox(height: 20.h),
           ],
         ),
       ),

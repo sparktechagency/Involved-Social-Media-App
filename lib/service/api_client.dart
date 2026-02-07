@@ -43,11 +43,12 @@ class ApiClient extends GetxService {
   }
 
 //==========================================> Post Data <======================================
+  //==========================================> Post Data <======================================
   static Future<Response> postData(String uri, dynamic body,
       {Map<String, String>? headers}) async {
     String bearerToken = await PrefsHelper.getString(AppConstants.bearerToken);
     var mainHeaders = {
-      'Content-Type': 'application/x-www-form-urlencoded',
+      'Content-Type': 'application/json',
       'Authorization': 'Bearer $bearerToken'
     };
 

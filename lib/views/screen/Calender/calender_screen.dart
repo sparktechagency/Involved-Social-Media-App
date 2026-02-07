@@ -6,6 +6,8 @@ import 'package:involved/utils/app_strings.dart';
 import 'package:involved/views/base/custom_network_image.dart';
 import 'package:involved/views/base/custom_text.dart';
 import 'package:table_calendar/table_calendar.dart';
+import '../../../controller/event_controller.dart';
+import '../../../service/api_constants.dart';
 import '../../base/bottom_menu..dart';
 
 class CalenderScreen extends StatefulWidget {
@@ -16,13 +18,28 @@ class CalenderScreen extends StatefulWidget {
 }
 
 class _CalenderScreenState extends State<CalenderScreen> {
-  DateTime _focusedDay = DateTime(2025, 6, 18);
+  final EventController eventController = Get.put(EventController());
+
+  DateTime _focusedDay = DateTime.now(); // Updated to now
   DateTime? _selectedDay;
 
   @override
   void initState() {
     super.initState();
     _selectedDay = _focusedDay;
+    // Initial fetch for today's date
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (_selectedDay != null) {
+        _fetchEventsByDate(_selectedDay!);
+      }
+    });
+  }
+
+  // Helper to format date and call API
+  void _fetchEventsByDate(DateTime date) {
+    // Formats to YYYY-MM-DD
+    String formattedDate = "${date.year}-${date.month.toString().padLeft(2, '0')}-${date.day.toString().padLeft(2, '0')}";
+    eventController.fetchEvents(date: formattedDate);
   }
 
   @override
@@ -36,13 +53,12 @@ class _CalenderScreenState extends State<CalenderScreen> {
           fontSize: 16.sp,
         ),
         backgroundColor: Colors.white,
-        leading: SizedBox(),
+        leading: const SizedBox(),
       ),
       body: Padding(
         padding: EdgeInsets.symmetric(horizontal: 20.w),
         child: Column(
           children: [
-            //================================> Calender Section <========================
             TableCalendar(
               focusedDay: _focusedDay,
               firstDay: DateTime.utc(2020),
@@ -54,6 +70,8 @@ class _CalenderScreenState extends State<CalenderScreen> {
                   _selectedDay = selectedDay;
                   _focusedDay = focusedDay;
                 });
+                // Call API when date changes
+                _fetchEventsByDate(selectedDay);
               },
               calendarStyle: CalendarStyle(
                 todayDecoration: BoxDecoration(
@@ -79,92 +97,88 @@ class _CalenderScreenState extends State<CalenderScreen> {
             Expanded(
               child: Card(
                 color: Colors.white,
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(12.r),
-                ),
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12.r)),
                 elevation: 2,
-                child: ListView.builder(
-                  shrinkWrap: true,
-                  itemCount: 5,
-                  padding: EdgeInsets.symmetric(horizontal: 16.w),
-                  itemBuilder: (context, index) {
-                    return Padding(
-                      padding: EdgeInsets.all(12.w),
-                      child: InkWell(
-                        onTap: () {
-                          showEventDetailsDialog(
+                child: Obx(() {
+                  if (eventController.isLoading.value && eventController.eventsList.isEmpty) {
+                    return const Center(child: CircularProgressIndicator());
+                  }
+
+                  if (eventController.eventsList.isEmpty) {
+                    return  Center(child: CustomText(text: "No events for this date"));
+                  }
+
+                  return ListView.builder(
+                    itemCount: eventController.eventsList.length,
+                    padding: EdgeInsets.symmetric(horizontal: 16.w),
+                    itemBuilder: (context, index) {
+                      final event = eventController.eventsList[index];
+                      String fullImageUrl = event.image.startsWith('http')
+                          ? event.image
+                          : "${ApiConstants.imageBaseUrl}${event.image}";
+
+                      return Padding(
+                        padding: EdgeInsets.all(12.w),
+                        child: InkWell(
+                          onTap: () => showEventDetailsDialog(
                             context: context,
-                            imageUrl:
-                                'https://images.unsplash.com/photo-1546069901-ba9599a7e63c',
-                            title: 'Pasta Making Class',
-                            location: 'Dhaka Bangladesh',
-                            dateTime: '18/06/25 08:30PM',
-                            venue: 'Rampura Town Hall Dhaka Bangladesh',
-                            description:
-                                "The event is live as soon as it's posted. You can explore various categories and locations, or search by specific names, dates, and more. Whether you're attending a business launch, a community fundraiser, or an influencer meet-up, our platform",
-                          );
-                        },
-                        child: Column(
-                          children: [
-                            Row(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                CustomNetworkImage(
-                                  imageUrl:
-                                      'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTwaA8j3JXCUJK6s0E139bWxzBDGcLkBaAaZBUycCpQo-9_9JZf99E2r7QQrTKS7qyNNmk&usqp=CAU',
-                                  height: 72.h,
-                                  width: 72.w,
-                                  borderRadius: BorderRadius.circular(4.r),
-                                ),
-                                 SizedBox(width: 12.w),
-                                //========================> Title Container <==========================
-                                Expanded(
-                                  child: Column(
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.start,
-                                    children: [
-                                      CustomText(
-                                        text: 'Virginia Philips Wine Tasting',
-                                        maxLine: 2,
-                                        textAlign: TextAlign.start,
-                                      ),
-                                      SizedBox(height: 4.h),
-                                      CustomText(
-                                        text: 'Dhaka Bangladesh',
-                                        color: AppColors.greyColor,
-                                      ),
-                                      SizedBox(height: 4.h),
-                                      CustomText(
-                                        text: '18/06/25 08:30PM',
-                                        color: AppColors.greyColor,
-                                      ),
-                                    ],
+                            imageUrl: fullImageUrl,
+                            title: event.title,
+                            location: event.address,
+                            dateTime: "${event.startDate.day}/${event.startDate.month}/${event.startDate.year}",
+                            venue: event.address,
+                            description: event.description,
+                          ),
+                          child: Column(
+                            children: [
+                              Row(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  CustomNetworkImage(
+                                    imageUrl: fullImageUrl,
+                                    height: 72.h,
+                                    width: 72.w,
+                                    borderRadius: BorderRadius.circular(4.r),
                                   ),
-                                ),
-                                //========================> Status Container <==========================
-                                Container(
-                                  padding: const EdgeInsets.symmetric(
-                                    horizontal: 10,
-                                    vertical: 6,
+                                  SizedBox(width: 12.w),
+                                  Expanded(
+                                    child: Column(
+                                      crossAxisAlignment: CrossAxisAlignment.start,
+                                      children: [
+                                        CustomText(
+                                          text: event.title,
+                                          maxLine: 2,
+                                          textAlign: TextAlign.start,
+                                        ),
+                                        SizedBox(height: 4.h),
+                                        CustomText(
+                                          text: event.address,
+                                          color: AppColors.greyColor,
+                                        ),
+                                      ],
+                                    ),
                                   ),
-                                  decoration: BoxDecoration(
-                                    color: AppColors.primaryColor,
-                                    borderRadius: BorderRadius.circular(20),
+                                  Container(
+                                    padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                                    decoration: BoxDecoration(
+                                      color: AppColors.primaryColor,
+                                      borderRadius: BorderRadius.circular(20),
+                                    ),
+                                    child:  CustomText(
+                                      text: 'Interested',
+                                      color: Colors.white,
+                                    ),
                                   ),
-                                  child: CustomText(
-                                    text: 'Interested',
-                                    color: Colors.white,
-                                  ),
-                                ),
-                              ],
-                            ),
-                            Divider(thickness: 1.5, color: Colors.grey),
-                          ],
+                                ],
+                              ),
+                              const Divider(thickness: 1.5, color: Colors.grey),
+                            ],
+                          ),
                         ),
-                      ),
-                    );
-                  },
-                ),
+                      );
+                    },
+                  );
+                }),
               ),
             ),
           ],
@@ -172,6 +186,7 @@ class _CalenderScreenState extends State<CalenderScreen> {
       ),
     );
   }
+
 
   //================================================> Alert Dialog Method <====================================
   void showEventDetailsDialog({

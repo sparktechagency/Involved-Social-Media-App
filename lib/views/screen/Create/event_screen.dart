@@ -3,24 +3,28 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
 import 'package:involved/helpers/route.dart';
+import 'package:involved/models/self_event_response_model.dart';
 import 'package:involved/utils/app_colors.dart';
 import 'package:involved/utils/app_strings.dart';
 import 'package:involved/views/base/bottom_menu..dart';
 import 'package:involved/views/base/custom_network_image.dart';
 import 'package:involved/views/base/custom_text.dart';
+import '../../../controller/event_controller.dart';
 import '../../../controller/self_event_controller.dart';
+import '../../../models/event_response_model.dart';
 import '../../../service/api_constants.dart';
+import '../../base/custom_button.dart';
 
 class EventScreen extends StatelessWidget {
   const EventScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
-    // Initialize the controller
+    // 1. Switched to SelfEventController
     final SelfEventController controller = Get.put(SelfEventController());
     final ScrollController scrollController = ScrollController();
 
-    // Setup infinite scroll listener
+    // 2. Setup scroll listener using the new loadMore logic
     scrollController.addListener(() {
       if (scrollController.position.pixels == scrollController.position.maxScrollExtent) {
         controller.loadMore();
@@ -41,7 +45,7 @@ class EventScreen extends StatelessWidget {
       body: Padding(
         padding: EdgeInsets.symmetric(horizontal: 20.w),
         child: Obx(() {
-          // Full screen loader only for initial fetch
+          // Use selfEventsList and isLoading from SelfEventController
           if (controller.isLoading.value && controller.selfEventsList.isEmpty) {
             return const Center(child: CircularProgressIndicator());
           }
@@ -55,24 +59,25 @@ class EventScreen extends StatelessWidget {
             child: ListView.builder(
               controller: scrollController,
               padding: EdgeInsets.only(top: 8.h, bottom: 20.h),
-              itemCount: controller.selfEventsList.length + (controller.isLoading.value ? 1 : 0),
+              // Extra item for loading indicator at the bottom
+              itemCount: controller.selfEventsList.length +
+                  (controller.currentPage.value < controller.totalPages.value ? 1 : 0),
               itemBuilder: (context, index) {
-                // Show a small loader at the bottom when fetching next page
                 if (index == controller.selfEventsList.length) {
-                  return const Center(child: Padding(
-                    padding: EdgeInsets.all(8.0),
-                    child: CircularProgressIndicator(),
-                  ));
+                  return const Center(
+                    child: Padding(
+                      padding: EdgeInsets.all(8.0),
+                      child: CircularProgressIndicator(),
+                    ),
+                  );
                 }
 
                 final event = controller.selfEventsList[index];
 
-                // Construct Image URL
                 String fullImageUrl = event.image.startsWith('http')
                     ? event.image
                     : "${ApiConstants.imageBaseUrl}${event.image}";
 
-                // Format Date
                 String formattedDate = DateFormat('dd/MM/yy hh:mm a').format(event.startDate);
 
                 return Padding(
@@ -85,17 +90,16 @@ class EventScreen extends StatelessWidget {
                         title: event.title,
                         location: event.address,
                         dateTime: formattedDate,
-                        venue: event.address, // Or specific venue field if available
+                        venue: event.address,
                         description: event.description,
+                        eventId: event.id,
+                        event: event,
                       );
                     },
                     child: Card(
                       color: Colors.white,
                       shape: RoundedRectangleBorder(
-                        side: BorderSide(
-                          width: 1.w,
-                          color: AppColors.primaryColor,
-                        ),
+                        side: BorderSide(width: 1.w, color: AppColors.primaryColor),
                         borderRadius: BorderRadius.circular(12.r),
                       ),
                       elevation: 5,
@@ -138,10 +142,7 @@ class EventScreen extends StatelessWidget {
                                 Column(
                                   crossAxisAlignment: CrossAxisAlignment.end,
                                   children: [
-                                    CustomText(
-                                      text: formattedDate,
-                                      fontSize: 12.sp,
-                                    ),
+                                    CustomText(text: formattedDate, fontSize: 12.sp),
                                     SizedBox(height: 4.h),
                                     CustomText(
                                       text: AppStrings.eventTime.tr,
@@ -176,11 +177,13 @@ class EventScreen extends StatelessWidget {
   void showEventDetailsDialog({
     required BuildContext context,
     required String imageUrl,
+    required EventItem event,
     required String title,
     required String location,
     required String dateTime,
     required String venue,
     required String description,
+    required String eventId,
   }) {
     showDialog(
       context: context,
@@ -204,7 +207,6 @@ class EventScreen extends StatelessWidget {
                   child: Column(
                     mainAxisSize: MainAxisSize.min,
                     children: [
-                      //===========================> Event Image <================
                       CustomNetworkImage(
                         imageUrl: imageUrl,
                         height: 180.h,
@@ -212,11 +214,9 @@ class EventScreen extends StatelessWidget {
                         borderRadius: BorderRadius.circular(16.r),
                       ),
                       SizedBox(height: 16.h),
-                      //=======================> Title & Date Row <====================
                       Row(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          /// Title & Location
                           Expanded(
                             child: Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
@@ -231,8 +231,6 @@ class EventScreen extends StatelessWidget {
                               ],
                             ),
                           ),
-
-                          /// Time
                           Column(
                             crossAxisAlignment: CrossAxisAlignment.end,
                             children: [
@@ -247,7 +245,6 @@ class EventScreen extends StatelessWidget {
                         ],
                       ),
                       SizedBox(height: 20.h),
-                      //===========================> Description Title <===========================
                       Align(
                         alignment: Alignment.centerLeft,
                         child: CustomText(
@@ -257,15 +254,12 @@ class EventScreen extends StatelessWidget {
                         ),
                       ),
                       SizedBox(height: 8.h),
-
-                      /// Description Text
                       CustomText(
                         text: description,
                         maxLine: 20,
                         textAlign: TextAlign.start,
                       ),
                       SizedBox(height: 20.h),
-                      //==================================> Location Info Container <============
                       Container(
                         width: double.infinity,
                         padding: EdgeInsets.all(12.w),
@@ -276,10 +270,7 @@ class EventScreen extends StatelessWidget {
                         ),
                         child: Row(
                           children: [
-                            Icon(
-                              Icons.location_on,
-                              color: AppColors.primaryColor,
-                            ),
+                            Icon(Icons.location_on, color: AppColors.primaryColor),
                             SizedBox(width: 8.w),
                             Expanded(
                               child: CustomText(
@@ -293,12 +284,39 @@ class EventScreen extends StatelessWidget {
                           ],
                         ),
                       ),
+                      SizedBox(height: 24.h),
+                      Row(
+                        children: [
+                          Expanded(
+                            child: CustomButton(
+                              onTap: () {
+                                Navigator.pop(context);
+                                _showDeleteConfirmation(context, eventId);
+                              },
+                              text: "Delete",
+                              color: Colors.white,
+                              textColor: AppColors.primaryColor,
+                              broderColor: AppColors.primaryColor,
+                            ),
+                          ),
+                          SizedBox(width: 12.w),
+                          Expanded(
+                            child: CustomButton(
+                              onTap: () {
+                                Navigator.pop(context);
+                                Get.toNamed(AppRoutes.createEventScreen, arguments: event);
+                              },
+                              text: "Edit",
+                              color: AppColors.primaryColor,
+                              textColor: Colors.white,
+                            ),
+                          ),
+                        ],
+                      ),
                     ],
                   ),
                 ),
               ),
-
-              //=======================> Close Button <============================
               Positioned(
                 top: -12,
                 right: -12,
@@ -317,4 +335,61 @@ class EventScreen extends StatelessWidget {
       },
     );
   }
+
+  void _showDeleteConfirmation(BuildContext context, String eventId) {
+    showDialog(
+      context: context,
+      barrierDismissible: true,
+      builder: (context) {
+        return Dialog(
+          backgroundColor: Colors.white,
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24.r)),
+          child: Padding(
+            padding: EdgeInsets.all(20.w),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                CustomText(text: "Delete Event", fontSize: 18.sp, fontWeight: FontWeight.w600),
+                SizedBox(height: 12.h),
+                CustomText(
+                  text: "Are you sure you want to delete this event? This action cannot be undone.",
+                  maxLine: 3,
+                  color: Colors.grey,
+                ),
+                SizedBox(height: 24.h),
+                Row(
+                  children: [
+                    Expanded(
+                      child: CustomButton(
+                        onTap: () => Navigator.pop(context),
+                        text: "Cancel",
+                        color: Colors.white,
+                        textColor: Colors.black,
+                        broderColor: Colors.grey[300],
+                      ),
+                    ),
+                    SizedBox(width: 12.w),
+                    Expanded(
+                      child: CustomButton(
+                        onTap: () {
+                          // 3. Updated to find SelfEventController
+                          Get.find<SelfEventController>().deleteEvent(eventId);
+                          Navigator.pop(context);
+                        },
+                        text: "Delete",
+                        color: Colors.red,
+                        textColor: Colors.white,
+                        broderColor: Colors.red,
+                      ),
+                    ),
+                  ],
+                ),
+              ],
+            ),
+          ),
+        );
+      },
+    );
+  }
+
 }

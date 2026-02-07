@@ -2,10 +2,14 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:get/get.dart';
+import 'package:involved/controller/self_event_controller.dart';
 import 'package:involved/service/api_client.dart';
 import 'package:involved/service/api_constants.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:fluttertoast/fluttertoast.dart';
+
+import '../models/event_response_model.dart';
+import 'event_controller.dart';
 
 class EventPostController extends GetxController {
   // --- Text Controllers ---
@@ -134,6 +138,87 @@ class EventPostController extends GetxController {
       }
     } catch (e) {
       debugPrint("====> Exception: $e");
+    } finally {
+      isPosting(false);
+    }
+  }
+
+
+
+  // --- Fill fields with existing event data ---
+  void populateFields(Event event) {
+    titleCTRL.text = event.title;
+    locationCTRL.text = event.address;
+    descriptionCTRL.text = event.description;
+    eventDateCTRL.text = event.startDate.toIso8601String();
+    eventEndTimeCTRL.text = event.endDate.toIso8601String();
+    // For images, we usually show the network image in UI,
+    // and only use imagePath if the user picks a NEW one.
+    imagePath.value = "";
+  }
+
+  // --- Update Event Method ---
+  Future<void> updateEvent({
+    required String eventId,
+    String? type,
+    String? category,
+    List<String>? atmosphere,
+    String? occurrenceType,
+  }) async {
+    isPosting(true);
+    try {
+      Map<String, String> body = {};
+      body['title'] = titleCTRL.text.trim();
+      body['address'] = locationCTRL.text.trim();
+      body['description'] = descriptionCTRL.text.trim();
+      body['startDate'] = eventDateCTRL.text;
+      body['endDate'] = eventEndTimeCTRL.text;
+
+      if (type != null) body['type'] = type;
+      if (category != null) body['category'] = category;
+      if (occurrenceType != null) body['occurrenceType'] = occurrenceType;
+
+      // Fix for atmosphere array formatting
+      if (atmosphere != null && atmosphere.isNotEmpty) {
+        for (int i = 0; i < atmosphere.length; i++) {
+          body['atmosphere[$i]'] = atmosphere[i];
+        }
+      }
+
+      List<MultipartBody> multipartFiles = [];
+      if (imagePath.value.isNotEmpty && !imagePath.value.startsWith('http')) {
+        multipartFiles.add(MultipartBody('image', File(imagePath.value)));
+      }
+
+      String url = "${ApiConstants.eventFields}/$eventId";
+
+      Response response = await ApiClient.patchMultipartData(
+          url,
+          body,
+          multipartBody: multipartFiles
+      );
+
+      if (response.statusCode == 200 || response.statusCode == 201) {
+        // 1. Refresh the list
+        try {
+          if (Get.isRegistered<SelfEventController>()) {
+            Get.find<SelfEventController>().selfEventsList(); // Call your fetch method
+          }
+        } catch (e) {
+          debugPrint("SelfEventController refresh failed: $e");
+        }
+
+        // 2. Navigation
+        Get.back();
+        Fluttertoast.showToast(msg: "Event updated successfully", backgroundColor: Colors.green);
+      } else {
+        // Show the specific error from the server
+        String msg = response.body?['message'] ?? "Update failed";
+        Fluttertoast.showToast(msg: msg, backgroundColor: Colors.red);
+      }
+    } catch (e) {
+      debugPrint("Error in updateEvent: $e");
+      Fluttertoast.showToast(msg: "An error occurred");
     } finally {
       isPosting(false);
     }

@@ -13,6 +13,7 @@ import 'package:involved/views/base/custom_text.dart';
 import '../../../../controller/collection_name_controller.dart';
 import '../../../../controller/event_controller.dart';
 import '../../../../service/api_constants.dart';
+import '../../../base/custom_text_field.dart';
 
 class AllTab extends StatefulWidget {
   final String eventType;
@@ -27,12 +28,20 @@ class _AllTabState extends State<AllTab> {
   late EventController eventController;
 
   final CollectionController collectionController = Get.put(CollectionController());
+  final TextEditingController newAlbumCTRL = TextEditingController();
 
   @override
   void initState() {
     super.initState();
+
     eventController = Get.put(EventController(), tag: widget.eventType);
-    eventController.fetchEvents(type: widget.eventType);
+
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      // Pass the eventType directly.
+      // If widget.eventType is "", our new controller logic will
+      // automatically skip adding "type=" to the URL.
+      eventController.fetchEvents(type: widget.eventType);
+    });
   }
 
   @override
@@ -49,7 +58,7 @@ class _AllTabState extends State<AllTab> {
       return Padding(
         padding: EdgeInsets.symmetric(horizontal: 20.w),
         child: GridView.builder(
-          shrinkWrap: true,
+          shrinkWrap: false,
           physics: const AlwaysScrollableScrollPhysics(),
           padding: EdgeInsets.symmetric(vertical: 20.w),
           itemCount: eventController.eventsList.length,
@@ -57,7 +66,7 @@ class _AllTabState extends State<AllTab> {
             crossAxisCount: 2,
             mainAxisSpacing: 12.h,
             crossAxisSpacing: 12.w,
-            childAspectRatio: 0.57,
+            childAspectRatio: 0.71,
           ),
           itemBuilder: (context, index) {
             final event = eventController.eventsList[index];
@@ -75,11 +84,13 @@ class _AllTabState extends State<AllTab> {
                 borderRadius: BorderRadius.circular(12.r),
                 onTap: () => showEventDetailsDialog(
                   context: context,
-                  imageUrl: event.image,
+                  imageUrl: fullImageUrl,
                   title: event.title,
                   dateTime: "${event.startDate.day}/${event.startDate.month}/${event.startDate.year}",
                   venue: event.address,
                   description: event.description,
+                  status: event.status,
+                  eventId: event.id.toString()
                 ),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -144,6 +155,8 @@ class _AllTabState extends State<AllTab> {
     required String dateTime,
     required String venue,
     required String description,
+    required String status,
+    required String eventId,
   }) {
     showDialog(
       context: context,
@@ -257,18 +270,24 @@ class _AllTabState extends State<AllTab> {
                         width: double.infinity,
                         padding: EdgeInsets.all(12.w),
                         decoration: BoxDecoration(
-                          color: Color(0xffffefd1),
+                          color: const Color(0xffffefd1),
                           borderRadius: BorderRadius.circular(12.r),
                         ),
                         child: Row(
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
-                            Icon(Icons.circle, color: AppColors.primaryColor, size: 12.h),
+                            // Dynamic Color applied here
+                            Icon(
+                                Icons.circle,
+                                color: getStatusColor(status),
+                                size: 12.h
+                            ),
                             SizedBox(width: 8.w),
                             CustomText(
-                              text: 'Live',
-                              color: AppColors.primaryColor,
-                              fontWeight: FontWeight.w500,
+                              text: status,
+                              // Using the same color for the text looks professional
+                              color: getStatusColor(status),
+                              fontWeight: FontWeight.w700,
                               maxLine: 3,
                             ),
                           ],
@@ -281,32 +300,30 @@ class _AllTabState extends State<AllTab> {
                         children: [
                           Expanded(
                             child: CustomButton(
-                              onTap: () {},
+                              onTap: () => showPlanConfirmation(context, eventId, "Interested"),
                               text: AppStrings.interested.tr,
-                              color: Color(0xffffefd1),
-                                broderColor: Color(0xffffefd1),
-                                textColor: AppColors.primaryColor
-                            ),
-                          ),
-                          SizedBox(width: 8.w),
-                          Expanded(
-                            child: CustomButton(
-                              onTap: () {},
-                              text: AppStrings.going.tr,
-                              broderColor: Color(0xffffefd1),
+                              color: const Color(0xffffefd1),
+                              broderColor: const Color(0xffffefd1),
                               textColor: AppColors.primaryColor,
-                              color: Color(0xffffefd1),
                             ),
                           ),
                           SizedBox(width: 8.w),
                           Expanded(
                             child: CustomButton(
-                              onTap: () {
-                                addFolderDialog();
-                              },
+                              onTap: () => showPlanConfirmation(context, eventId, "Going"),
+                              text: AppStrings.going.tr,
+                              broderColor: const Color(0xffffefd1),
+                              textColor: AppColors.primaryColor,
+                              color: const Color(0xffffefd1),
+                            ),
+                          ),
+                          SizedBox(width: 8.w),
+                          Expanded(
+                            child: CustomButton(
+                              onTap: () => addFolderDialog(eventId),
                               text: AppStrings.add.tr,
-                              color: Color(0xffffefd1),
-                              broderColor: Color(0xffffefd1),
+                              color: const Color(0xffffefd1),
+                              broderColor: const Color(0xffffefd1),
                               textColor: AppColors.primaryColor,
                             ),
                           ),
@@ -336,96 +353,211 @@ class _AllTabState extends State<AllTab> {
   }
 
   //==============================> Event Details Dialog <==============================
-  void addFolderDialog() {
+  void addFolderDialog(String eventId) {
+    bool isCreatingNew = false; // Local state to toggle UI
+
     showDialog(
       context: context,
       barrierDismissible: true,
-      builder: (_) {
-        return Dialog(
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(24.r),
-          ),
-          insetPadding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 24.h),
-          backgroundColor: Colors.white,
-          child: Stack(
-            clipBehavior: Clip.none,
-            children: [
-              Padding(
-                padding: EdgeInsets.all(16.w),
-                child: SingleChildScrollView(
-                  child: Column(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          InkWell(
-                              onTap: () => Navigator.of(context).pop(),
-                              child: Icon(Icons.arrow_back_ios_new_outlined, size: 16.w)),
-                          CustomText(
-                            text: AppStrings.save,
-                            fontSize: 16.sp,
-                            fontWeight: FontWeight.w500,
+      builder: (context) {
+        // We use StatefulBuilder to update UI (TextField toggle) inside the dialog
+        return StatefulBuilder(builder: (context, setModalState) {
+          return Dialog(
+            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24.r)),
+            insetPadding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 24.h),
+            backgroundColor: Colors.white,
+            child: Padding(
+              padding: EdgeInsets.all(16.w),
+              child: SingleChildScrollView(
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        InkWell(
+                            onTap: () => Navigator.of(context).pop(),
+                            child: Icon(Icons.arrow_back_ios_new_outlined, size: 16.w)),
+                        CustomText(text: AppStrings.save, fontSize: 16.sp, fontWeight: FontWeight.w500),
+                      ],
+                    ),
+                    SizedBox(height: 20.h),
+                    Align(
+                      alignment: Alignment.centerLeft,
+                      child: CustomText(
+                        text: AppStrings.addToAlbum.tr,
+                        fontWeight: FontWeight.w500,
+                        fontSize: 16.sp,
+                      ),
+                    ),
+                    SizedBox(height: 8.h),
+
+                    // --- Toggle between Button and TextField ---
+                    if (!isCreatingNew)
+                      GestureDetector(
+                        onTap: () => setModalState(() => isCreatingNew = true),
+                        child: Container(
+                          width: double.infinity,
+                          padding: EdgeInsets.all(12.w),
+                          decoration: BoxDecoration(
+                            color: Colors.white,
+                            borderRadius: BorderRadius.circular(12.r),
+                            border: Border.all(color: AppColors.greyColor),
                           ),
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Icon(Icons.add_circle_outlined, color: AppColors.primaryColor),
+                              SizedBox(width: 8.w),
+                              CustomText(
+                                text: AppStrings.createNewAlbum.tr,
+                                color: AppColors.greyColor,
+                                fontWeight: FontWeight.w500,
+                              ),
+                            ],
+                          ),
+                        ),
+                      )
+                    else
+                      Row(
+                        children: [
+                          Expanded(
+                            child: CustomTextField(
+                              controller: newAlbumCTRL,
+                              hintText: "Enter album name...",
+                            ),
+                          ),
+                          SizedBox(width: 8.w),
+                          // --- The Save (+) Icon Button ---
+                          IconButton(
+                            onPressed: () {
+                              if (newAlbumCTRL.text.isNotEmpty) {
+                                collectionController.saveToCollection(
+                                  albumName: newAlbumCTRL.text.trim(),
+                                  eventId: eventId,
+                                  status: "Added", // Passing Added as status
+                                );
+                                newAlbumCTRL.clear();
+                              }
+                            },
+                            icon: Icon(Icons.add_box, color: AppColors.primaryColor, size: 32.sp),
+                          )
                         ],
                       ),
-                      SizedBox(height: 20.h),
-                      Align(
-                        alignment: Alignment.centerLeft,
-                        child: CustomText(
-                          text: AppStrings.addToAlbum.tr,
-                          fontWeight: FontWeight.w500,
-                          fontSize: 16.sp,
-                        ),
-                      ),
-                      SizedBox(height: 16.h),
 
-                      // --- Dynamic Collection List Starts Here ---
-                      Obx(() {
-                        if (collectionController.isLoading.value) {
-                          return const Center(
-                            child: Padding(
-                              padding: EdgeInsets.all(16.0),
-                              child: CircularProgressIndicator(),
-                            ),
+                    SizedBox(height: 16.h),
+
+                    // --- Existing Collection List ---
+                    Obx(() {
+                      if (collectionController.isLoading.value) {
+                        return const Center(child: CircularProgressIndicator());
+                      }
+
+                      return Column(
+                        children: collectionController.collectionList.map((album) {
+                          return CustomListTile(
+                            title: album,
+                            suffixIcon: SvgPicture.asset(AppIcons.rightArrow),
+                            onTap: () {
+                              collectionController.saveToCollection(
+                                albumName: album,
+                                eventId: eventId,
+                                status: "Added",
+                              );
+                            },
                           );
-                        }
-
-                        if (collectionController.collectionList.isEmpty) {
-                          return Padding(
-                            padding: EdgeInsets.symmetric(vertical: 20.h),
-                            child: CustomText(
-                              text: "No albums found".tr,
-                              color: Colors.grey,
-                            ),
-                          );
-                        }
-
-                        return Column(
-                          children: collectionController.collectionList.map((album) {
-                            return CustomListTile(
-                              title: album,
-                              suffixIcon: SvgPicture.asset(AppIcons.rightArrow),
-                              onTap: () {
-                                // Handle saving the event to this album
-                                print("Selected Album: $album");
-                                Navigator.pop(context);
-                              },
-                            );
-                          }).toList(),
-                        );
-                      }),
-                      // --- Dynamic Collection List Ends Here ---
-
-                      SizedBox(height: 20.h),
-                    ],
-                  ),
+                        }).toList(),
+                      );
+                    }),
+                    SizedBox(height: 20.h),
+                  ],
                 ),
               ),
-            ],
+            ),
+          );
+        });
+      },
+    );
+  }
+
+
+  void showPlanConfirmation(BuildContext context, String eventId, String planStatus) {
+    showDialog(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          backgroundColor: Colors.white, // Strictly white background
+          surfaceTintColor: Colors.white, // Prevents Material 3 tinting
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16.r)),
+          title: CustomText(
+            text: "Add to My Plans?",
+            fontSize: 18.sp,
+            fontWeight: FontWeight.bold,
+            color: AppColors.primaryColor,
           ),
+          content: CustomText(
+            text: "Would you like to mark this event as '$planStatus' in your plans?",
+            maxLine: 2,
+            color: Colors.black87,
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context),
+              child: CustomText(
+                  text: "Cancel",
+                  color: Colors.grey,
+                  fontWeight: FontWeight.w500
+              ),
+            ),
+            // Using a more prominent style for the Confirm action
+            TextButton(
+              style: TextButton.styleFrom(
+                backgroundColor: const Color(0xffffefd1), // Match your button theme
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8.r)),
+              ),
+              onPressed: () {
+                Navigator.pop(context); // Close confirmation dialog
+
+                collectionController.saveToCollection(
+                  albumName: "MY PLANS",
+                  eventId: eventId,
+                  status: planStatus,
+                );
+              },
+              child: Padding(
+                padding: EdgeInsets.symmetric(horizontal: 8.w),
+                child: CustomText(
+                  text: "Confirm",
+                  color: AppColors.primaryColor,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+            ),
+          ],
         );
       },
     );
+  }
+
+
+  Color getStatusColor(String status) {
+    switch (status) {
+      case "Quiet":
+        return AppColors.primaryColor; // Your Primary Color
+      case "Moderate":
+        return Colors.yellow;          // Yellow
+      case "Busy":
+        return Colors.red;             // Red
+      case "Pending":
+        return Colors.orange;          // Default/Orange
+      case "Active":
+        return Colors.green;           // Suggested Green
+      case "Expire":
+        return Colors.grey;            // Suggested Grey
+      case "Rejected":
+        return Colors.black;           // Suggested Black
+      default:
+        return AppColors.primaryColor; // Fallback
+    }
   }
 }
