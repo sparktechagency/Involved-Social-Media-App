@@ -82,7 +82,7 @@ class _AllTabState extends State<AllTab> {
                 borderRadius: BorderRadius.circular(12.r),
                 onTap: () => showEventDetailsDialog(
                   context: context,
-                  imageUrl: event.image,
+                  imageUrl: fullImageUrl,
                   title: event.title,
                   dateTime: "${event.startDate.day}/${event.startDate.month}/${event.startDate.year}",
                   venue: event.address,
