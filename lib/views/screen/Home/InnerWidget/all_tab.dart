@@ -270,18 +270,24 @@ class _AllTabState extends State<AllTab> {
                         width: double.infinity,
                         padding: EdgeInsets.all(12.w),
                         decoration: BoxDecoration(
-                          color: Color(0xffffefd1),
+                          color: const Color(0xffffefd1),
                           borderRadius: BorderRadius.circular(12.r),
                         ),
                         child: Row(
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
-                            Icon(Icons.circle, color: AppColors.primaryColor, size: 12.h),
+                            // Dynamic Color applied here
+                            Icon(
+                                Icons.circle,
+                                color: getStatusColor(status),
+                                size: 12.h
+                            ),
                             SizedBox(width: 8.w),
                             CustomText(
                               text: status,
-                              color: AppColors.primaryColor,
-                              fontWeight: FontWeight.w500,
+                              // Using the same color for the text looks professional
+                              color: getStatusColor(status),
+                              fontWeight: FontWeight.w700,
                               maxLine: 3,
                             ),
                           ],
@@ -294,32 +300,30 @@ class _AllTabState extends State<AllTab> {
                         children: [
                           Expanded(
                             child: CustomButton(
-                              onTap: () {},
+                              onTap: () => showPlanConfirmation(context, eventId, "Interested"),
                               text: AppStrings.interested.tr,
-                              color: Color(0xffffefd1),
-                                broderColor: Color(0xffffefd1),
-                                textColor: AppColors.primaryColor
-                            ),
-                          ),
-                          SizedBox(width: 8.w),
-                          Expanded(
-                            child: CustomButton(
-                              onTap: () {},
-                              text: AppStrings.going.tr,
-                              broderColor: Color(0xffffefd1),
+                              color: const Color(0xffffefd1),
+                              broderColor: const Color(0xffffefd1),
                               textColor: AppColors.primaryColor,
-                              color: Color(0xffffefd1),
                             ),
                           ),
                           SizedBox(width: 8.w),
                           Expanded(
                             child: CustomButton(
-                              onTap: () {
-                                addFolderDialog(eventId);
-                              },
+                              onTap: () => showPlanConfirmation(context, eventId, "Going"),
+                              text: AppStrings.going.tr,
+                              broderColor: const Color(0xffffefd1),
+                              textColor: AppColors.primaryColor,
+                              color: const Color(0xffffefd1),
+                            ),
+                          ),
+                          SizedBox(width: 8.w),
+                          Expanded(
+                            child: CustomButton(
+                              onTap: () => addFolderDialog(eventId),
                               text: AppStrings.add.tr,
-                              color: Color(0xffffefd1),
-                              broderColor: Color(0xffffefd1),
+                              color: const Color(0xffffefd1),
+                              broderColor: const Color(0xffffefd1),
                               textColor: AppColors.primaryColor,
                             ),
                           ),
@@ -474,5 +478,86 @@ class _AllTabState extends State<AllTab> {
         });
       },
     );
+  }
+
+
+  void showPlanConfirmation(BuildContext context, String eventId, String planStatus) {
+    showDialog(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          backgroundColor: Colors.white, // Strictly white background
+          surfaceTintColor: Colors.white, // Prevents Material 3 tinting
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16.r)),
+          title: CustomText(
+            text: "Add to My Plans?",
+            fontSize: 18.sp,
+            fontWeight: FontWeight.bold,
+            color: AppColors.primaryColor,
+          ),
+          content: CustomText(
+            text: "Would you like to mark this event as '$planStatus' in your plans?",
+            maxLine: 2,
+            color: Colors.black87,
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context),
+              child: CustomText(
+                  text: "Cancel",
+                  color: Colors.grey,
+                  fontWeight: FontWeight.w500
+              ),
+            ),
+            // Using a more prominent style for the Confirm action
+            TextButton(
+              style: TextButton.styleFrom(
+                backgroundColor: const Color(0xffffefd1), // Match your button theme
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8.r)),
+              ),
+              onPressed: () {
+                Navigator.pop(context); // Close confirmation dialog
+
+                collectionController.saveToCollection(
+                  albumName: "MY PLANS",
+                  eventId: eventId,
+                  status: planStatus,
+                );
+              },
+              child: Padding(
+                padding: EdgeInsets.symmetric(horizontal: 8.w),
+                child: CustomText(
+                  text: "Confirm",
+                  color: AppColors.primaryColor,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+
+  Color getStatusColor(String status) {
+    switch (status) {
+      case "Quiet":
+        return AppColors.primaryColor; // Your Primary Color
+      case "Moderate":
+        return Colors.yellow;          // Yellow
+      case "Busy":
+        return Colors.red;             // Red
+      case "Pending":
+        return Colors.orange;          // Default/Orange
+      case "Active":
+        return Colors.green;           // Suggested Green
+      case "Expire":
+        return Colors.grey;            // Suggested Grey
+      case "Rejected":
+        return Colors.black;           // Suggested Black
+      default:
+        return AppColors.primaryColor; // Fallback
+    }
   }
 }
