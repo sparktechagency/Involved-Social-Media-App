@@ -24,6 +24,7 @@ class CustomTextField extends StatefulWidget {
   final bool isPassword;
   final bool? isEmail;
   final bool? readOnly;
+  final Function(String)? onChanged;
 
   const CustomTextField({
     super.key,
@@ -32,6 +33,7 @@ class CustomTextField extends StatefulWidget {
     this.isObscureText = false,
     this.obscureCharacter = '*',
     this.fillColor,
+    this.onChanged,
     this.borderColor,
     this.maxLines = 1,
     this.prefixIcon,
@@ -123,6 +125,7 @@ class _CustomTextFieldState extends State<CustomTextField> {
     return TextFormField(
       maxLines: widget.maxLines,
       onTap: widget.onTap,
+      onChanged: widget.onChanged,
       readOnly: widget.readOnly ?? false,
       controller: widget.controller,
       keyboardType: widget.keyboardType,
