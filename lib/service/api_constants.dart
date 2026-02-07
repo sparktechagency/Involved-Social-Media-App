@@ -25,5 +25,7 @@ class ApiConstants {
   static const String selfEvent = "/event/self";
   static const String collectionName = "/collection/names";
   static const String saveCollection = "/collection/save";
+  static const String collectionGrouped = "/collection/grouped";
+  static const String filterWithCollectionName = "/collection";
 
 }

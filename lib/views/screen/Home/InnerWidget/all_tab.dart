@@ -66,7 +66,7 @@ class _AllTabState extends State<AllTab> {
             crossAxisCount: 2,
             mainAxisSpacing: 12.h,
             crossAxisSpacing: 12.w,
-            childAspectRatio: 0.57,
+            childAspectRatio: 0.71,
           ),
           itemBuilder: (context, index) {
             final event = eventController.eventsList[index];
