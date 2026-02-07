@@ -10,6 +10,7 @@ import 'package:involved/utils/app_images.dart';
 import 'package:involved/utils/app_strings.dart';
 import 'package:involved/views/base/custom_text.dart';
 import 'package:involved/views/screen/Home/InnerWidget/all_tab.dart';
+import '../../../controller/event_fields_controller.dart';
 import '../../base/bottom_menu..dart';
 
 class HomeScreen extends StatefulWidget {
@@ -19,115 +20,88 @@ class HomeScreen extends StatefulWidget {
   State<HomeScreen> createState() => _HomeScreenState();
 }
 
-class _HomeScreenState extends State<HomeScreen>
-    with SingleTickerProviderStateMixin {
-  late TabController _tabController;
+class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
+  // Access your controller
+  final EventFieldsController fieldsController = Get.put(EventFieldsController());
+  TabController? _tabController;
 
   @override
   void initState() {
     super.initState();
-    _tabController = TabController(length: 6, vsync: this);
-    _tabController.addListener(() {
-      setState(() {});
+
+    // Listen to changes in typesList to initialize TabController
+    ever(fieldsController.typesList, (List<String> types) {
+      if (types.isNotEmpty) {
+        setState(() {
+          // Length is dynamic items + 1 (for "All")
+          _tabController = TabController(length: types.length + 1, vsync: this);
+        });
+      }
     });
+
+    // Handle case where data might already be there
+    if (fieldsController.typesList.isNotEmpty) {
+      _tabController = TabController(length: fieldsController.typesList.length + 1, vsync: this);
+    }
   }
 
   @override
   void dispose() {
-    _tabController.removeListener(() {});
-    _tabController.dispose();
+    _tabController?.dispose();
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
-    return DefaultTabController(
-      length: 6,
-      child: Scaffold(
+    return Obx(() {
+      // Show loader while fetching dynamic tab values
+      if (fieldsController.isLoading.value || _tabController == null) {
+        return const Scaffold(body: Center(child: CircularProgressIndicator()));
+      }
+
+      return Scaffold(
         bottomNavigationBar: BottomMenu(0),
         appBar: AppBar(
           backgroundColor: Colors.white,
-            automaticallyImplyLeading: false,
+          automaticallyImplyLeading: false,
           title: Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Image.asset(AppImages.logo, width: 142.w, height: 64.h),
               InkWell(
-                onTap: () {
-                  Get.toNamed(AppRoutes.notificationsScreen);
-                },
+                onTap: () => Get.toNamed(AppRoutes.notificationsScreen),
                 child: SvgPicture.asset(AppIcons.notification),
               ),
             ],
           ),
           bottom: TabBar(
-            padding: EdgeInsets.zero,
-            labelPadding: EdgeInsets.zero,
-            indicatorPadding: EdgeInsets.zero,
+            isScrollable: true, // Set to true since dynamic lists can be long
             controller: _tabController,
             indicatorColor: AppColors.primaryColor,
             labelColor: Colors.black,
             unselectedLabelColor: Colors.grey,
             tabs: [
-              //========================> All Tab <====================
-              Tab(
-                child: Align(
-                  alignment: Alignment.center,
-                  child: CustomText(text: AppStrings.all.tr, fontSize: 12.sp),
-                ),
-              ),
-              //========================> Reading Tab <====================
-              Tab(
-                child: Align(
-                  alignment: Alignment.center,
-                  child: CustomText(text: 'Reading'.tr, fontSize: 12.sp),
-                ),
-              ),
-              //========================> Music Tab <====================
-              Tab(
-                child: Align(
-                  alignment: Alignment.center,
-                  child: CustomText(
-                    text: 'Music'.tr,
-                    fontSize: 12.sp,
-                  ),
-                ),
-              ),
-              //========================> Cooking Tab <====================
-              Tab(
-                child: Align(
-                  alignment: Alignment.center,
-                  child: CustomText(text: 'Cooking'.tr, fontSize: 12.sp),
-                ),
-              ),
-              //========================> Special Events Tab <====================
-              Tab(
-                child: Align(
-                  alignment: Alignment.center,
-                  child: CustomText(text: 'Special Events'.tr, fontSize: 12.sp),
-                ),
-              ),
-              //========================> Pets Tab <====================
-              Tab(
-                child: Align(
-                  alignment: Alignment.center,
-                  child: CustomText(text: 'Pets'.tr, fontSize: 12.sp),
-                ),
-              ),
+              // 1. Static "All" Tab
+              Tab(child: CustomText(text: AppStrings.all.tr, fontSize: 12.sp)),
+
+              // 2. Dynamic Tabs from API
+              ...fieldsController.typesList.map((typeName) => Tab(
+                child: CustomText(text: typeName.tr, fontSize: 12.sp),
+              )),
             ],
-          )),
-          body:TabBarView(
-            controller: _tabController,
-            children:  [
-              AllTab(),
-              AllTab(),
-              AllTab(),
-              AllTab(),
-              AllTab(),
-              AllTab(),
-            ],
-          )
-      ),
-    );
+          ),
+        ),
+        body: TabBarView(
+          controller: _tabController,
+          children: [
+            // Index 0: "All" - we pass empty string for type
+            const AllTab(eventType: ""),
+
+            // Dynamic types from the fields controller
+            ...fieldsController.typesList.map((type) => AllTab(eventType: type)),
+          ],
+        ),
+      );
+    });
   }
 }

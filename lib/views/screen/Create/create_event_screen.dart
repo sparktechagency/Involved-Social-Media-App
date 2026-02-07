@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/svg.dart';
@@ -14,6 +16,10 @@ import 'package:involved/views/base/custom_network_image.dart';
 import 'package:involved/views/base/custom_text.dart';
 import 'package:involved/views/base/custom_text_field.dart';
 
+import '../../../controller/event_fields_controller.dart';
+import '../../../controller/event_post_controller.dart';
+
+
 class CreateEventScreen extends StatefulWidget {
   const CreateEventScreen({super.key});
 
@@ -22,585 +28,400 @@ class CreateEventScreen extends StatefulWidget {
 }
 
 class _CreateEventScreenState extends State<CreateEventScreen> {
-  final ProfileController _controller = Get.put(ProfileController());
-  final TextEditingController titleCTRL = TextEditingController();
-  final TextEditingController locationCTRL = TextEditingController();
-  final TextEditingController eventDateCTRL = TextEditingController();
-  final TextEditingController eventTimeCTRL = TextEditingController();
-  final TextEditingController descriptionCTRL = TextEditingController();
+  final EventFieldsController fieldsController = Get.put(EventFieldsController());
+  final EventPostController postController = Get.put(EventPostController());
 
   String? _selectedEventType;
-  String? _selectedGiveawayGiftCard;
   String? _selectedEventCategory;
   String? _selectedOccurrenceType;
-
-  List<String> eventTypes = ['Giveaway', 'Music', 'Experience', 'Night Life', 'Fitness', 'Art and Culture'];
-  List<String> giveawayGiftCards = ['\$25 Gift Card', '\$50 Gift Card', '\$100 Gift Card'];
-  List<String> eventCategories = ['Beach Club', 'Bingo', 'Book Club', 'Brunch', 'Charity'];
-  List<String> occurrenceTypes = ['One Time Event', 'Weekly Event', 'Monthly Event'];
-  List<String> atmosphereOptions =
-  ['Romantic', 'Casual', 'Sexy', 'Chill', 'Active', 'Party', 'Outdoors',
-    'Sophisticated', 'Bohemian', 'Professional'];
-
-  Map<String, bool> selectedAtmospheres = {};
-
-  @override
-  void initState() {
-    super.initState();
-    for (var option in atmosphereOptions) {
-      selectedAtmospheres[option] = false;
-    }
-  }
+  List<String> selectedAtmospheres = [];
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: CustomAppBar(title: AppStrings.createEvent.tr),
-      body: SingleChildScrollView(
-        child: Padding(
-          padding: EdgeInsets.symmetric(horizontal: 20.w, vertical: 8.h),
-          child: Card(
-            color: Color(0xffFFEFD1),
-            child: Padding(
-              padding: EdgeInsets.all(16.w),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Center(child: Image.asset(AppImages.logos, width: 142.w, height: 64.h)),
-                  SizedBox(height: 12.h),
-                  //=======================> Event Title Text Field <===================
-                  Container(
-                    decoration: BoxDecoration(
-                      color: Colors.white,
-                      borderRadius: BorderRadius.circular(8.r),
-                      border: Border.all(width: 1.w, color: AppColors.primaryColor)
-                    ),
-                    child: Padding(
-                      padding: EdgeInsets.all(8.w),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          CustomText(
-                            left: 9.w,
-                            text: AppStrings.eventTitle.tr,
-                            fontSize: 16.sp,
-                            fontWeight: FontWeight.w700,
-                            color: AppColors.primaryColor,
-                          ),
-                          CustomTextField(
-                            borderColor: Colors.white,
-                            controller: titleCTRL,
-                            hintText: AppStrings.enterEventName.tr,
-                          ),
-                        ],
-                      ),
-                    ),
-                  ),
-                  SizedBox(height: 16.h),
-                  //=======================> Event Type Dropdown Button <===================
-                  Container(
-                    width: double.infinity,
-                    decoration: BoxDecoration(
-                        color: Colors.white,
-                        borderRadius: BorderRadius.circular(8.r),
-                        border: Border.all(width: 1.w, color: AppColors.primaryColor)
-                    ),
-                    child: Padding(
-                      padding: EdgeInsets.all(8.w),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          CustomText(
-                            left: 9.w,
-                            text: AppStrings.eventType.tr,
-                            fontSize: 16.sp,
-                            fontWeight: FontWeight.w700,
-                            color: AppColors.primaryColor,
-                          ),
-                          DropdownButton<String>(
-                            isExpanded: true,
-                            dropdownColor: Colors.white,
-                            value: _selectedEventType,
-                            hint:  CustomText(
-                              left: 10.w,
-                              text: 'Select Event Type'.tr,
-                              color: Colors.black,
-                            ),
-                            icon: SvgPicture.asset(AppIcons.rightArrow),
-                            onChanged: (String? newValue) {
-                              setState(() {
-                                _selectedEventType = newValue;
-                              });
-                            },
-                            underline: SizedBox(),
-                            items: eventTypes.map<DropdownMenuItem<String>>((String value) {
-                              return DropdownMenuItem<String>(
-                                value: value,
-                                child:CustomText(
-                                  left: 10.w,
-                                  text: value,
-                                  color: Colors.black,
-                                ),
-                              );
-                            }).toList(),
-                          ),
+      body: Obx(() {
+        if (fieldsController.isLoading.value) {
+          return const Center(child: CircularProgressIndicator());
+        }
+        return SingleChildScrollView(
+          child: Padding(
+            padding: EdgeInsets.symmetric(horizontal: 20.w, vertical: 8.h),
+            child: Card(
+              color: const Color(0xffFFEFD1),
+              child: Padding(
+                padding: EdgeInsets.all(16.w),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Center(child: Image.asset(AppImages.logos, width: 142.w, height: 64.h)),
+                    SizedBox(height: 12.h),
 
-                        ],
+                    // --- Title ---
+                    _buildFormContainer(
+                      label: AppStrings.eventTitle.tr,
+                      child: CustomTextField(
+                        borderColor: Colors.white,
+                        controller: postController.titleCTRL,
+                        hintText: AppStrings.enterEventName.tr,
                       ),
                     ),
-                  ),
-                  SizedBox(height: 16.h),
-                  //=======================> Giveaway Gift Card Dropdown Button <===================
-                  Container(
-                    decoration: BoxDecoration(
-                        color: Colors.white,
-                        borderRadius: BorderRadius.circular(8.r),
-                        border: Border.all(width: 1.w, color: AppColors.primaryColor)
-                    ),
-                    child: Padding(
-                      padding: EdgeInsets.all(8.w),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          CustomText(
-                            left: 9.w,
-                            text: AppStrings.giveawayGiftCard.tr,
-                            fontSize: 16.sp,
-                            fontWeight: FontWeight.w700,
-                            color: AppColors.primaryColor,
-                          ),
-                          DropdownButton<String>(
-                            isExpanded: true,
-                            dropdownColor: Colors.white,
-                            value: _selectedGiveawayGiftCard,
-                            hint:  CustomText(
-                              left: 10.w,
-                              text: 'Select Gift Card'.tr,
-                              color: Colors.black,
-                            ),
-                            icon: SvgPicture.asset(AppIcons.rightArrow),
-                            onChanged: (String? newValue) {
-                              setState(() {
-                                _selectedGiveawayGiftCard = newValue;
-                              });
-                            },
-                            underline: SizedBox(),
-                            items: giveawayGiftCards.map<DropdownMenuItem<String>>((String value) {
-                              return DropdownMenuItem<String>(
-                                value: value,
-                                child:CustomText(
-                                  left: 10.w,
-                                  text: value,
-                                  color: Colors.black,
-                                ),
-                              );
-                            }).toList(),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ),
-                  SizedBox(height: 16.h),
-                  //=======================> Event Category Dropdown Button <===================
-                  Container(
-                    decoration: BoxDecoration(
-                        color: Colors.white,
-                        borderRadius: BorderRadius.circular(8.r),
-                        border: Border.all(width: 1.w, color: AppColors.primaryColor)
-                    ),
-                    child: Padding(
-                      padding: EdgeInsets.all(8.w),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          CustomText(
-                            left: 9.w,
-                            text: AppStrings.eventCategories.tr,
-                            fontSize: 16.sp,
-                            fontWeight: FontWeight.w700,
-                            color: AppColors.primaryColor,
-                          ),
-                          DropdownButton<String>(
-                            isExpanded: true,
-                            dropdownColor: Colors.white,
-                            value: _selectedEventCategory,
-                            hint:  CustomText(
-                              left: 10.w,
-                              text: 'Select Category'.tr,
-                              color: Colors.black,
-                            ),
-                            icon: SvgPicture.asset(AppIcons.rightArrow),
-                            onChanged: (String? newValue) {
-                              setState(() {
-                                _selectedEventCategory = newValue;
-                              });
-                            },
-                            underline: SizedBox(),
-                            items: eventCategories.map<DropdownMenuItem<String>>((String value) {
-                              return DropdownMenuItem<String>(
-                                value: value,
-                                child:CustomText(
-                                  left: 10.w,
-                                  text: value,
-                                  color: Colors.black,
-                                ),
-                              );
-                            }).toList(),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ),
-                  SizedBox(height: 16.h),
-                  //=======================> Location Text Field <===================
-                  Container(
-                    decoration: BoxDecoration(
-                        color: Colors.white,
-                        borderRadius: BorderRadius.circular(8.r),
-                        border: Border.all(width: 1.w, color: AppColors.primaryColor)
-                    ),
-                    child: Padding(
-                      padding: EdgeInsets.all(8.w),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          CustomText(
-                            left: 9.w,
-                            text: AppStrings.location.tr,
-                            fontSize: 16.sp,
-                            fontWeight: FontWeight.w700,
-                            color: AppColors.primaryColor,
-                          ),
-                          CustomTextField(
-                            controller: locationCTRL,
-                            borderColor: Colors.white,
-                            hintText: AppStrings.enterEventLocation.tr,
-                          ),
-                        ],
-                      ),
-                    ),
-                  ),
-                  SizedBox(height: 16.h),
-                  //=======================> Event Date Text Field <===================
-                  CustomTextField(
-                    onTap: (){
-                      pickBirthDate(context);
-                    },
-                    readOnly: true,
-                    controller: eventDateCTRL,
-                    suffixIcon: SvgPicture.asset(AppIcons.calender, color: AppColors.primaryColor),
-                    hintText: AppStrings.eventDate.tr,
-                  ),
-                  SizedBox(height: 16.h),
-                  //=======================> Event Time Text Field <===================
-                  CustomTextField(
-                    onTap: (){
-                      selectTime(context);
-                    },
-                    readOnly: true,
-                    controller: eventTimeCTRL,
-                    suffixIcon: SvgPicture.asset(AppIcons.clock, color: AppColors.primaryColor),
-                    hintText: AppStrings.eventTime.tr,
-                  ),
-                  SizedBox(height: 16.h),
-                  //=======================> Atmosphere Check Box Section <===================
-                  CustomText(
-                    left: 9.w,
-                    text: 'Atmosphere'.tr,
-                    fontSize: 16.sp,
-                    fontWeight: FontWeight.w700,
-                    color: AppColors.primaryColor,
-                  ),
-                  SizedBox(height: 16.h),
-                  SizedBox(
-                    height: 300.h,
-                    child: ListView.builder(
-                      shrinkWrap: true,
-                      itemCount: atmosphereOptions.length,
-                      itemBuilder: (context, index) {
-                        String option = atmosphereOptions[index];
-                        return CheckboxListTile(
-                          title: Text(option, style: TextStyle(color: Colors.black),),
-                          value: selectedAtmospheres[option] ?? false,
-                          checkColor: AppColors.whiteColor,
-                          activeColor: AppColors.primaryColor,
-                          side: BorderSide(color: AppColors.primaryColor),
+                    SizedBox(height: 16.h),
 
-                          onChanged: (bool? value) {
-                            setState(() {
-                              selectedAtmospheres[option] = value ?? false;
-                            });
-                          },
-                        );
-                      },
+                    // --- Event Type ---
+                    _buildDropdownContainer(
+                      label: AppStrings.eventType.tr,
+                      value: _selectedEventType,
+                      items: fieldsController.typesList,
+                      hint: 'Select Event Type'.tr,
+                      onChanged: (val) => setState(() => _selectedEventType = val),
                     ),
-                  ),
-                  SizedBox(height: 16.h),
-                  //=======================> Event Description Text Field <===================
-                  Container(
-                    decoration: BoxDecoration(
-                        color: Colors.white,
-                        borderRadius: BorderRadius.circular(8.r),
-                        border: Border.all(width: 1.w, color: AppColors.primaryColor)
+                    SizedBox(height: 16.h),
+
+                    // --- Category ---
+                    _buildDropdownContainer(
+                      label: AppStrings.eventCategories.tr,
+                      value: _selectedEventCategory,
+                      items: fieldsController.categoriesList,
+                      hint: 'Select Category'.tr,
+                      onChanged: (val) => setState(() => _selectedEventCategory = val),
                     ),
-                    child: Padding(
-                      padding: EdgeInsets.all(8.w),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          CustomText(
-                            left: 9.w,
-                            text: AppStrings.description.tr,
-                            fontSize: 16.sp,
-                            fontWeight: FontWeight.w700,
-                            color: AppColors.primaryColor,
-                          ),
-                          CustomTextField(
-                            controller: descriptionCTRL,
-                            hintText: 'Write a description maximum 50 character'.tr,
-                            maxLines: 3,
-                            borderColor: Colors.white,
-                          ),
-                        ],
+                    SizedBox(height: 16.h),
+
+                    // --- Location (Address) ---
+                    _buildFormContainer(
+                      label: AppStrings.location.tr,
+                      child: CustomTextField(
+                        controller: postController.locationCTRL,
+                        borderColor: Colors.white,
+                        hintText: AppStrings.enterEventLocation.tr,
                       ),
                     ),
-                  ),
-                  SizedBox(height: 16.h),
-                  //=======================> Occurrence Type Text Field <===================
-                  Container(
-                    decoration: BoxDecoration(
-                        color: Colors.white,
-                        borderRadius: BorderRadius.circular(8.r),
-                        border: Border.all(width: 1.w, color: AppColors.primaryColor)
+                    SizedBox(height: 16.h),
+
+                    // --- Start Date ---
+                    _buildFormContainer(
+                      label: "Event Start",
+                      child: CustomTextField(
+                        onTap: () => pickDateTime(context, isStartTime: true),
+                        readOnly: true,
+                        controller: postController.eventDateCTRL,
+                        suffixIcon: Icon(Icons.calendar_month, color: AppColors.primaryColor),
+                        hintText: "Select Start Date & Time",
+                      ),
                     ),
-                    child: Padding(
-                      padding: EdgeInsets.all(8.w),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          CustomText(
-                            left: 9.w,
-                            text: AppStrings.occurrenceType.tr,
-                            fontSize: 16.sp,
-                            fontWeight: FontWeight.w700,
-                            color: AppColors.primaryColor,
-                          ),
-                          DropdownButton<String>(
-                            isExpanded: true,
-                            dropdownColor: Colors.white,
-                            value: _selectedOccurrenceType,
-                            hint:  CustomText(
-                              left: 10.w,
-                              text: 'Select Occurrence Type'.tr,
-                              color: Colors.black,
+                    SizedBox(height: 16.h),
+
+                    // --- End Date ---
+                    _buildFormContainer(
+                      label: "Event End",
+                      child: CustomTextField(
+                        onTap: () => pickDateTime(context, isStartTime: false),
+                        readOnly: true,
+                        controller: postController.eventEndTimeCTRL,
+                        suffixIcon: Icon(Icons.calendar_month, color: AppColors.primaryColor),
+                        hintText: "Select End Date & Time",
+                      ),
+                    ),
+                    SizedBox(height: 16.h),
+
+                    // --- Atmosphere ---
+                    CustomText(
+                      left: 9.w,
+                      text: 'Atmosphere'.tr,
+                      fontSize: 16.sp,
+                      fontWeight: FontWeight.w700,
+                      color: AppColors.primaryColor,
+                    ),
+                    SizedBox(height: 8.h),
+                    GestureDetector(
+                      onTap: () => pickAtmosphere(context),
+                      child: Container(
+                        width: double.infinity,
+                        padding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 12.h),
+                        decoration: BoxDecoration(
+                          color: Colors.white,
+                          borderRadius: BorderRadius.circular(8.r),
+                          border: Border.all(color: AppColors.primaryColor, width: 1.w),
+                        ),
+                        child: Row(
+                          children: [
+                            Expanded(
+                              child: CustomText(
+                                  text: "Select Atmosphere".tr,
+                                  color: Colors.black54,
+                                  fontSize: 14.sp),
                             ),
-                            icon: SvgPicture.asset(AppIcons.rightArrow),
-                            onChanged: (String? newValue) {
-                              setState(() {
-                                _selectedOccurrenceType = newValue;
-                              });
-                            },
-                            underline: SizedBox(),
-                            items: occurrenceTypes.map<DropdownMenuItem<String>>((String value) {
-                              return DropdownMenuItem<String>(
-                                value: value,
-                                child:CustomText(
-                                  left: 10.w,
-                                  text: value,
-                                  color: Colors.black,
-                                ),
-                              );
-                            }).toList(),
-                          ),
-                        ],
+                            Icon(Icons.add_circle_outline, color: AppColors.primaryColor, size: 24.sp),
+                          ],
+                        ),
                       ),
                     ),
-                  ),
-                  SizedBox(height: 16.h),
-                  //==============================> Event picture section <=======================
-                  Card(
-                    color: Colors.white,
-                    shape: RoundedRectangleBorder(
-                      side: BorderSide(width: 1.w, color: AppColors.primaryColor),
-                      borderRadius: BorderRadius.circular(12.r),
-                    ),
-                    elevation: 2,
-                    child: Padding(
-                      padding: EdgeInsets.all(24.w),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          CustomText(
-                            text: AppStrings.uploadImage.tr,
-                            fontWeight: FontWeight.w500,
-                            fontSize: 16.sp,
-                          ),
-                          SizedBox(height: 16.h),
-                          Stack(
-                            children: [
-                              CustomNetworkImage(
-                                imageUrl: '',
-                                height: 200.h,
-                                width: 279.w,
-                                borderRadius: BorderRadius.circular(8.r),
-                                border: Border.all(
-                                  width: 2.w,
-                                  color: AppColors.greyColor,
-                                ),
-                              ),
-                              //==============================> Edit Profile Button <=======================
-                              Positioned(
-                                top: 80.h,
-                                right: 50.w,
-                                left: 50.w,
-                                bottom: 80.h,
-                                child: InkWell(
-                                  onTap: () {
-                                    _showImagePickerOption();
-                                  },
-                                  child: SvgPicture.asset(
-                                    AppIcons.edit,
-                                    width: 24.w,
-                                  ),
-                                ),
-                              ),
-                            ],
-                          ),
-                        ],
+                    if (selectedAtmospheres.isNotEmpty)
+                      Padding(
+                        padding: EdgeInsets.only(top: 12.h, left: 4.w, right: 4.w),
+                        child: Wrap(
+                          spacing: 8.0,
+                          runSpacing: 4.0,
+                          children: selectedAtmospheres.map((item) => _atmosphereChip(item)).toList(),
+                        ),
+                      ),
+                    SizedBox(height: 16.h),
+
+                    // --- Description ---
+                    _buildFormContainer(
+                      label: AppStrings.description.tr,
+                      child: CustomTextField(
+                        controller: postController.descriptionCTRL,
+                        hintText: 'Write a description...'.tr,
+                        maxLines: 3,
+                        borderColor: Colors.white,
                       ),
                     ),
-                  ),
-                  SizedBox(height: 32.h),
-                  //=======================> Create Event Button <===================
-                  CustomButton(onTap: () {}, text: AppStrings.createEvent.tr),
-                  SizedBox(height: 32.h),
-                ],
+                    SizedBox(height: 16.h),
+
+                    // --- Occurrence ---
+                    _buildDropdownContainer(
+                      label: AppStrings.occurrenceType.tr,
+                      value: _selectedOccurrenceType,
+                      items: fieldsController.occurrencesList,
+                      hint: 'Select Occurrence'.tr,
+                      onChanged: (val) => setState(() => _selectedOccurrenceType = val),
+                    ),
+                    SizedBox(height: 16.h),
+
+                    // --- Image Section ---
+                    _buildImageSection(),
+                    SizedBox(height: 32.h),
+
+                    // --- Submit Button ---
+                    Obx(() => CustomButton(
+                        loading: postController.isPosting.value,
+                        onTap: () {
+                          // Passes all local state to the controller for the API call
+                          postController.createEvent(
+                            type: _selectedEventType,
+                            category: _selectedEventCategory,
+                            occurrenceType: _selectedOccurrenceType,
+                            atmosphere: selectedAtmospheres,
+                          );
+                        },
+                        text: AppStrings.createEvent.tr)),
+                    SizedBox(height: 32.h),
+                  ],
+                ),
               ),
             ),
           ),
+        );
+      }),
+    );
+  }
+
+  // --- Date Picking Logic ---
+  Future<void> pickDateTime(BuildContext context, {required bool isStartTime}) async {
+    final DateTime? pickedDate = await showDatePicker(
+      context: context,
+      initialDate: DateTime.now(),
+      firstDate: DateTime.now(),
+      lastDate: DateTime(2100),
+    );
+
+    if (pickedDate == null) return;
+
+    final TimeOfDay? pickedTime = await showTimePicker(
+      context: context,
+      initialTime: TimeOfDay.now(),
+    );
+
+    if (pickedTime == null) return;
+
+    final DateTime fullDateTime = DateTime(
+      pickedDate.year,
+      pickedDate.month,
+      pickedDate.day,
+      pickedTime.hour,
+      pickedTime.minute,
+    );
+
+    // Format matches your successful Postman example: yyyy-MM-ddTHH:mm:ss
+    String formattedDateTime =
+        "${fullDateTime.year}-${fullDateTime.month.toString().padLeft(2, '0')}-${fullDateTime.day.toString().padLeft(2, '0')}T${fullDateTime.hour.toString().padLeft(2, '0')}:${fullDateTime.minute.toString().padLeft(2, '0')}:00";
+
+    setState(() {
+      if (isStartTime) {
+        postController.eventDateCTRL.text = formattedDateTime;
+      } else {
+        postController.eventEndTimeCTRL.text = formattedDateTime;
+      }
+    });
+  }
+
+  // --- Atmosphere Selection Chip ---
+  Widget _atmosphereChip(String atmosphere) {
+    return Chip(
+      label: CustomText(text: atmosphere, color: Colors.white, fontSize: 12.sp),
+      backgroundColor: AppColors.primaryColor,
+      deleteIcon: Icon(Icons.cancel, size: 16.sp, color: Colors.white),
+      onDeleted: () => setState(() => selectedAtmospheres.remove(atmosphere)),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20.r)),
+    );
+  }
+
+  // --- Atmosphere Picker ---
+  Future<void> pickAtmosphere(BuildContext context) async {
+    List<String> tempSelected = List.from(selectedAtmospheres);
+    await showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.vertical(top: Radius.circular(24.r))),
+      backgroundColor: Colors.white,
+      builder: (context) => StatefulBuilder(
+        builder: (context, setModalState) {
+          return Padding(
+            padding: EdgeInsets.fromLTRB(20.w, 12.h, 20.w, MediaQuery.of(context).viewInsets.bottom + 24.h),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Container(width: 40.w, height: 4.h, decoration: BoxDecoration(color: Colors.grey[300], borderRadius: BorderRadius.circular(10.r))),
+                SizedBox(height: 16.h),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    CustomText(text: 'Select Atmosphere'.tr, fontSize: 20.sp, fontWeight: FontWeight.bold, color: Colors.black),
+                    IconButton(onPressed: () => Navigator.pop(context), icon: const Icon(Icons.close, color: Colors.grey)),
+                  ],
+                ),
+                SizedBox(height: 16.h),
+                ConstrainedBox(
+                  constraints: BoxConstraints(maxHeight: 350.h),
+                  child: SingleChildScrollView(
+                    child: Wrap(
+                      spacing: 10.w,
+                      runSpacing: 10.h,
+                      children: fieldsController.atmospheresList.map((item) {
+                        final isSelected = tempSelected.contains(item);
+                        return GestureDetector(
+                          onTap: () => setModalState(() => isSelected ? tempSelected.remove(item) : tempSelected.add(item)),
+                          child: AnimatedContainer(
+                            duration: const Duration(milliseconds: 200),
+                            padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 10.h),
+                            decoration: BoxDecoration(
+                              color: isSelected ? AppColors.primaryColor : Colors.white,
+                              borderRadius: BorderRadius.circular(30.r),
+                              border: Border.all(color: isSelected ? AppColors.primaryColor : Colors.grey[300]!, width: 1.5.w),
+                            ),
+                            child: Row(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                if (isSelected) Icon(Icons.check, size: 16.sp, color: Colors.white),
+                                if (isSelected) SizedBox(width: 6.w),
+                                CustomText(text: item, color: isSelected ? Colors.white : Colors.black87, fontSize: 14.sp),
+                              ],
+                            ),
+                          ),
+                        );
+                      }).toList(),
+                    ),
+                  ),
+                ),
+                SizedBox(height: 24.h),
+                SizedBox(
+                  width: double.infinity,
+                  child: ElevatedButton(
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: AppColors.primaryColor,
+                      padding: EdgeInsets.symmetric(vertical: 14.h),
+                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12.r)),
+                    ),
+                    onPressed: () {
+                      setState(() => selectedAtmospheres = List.from(tempSelected));
+                      Navigator.pop(context);
+                    },
+                    child: CustomText(text: 'Apply Selection'.tr, color: Colors.white, fontSize: 16.sp, fontWeight: FontWeight.bold),
+                  ),
+                ),
+              ],
+            ),
+          );
+        },
+      ),
+    );
+  }
+
+  // --- Image Section ---
+  Widget _buildImageSection() {
+    return Card(
+      color: Colors.white,
+      shape: RoundedRectangleBorder(side: BorderSide(width: 1.w, color: AppColors.primaryColor), borderRadius: BorderRadius.circular(12.r)),
+      child: Padding(
+        padding: EdgeInsets.all(24.w),
+        child: Column(
+          children: [
+            CustomText(text: AppStrings.uploadImage.tr, fontWeight: FontWeight.w500, fontSize: 16.sp),
+            SizedBox(height: 16.h),
+            Obx(() => Container(
+              height: 200.h, width: 279.w,
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(8.r),
+                border: Border.all(color: AppColors.greyColor),
+                image: postController.imagePath.value.isNotEmpty
+                    ? DecorationImage(image: FileImage(File(postController.imagePath.value)), fit: BoxFit.cover)
+                    : null,
+              ),
+              child: postController.imagePath.value.isEmpty
+                  ? Center(child: IconButton(onPressed: _showImagePickerOption, icon: const Icon(Icons.add_a_photo)))
+                  : Align(alignment: Alignment.topRight, child: IconButton(onPressed: () => postController.imagePath.value = "", icon: const Icon(Icons.cancel, color: Colors.red))),
+            )),
+          ],
         ),
       ),
     );
   }
 
-  //==========================> Show Calender Function <=======================
-  Future<void> pickBirthDate(BuildContext context) async {
-    final DateTime? pickedDate = await showDatePicker(
-      context: context,
-      initialDate: DateTime.now(),
-      firstDate: DateTime(1900),
-      lastDate: DateTime(3050),
-      builder: (BuildContext context, Widget? child) {
-        return Theme(
-          data: ThemeData.light().copyWith(
-            dialogBackgroundColor: Colors.white,
-            colorScheme: ColorScheme.light(
-              primary: AppColors.primaryColor,
-              onSurface: Colors.black, // Text color
-            ),
-          ),
-          child: child!,
-        );
-      },
+  // --- Reusable Containers ---
+  Widget _buildFormContainer({required String label, required Widget child}) {
+    return Container(
+      decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(8.r), border: Border.all(width: 1.w, color: AppColors.primaryColor)),
+      child: Padding(
+        padding: EdgeInsets.all(8.w),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            CustomText(left: 9.w, text: label, fontSize: 16.sp, fontWeight: FontWeight.w700, color: AppColors.primaryColor),
+            child,
+          ],
+        ),
+      ),
     );
-    if (pickedDate != null) {
-      eventDateCTRL.text =
-      "${pickedDate.month}-${pickedDate.day}-${pickedDate.year}";
-    }
-  }
-  //==========================> Show Clock Function <=======================
-  Future<void> selectTime(BuildContext context) async {
-    final TimeOfDay? pickedTime = await showTimePicker(
-      context: context,
-      initialTime: TimeOfDay.now(),
-      builder: (BuildContext context, Widget? child) {
-        return Theme(
-          data: ThemeData.light().copyWith(
-            dialogBackgroundColor: Colors.white,
-            colorScheme: ColorScheme.light(
-              primary: AppColors.primaryColor,
-              onSurface: Colors.black, // Text color
-            ),
-          ),
-          child: child!,
-        );
-      },
-    );
-
-    if (pickedTime != null) {
-      setState(() {
-        final hours = pickedTime.hour % 12 == 0 ? 12 : pickedTime.hour % 12;
-        final minutes = pickedTime.minute.toString().padLeft(2, '0');
-        final period = pickedTime.period == DayPeriod.am ? 'AM' : 'PM';
-        eventTimeCTRL.text = "${hours.toString().padLeft(2, '0')}:$minutes $period";
-      });
-    }
   }
 
-  //====================================> Pick Image Gallery and Camera <====================
+  Widget _buildDropdownContainer({required String label, String? value, required List<String> items, required String hint, required Function(String?) onChanged}) {
+    return _buildFormContainer(
+      label: label,
+      child: DropdownButton<String>(
+        isExpanded: true,
+        dropdownColor: Colors.white,
+        value: value,
+        hint: CustomText(left: 10.w, text: hint, color: Colors.black),
+        icon: SvgPicture.asset(AppIcons.rightArrow),
+        underline: const SizedBox(),
+        onChanged: onChanged,
+        items: items.map((val) => DropdownMenuItem(value: val, child: CustomText(left: 10.w, text: val, color: Colors.black))).toList(),
+      ),
+    );
+  }
+
   void _showImagePickerOption() {
-    showModalBottomSheet(
-      backgroundColor: AppColors.whiteColor,
-      context: context,
-      builder: (builder) {
-        return Padding(
-          padding: const EdgeInsets.all(18.0),
-          child: Row(
-            children: [
-              //=========================> Pick Image Gallery <==================
-              Expanded(
-                child: GestureDetector(
-                  onTap: () {
-                    _controller.pickImage(ImageSource.gallery);
-                  },
-                  child: Column(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Icon(
-                        Icons.image,
-                        size: 50.w,
-                        color: AppColors.primaryColor,
-                      ),
-                      SizedBox(height: 8.h),
-                      CustomText(
-                        text: 'Gallery',
-                        fontWeight: FontWeight.w600,
-                        color: Colors.black,
-                        fontSize: 16.sp,
-                      ),
-                    ],
-                  ),
-                ),
-              ),
-              //=========================> Pick Image Camera <====================
-              Expanded(
-                child: GestureDetector(
-                  onTap: () {
-                    _controller.pickImage(ImageSource.camera);
-                  },
-                  child: Column(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Icon(
-                        Icons.camera_alt,
-                        size: 50.w,
-                        color: AppColors.primaryColor,
-                      ),
-                      SizedBox(height: 8.h),
-                      CustomText(
-                        text: 'Camera',
-                        fontWeight: FontWeight.w600,
-                        color: Colors.black,
-                        fontSize: 16.sp,
-                      ),
-                    ],
-                  ),
-                ),
-              ),
-            ],
-          ),
-        );
-      },
-    );
+    Get.bottomSheet(Container(
+      color: Colors.white, padding: EdgeInsets.all(20.w),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceAround,
+        children: [
+          IconButton(onPressed: () => postController.pickImage(ImageSource.camera), icon: Icon(Icons.camera_alt, size: 40.sp, color: AppColors.primaryColor)),
+          IconButton(onPressed: () => postController.pickImage(ImageSource.gallery), icon: Icon(Icons.image, size: 40.sp, color: AppColors.primaryColor)),
+        ],
+      ),
+    ));
   }
 }
