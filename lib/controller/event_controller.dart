@@ -15,6 +15,7 @@ class EventController extends GetxController {
   Future<void> fetchEvents({
     String? type,        // Changed to nullable
     double? lat,
+    String? date,
     double? long,
     int page = 1,
     String? searchTerm,  // Changed to nullable
@@ -36,6 +37,7 @@ class EventController extends GetxController {
       if (searchTerm != null && searchTerm.isNotEmpty) {
         queryParams.add("search=$searchTerm");
       }
+      if (date != null && date.isNotEmpty) queryParams.add("date=$date");
 
       if (page > 1) {
         queryParams.add("page=$page");
