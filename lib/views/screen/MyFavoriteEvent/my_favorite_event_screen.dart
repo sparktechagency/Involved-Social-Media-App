@@ -157,30 +157,11 @@ class _MyFavoriteEventScreenState extends State<MyFavoriteEventScreen> {
                                                   .favoriteEvents[index];
                                           _favoriteController.favoriteEvents
                                               .removeAt(index);
-                                          bool success =
-                                              await _favoriteController
-                                                  .removeFavorite(
-                                                    favoriteEvent.event.id,
-                                                  );
-                                          // Show feedback
-                                          if (success && mounted) {
-                                            WidgetsBinding.instance
-                                                .addPostFrameCallback((_) {
-                                                  if (mounted) {
-                                                    ScaffoldMessenger.of(
-                                                      context,
-                                                    ).showSnackBar(
-                                                      SnackBar(
-                                                        content: Text(
-                                                          'Removed from favorites!',
-                                                        ),
-                                                        backgroundColor:
-                                                            Colors.green,
-                                                      ),
-                                                    );
-                                                  }
-                                                });
-                                          }
+                                          await _favoriteController
+                                              .removeFavorite(
+                                                favoriteEvent.event.id,
+                                              );
+                                          // No message shown - just instant UI change
                                         },
                                         child: Icon(
                                           Icons.favorite,

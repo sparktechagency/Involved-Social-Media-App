@@ -85,8 +85,6 @@ class _AllTabState extends State<AllTab> {
           ),
           itemBuilder: (context, index) {
             final event = eventController.eventsList[index];
-            // Check if the event is in the favorites list
-            bool isFavorite = favoriteController.isFavorite(event.id);
             String fullImageUrl = event.image.startsWith('http')
                 ? event.image
                 : "${ApiConstants.imageBaseUrl}${event.image}";
@@ -144,31 +142,19 @@ class _AllTabState extends State<AllTab> {
                               ],
                             ),
                           ),
-                          GestureDetector(
-                            onTap: () async {
-                              bool success = await favoriteController.toggleFavorite(event.id);
-                              WidgetsBinding.instance.addPostFrameCallback((_) {
-                                if (mounted) {
-                                  bool isCurrentlyFavorite = favoriteController.isFavorite(event.id);
-                                  String message = success
-                                    ? (isCurrentlyFavorite ? 'Added to favorites!' : 'Removed from favorites!')
-                                    : 'Failed to update favorites';
-
-                                  ScaffoldMessenger.of(context).showSnackBar(
-                                    SnackBar(
-                                      content: Text(message),
-                                      backgroundColor: success ? Colors.green : Colors.red,
-                                    ),
-                                  );
-                                }
-                              });
-                            },
-                            child: Icon(
-                              isFavorite ? Icons.favorite : Icons.favorite_border,
-                              color: isFavorite ? AppColors.primaryColor : Colors.grey,
-                              size: 22.sp,
-                            ),
-                          ),
+                          Obx(() {
+                            bool isCurrentlyFavorite = favoriteController.isFavorite(event.id);
+                            return GestureDetector(
+                              onTap: () {
+                                favoriteController.toggleFavorite(event.id);
+                              },
+                              child: Icon(
+                                isCurrentlyFavorite ? Icons.favorite : Icons.favorite_border,
+                                color: isCurrentlyFavorite ? AppColors.primaryColor : Colors.grey,
+                                size: 22.sp,
+                              ),
+                            );
+                          }),
                         ],
                       ),
                     ),

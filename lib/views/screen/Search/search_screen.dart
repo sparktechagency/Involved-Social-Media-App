@@ -209,32 +209,14 @@ class _SearchScreenState extends State<SearchScreen> {
                                     ),
                                   ),
                                   Obx(() {
-                                    bool isFavorite = favoriteController.isFavorite(event.id);
+                                    bool isCurrentlyFavorite = favoriteController.isFavorite(event.id);
                                     return GestureDetector(
-                                      onTap: () async {
-                                        bool success = await favoriteController.toggleFavorite(event.id);
-                                        // Show feedback after the async operation
-                                        if (success && mounted) {
-                                          WidgetsBinding.instance.addPostFrameCallback((_) {
-                                            if (mounted) {
-                                              bool isCurrentlyFavorite = favoriteController.isFavorite(event.id);
-                                              String message = success 
-                                                ? (isCurrentlyFavorite ? 'Added to favorites!' : 'Removed from favorites!')
-                                                : 'Failed to update favorites';
-                                                
-                                              ScaffoldMessenger.of(context).showSnackBar(
-                                                SnackBar(
-                                                  content: Text(message),
-                                                  backgroundColor: success ? Colors.green : Colors.red,
-                                                ),
-                                              );
-                                            }
-                                          });
-                                        }
+                                      onTap: () {
+                                        favoriteController.toggleFavorite(event.id);
                                       },
                                       child: Icon(
-                                        isFavorite ? Icons.favorite : Icons.favorite_border,
-                                        color: isFavorite ? AppColors.primaryColor : Colors.grey,
+                                        isCurrentlyFavorite ? Icons.favorite : Icons.favorite_border,
+                                        color: isCurrentlyFavorite ? AppColors.primaryColor : Colors.grey,
                                         size: 22.sp,
                                       ),
                                     );
