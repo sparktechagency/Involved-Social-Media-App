@@ -105,6 +105,7 @@ class _SearchScreenState extends State<SearchScreen> {
                     ),
                   ),
                 ),
+                SizedBox(width: 8.w),
                 GestureDetector(
                   onTap: () => showFilterBottomSheet(context),
                   child: Container(
