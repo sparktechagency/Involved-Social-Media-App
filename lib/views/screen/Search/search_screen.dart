@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/svg.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:get/get.dart';
 import 'package:involved/utils/app_colors.dart';
 import 'package:involved/utils/app_icons.dart';
@@ -663,6 +664,9 @@ class _SearchScreenState extends State<SearchScreen> {
                         onPressed: () {
                           addressFilterCTRL.clear();
                           eventController.locationSuggestions.clear();
+                          // Reset stored coordinates
+                          eventController.selectedLat.value = null;
+                          eventController.selectedLng.value = null;
                         },
                         icon: const Icon(Icons.clear, color: Colors.grey),
                       ),
@@ -725,19 +729,11 @@ class _SearchScreenState extends State<SearchScreen> {
                       initialDate: DateTime.now(),
                       firstDate: DateTime(2000),
                       lastDate: DateTime(2101),
-                      builder: (context, child) {
-                        return Theme(
-                          data: Theme.of(context).copyWith(
-                            colorScheme: ColorScheme.light(
-                              primary: AppColors.primaryColor,
-                            ),
-                          ),
-                          child: child!,
-                        );
-                      },
                     );
                     if (pickedDate != null) {
-                      selectedDate.value = "${pickedDate.day}/${pickedDate.month}/${pickedDate.year}";
+                      // This sets the UI display and makes the Apply logic simpler
+                      // Result: 2026-02-13
+                      selectedDate.value = "${pickedDate.year}-${pickedDate.month.toString().padLeft(2, '0')}-${pickedDate.day.toString().padLeft(2, '0')}";
                     }
                   },
                 )),
@@ -790,14 +786,50 @@ class _SearchScreenState extends State<SearchScreen> {
                 SizedBox(height: 32.h),
 
                 CustomButton(
+                  text: "Apply Filters",
                   onTap: () {
-                    // Logic to pass these filters to eventController.fetchEvents()
-                    Get.back();
+                    // 1. Strict Validation: Location is mandatory for filtering
+                    if (eventController.selectedLat.value == null || eventController.selectedLng.value == null) {
+                      Fluttertoast.showToast(
+                        msg: "Please search and select a location to filter events",
+                        backgroundColor: Colors.red,
+                      );
+                      return;
+                    }
+
+                    // 2. Format Date: Use formatted string if it's not the default hint
+                    String finalDate = (selectedDate.value == "Event date") ? "" : selectedDate.value;
+
+                    // 3. Call fetch with mandatory lat/long and category
+                    eventController.fetchEvents(
+                      category: selectedCategory.value == "Event categories" ? "" : selectedCategory.value,
+                      date: finalDate,
+                      lat: eventController.selectedLat.value,
+                      long: eventController.selectedLng.value,
+                      maxDistance: distanceValue.value,
+                      searchTerm: searchCTRL.text,
+                    );
+
+                    Navigator.pop(context);
                   },
-                  text: "Apply Filter",
-                  color: AppColors.primaryColor,
                 ),
-                SizedBox(height: 20.h),
+                SizedBox(height: 12.h),
+                // Reset Button
+                Center(
+                  child: TextButton(
+                    onPressed: () {
+                      selectedCategory.value = "Event categories";
+                      selectedDate.value = "Event date";
+                      distanceValue.value = 40.0;
+                      addressFilterCTRL.clear();
+                      eventController.selectedLat.value = null;
+                      eventController.selectedLng.value = null;
+                      eventController.fetchEvents();
+                      Navigator.pop(context);
+                    },
+                    child: CustomText(text: "Reset Filters", color: Colors.red),
+                  ),
+                ),
               ],
             ),
           ),
