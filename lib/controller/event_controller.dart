@@ -18,6 +18,9 @@ class EventController extends GetxController {
   RxInt currentPage = 1.obs;
   RxInt totalPages = 1.obs;
 
+  RxnDouble selectedLat = RxnDouble();
+  RxnDouble selectedLng = RxnDouble();
+
   RxList<Map<String, String>> locationSuggestions = <Map<String, String>>[].obs;
   RxBool isLocationLoading = false.obs;
 
@@ -36,10 +39,12 @@ class EventController extends GetxController {
 
   Future<void> fetchEvents({
     String? type,
+    String? category,
     double? lat,
     String? date,
     double? long,
     int page = 1,
+    double? maxDistance,
     String? searchTerm,
   }) async {
     isLoading(true);
@@ -47,7 +52,7 @@ class EventController extends GetxController {
     try {
       String url = ApiConstants.eventFields;
       List<String> queryParams = [];
-
+      if (category != null && category.isNotEmpty) queryParams.add("category=$category");
       if (type != null && type.isNotEmpty) queryParams.add("type=$type");
       if (searchTerm != null && searchTerm.isNotEmpty) queryParams.add("search=$searchTerm");
       if (date != null && date.isNotEmpty) queryParams.add("date=$date");
@@ -55,7 +60,10 @@ class EventController extends GetxController {
       if (lat != null && long != null) {
         queryParams.add("lat=$lat");
         queryParams.add("long=$long");
+        if (maxDistance != null) queryParams.add("maxDistance=$maxDistance");
       }
+
+
 
       if (queryParams.isNotEmpty) url += "?${queryParams.join("&")}";
 
@@ -106,29 +114,19 @@ class EventController extends GetxController {
   Future<void> selectLocationSuggestion(String placeId) async {
     try {
       final uri = Uri.parse(
-        "https://maps.googleapis.com/maps/api/place/details/json"
-            "?place_id=$placeId"
-            "&key=$googleApiKey",
+        "https://maps.googleapis.com/maps/api/place/details/json?place_id=$placeId&key=$googleApiKey",
       );
-
       final response = await http.get(uri);
 
       if (response.statusCode == 200) {
         final data = json.decode(response.body);
+        locationSuggestions.clear();
         final location = data["result"]["geometry"]["location"];
 
-        final double lat = location["lat"];
-        final double lng = location["lng"];
+        selectedLat.value = location["lat"];
+        selectedLng.value = location["lng"];
 
-        // Clear suggestions after selection
         locationSuggestions.clear();
-
-        // Refresh events based on these coordinates
-        await fetchEvents(
-          lat: lat,
-          long: lng,
-          page: 1,
-        );
       }
     } catch (e) {
       debugPrint("Select location error: $e");
