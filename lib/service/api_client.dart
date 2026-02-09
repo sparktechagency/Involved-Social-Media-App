@@ -43,7 +43,6 @@ class ApiClient extends GetxService {
   }
 
 //==========================================> Post Data <======================================
-  //==========================================> Post Data <======================================
   static Future<Response> postData(String uri, dynamic body,
       {Map<String, String>? headers}) async {
     String bearerToken = await PrefsHelper.getString(AppConstants.bearerToken);
@@ -54,12 +53,21 @@ class ApiClient extends GetxService {
 
     try {
       print('====> API Call: $uri\nHeader: $mainHeaders');
-      print('====> API Body: $body');
+      
+      // Convert body to JSON string if it's a Map
+      String bodyString;
+      if (body is Map<String, dynamic>) {
+        bodyString = jsonEncode(body);
+      } else {
+        bodyString = body.toString();
+      }
+      
+      print('====> API Body: $bodyString');
 
       http.Response response = await client
           .post(
         Uri.parse(ApiConstants.baseUrl + uri),
-        body: body,
+        body: bodyString,
         headers: headers ?? mainHeaders,
       )
           .timeout(const Duration(seconds: timeoutInSeconds));
@@ -83,12 +91,21 @@ class ApiClient extends GetxService {
     };
     try {
       print('====> API Call: $uri\nHeader: $mainHeaders');
-      print('====> API Body: $body');
+      
+      // Convert body to JSON string if it's a Map
+      String bodyString;
+      if (body is Map<String, dynamic>) {
+        bodyString = jsonEncode(body);
+      } else {
+        bodyString = body.toString();
+      }
+      
+      print('====> API Body: $bodyString');
 
       http.Response response = await client
           .patch(
         Uri.parse(ApiConstants.baseUrl + uri),
-        body: body,
+        body: bodyString,
         headers: headers ?? mainHeaders,
       )
           .timeout(const Duration(seconds: timeoutInSeconds));

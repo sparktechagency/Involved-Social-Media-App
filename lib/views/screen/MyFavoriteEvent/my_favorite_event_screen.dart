@@ -3,6 +3,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:get/get.dart';
 import 'package:involved/controller/favorite_event_controller.dart';
+import 'package:involved/controller/favorite_controller.dart';
 import 'package:involved/service/api_constants.dart';
 import 'package:involved/utils/app_colors.dart';
 import 'package:involved/utils/app_icons.dart';
@@ -22,11 +23,17 @@ class MyFavoriteEventScreen extends StatefulWidget {
 
 class _MyFavoriteEventScreenState extends State<MyFavoriteEventScreen> {
   late FavoriteEventController _favoriteEventController;
+  late FavoriteController _favoriteController;
 
   @override
   void initState() {
     super.initState();
     _favoriteEventController = Get.put(FavoriteEventController());
+    try {
+      _favoriteController = Get.find<FavoriteController>();
+    } catch (e) {
+      _favoriteController = Get.put(FavoriteController());
+    }
   }
 
   @override
@@ -134,11 +141,30 @@ class _MyFavoriteEventScreenState extends State<MyFavoriteEventScreen> {
                                         ),
                                       ),
                                       GestureDetector(
-                                        onTap: () {
-                                          // Handle removing favorite here
+                                        onTap: () async {
+                                          final favoriteEvent = _favoriteEventController.favoriteEvents[index];
+                                          // Remove the event from the list optimistically
+                                          _favoriteEventController.favoriteEvents.removeAt(index);
+                                          
+                                          // Also update the global favorite state
+                                          bool success = await _favoriteController.removeFavorite(favoriteEvent.event.id);
+                                          
+                                          // Show feedback
+                                          if (success && mounted) {
+                                            WidgetsBinding.instance.addPostFrameCallback((_) {
+                                              if (mounted) {
+                                                ScaffoldMessenger.of(context).showSnackBar(
+                                                  SnackBar(
+                                                    content: Text('Removed from favorites!'),
+                                                    backgroundColor: Colors.green,
+                                                  ),
+                                                );
+                                              }
+                                            });
+                                          }
                                         },
                                         child: Icon(
-                                          Icons.bookmark,
+                                          Icons.favorite,
                                           color: AppColors.primaryColor,
                                           size: 22.sp,
                                         ),

@@ -19,6 +19,7 @@ import 'package:involved/views/base/custom_text_field.dart';
 import '../../../controller/collection_name_controller.dart';
 import '../../../controller/event_controller.dart';
 import '../../../controller/event_fields_controller.dart';
+import '../../../controller/favorite_controller.dart';
 import '../../../service/api_constants.dart';
 
 class SearchScreen extends StatefulWidget {
@@ -33,6 +34,7 @@ class _SearchScreenState extends State<SearchScreen> {
   final EventController eventController = Get.put(EventController());
   final CollectionController collectionController = Get.put(CollectionController());
   final EventFieldsController fieldsController = Get.put(EventFieldsController());
+  late FavoriteController favoriteController;
   final TextEditingController newAlbumCTRL = TextEditingController();
   final TextEditingController addressFilterCTRL = TextEditingController();
   RxString selectedCategory = "Event categories".obs;
@@ -46,6 +48,11 @@ class _SearchScreenState extends State<SearchScreen> {
   @override
   void initState() {
     super.initState();
+    try {
+      favoriteController = Get.find<FavoriteController>();
+    } catch (e) {
+      favoriteController = Get.put(FavoriteController());
+    }
     WidgetsBinding.instance.addPostFrameCallback((_) {
       eventController.fetchEvents();
     });
@@ -137,7 +144,7 @@ class _SearchScreenState extends State<SearchScreen> {
                 return GridView.builder(
                   padding: EdgeInsets.symmetric(vertical: 8.h),
                   // IMPORTANT: Use filteredEventsList here
-                  itemCount: eventController.filteredEventsList.value.length,
+                  itemCount: eventController.filteredEventsList.length,
                   gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
                     crossAxisCount: 2,
                     mainAxisSpacing: 12.h,
@@ -201,7 +208,37 @@ class _SearchScreenState extends State<SearchScreen> {
                                       ],
                                     ),
                                   ),
-                                  Icon(Icons.bookmark_border, size: 22.sp),
+                                  Obx(() {
+                                    bool isFavorite = favoriteController.isFavorite(event.id);
+                                    return GestureDetector(
+                                      onTap: () async {
+                                        bool success = await favoriteController.toggleFavorite(event.id);
+                                        // Show feedback after the async operation
+                                        if (success && mounted) {
+                                          WidgetsBinding.instance.addPostFrameCallback((_) {
+                                            if (mounted) {
+                                              bool isCurrentlyFavorite = favoriteController.isFavorite(event.id);
+                                              String message = success 
+                                                ? (isCurrentlyFavorite ? 'Added to favorites!' : 'Removed from favorites!')
+                                                : 'Failed to update favorites';
+                                                
+                                              ScaffoldMessenger.of(context).showSnackBar(
+                                                SnackBar(
+                                                  content: Text(message),
+                                                  backgroundColor: success ? Colors.green : Colors.red,
+                                                ),
+                                              );
+                                            }
+                                          });
+                                        }
+                                      },
+                                      child: Icon(
+                                        isFavorite ? Icons.favorite : Icons.favorite_border,
+                                        color: isFavorite ? AppColors.primaryColor : Colors.grey,
+                                        size: 22.sp,
+                                      ),
+                                    );
+                                  }),
                                 ],
                               ),
                             ),
