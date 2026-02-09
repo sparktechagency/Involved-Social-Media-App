@@ -147,8 +147,6 @@ class _AllTabState extends State<AllTab> {
                           GestureDetector(
                             onTap: () async {
                               bool success = await favoriteController.toggleFavorite(event.id);
-                              // The UI will automatically update due to the reactive nature of the controller
-                              // Show feedback after the async operation
                               WidgetsBinding.instance.addPostFrameCallback((_) {
                                 if (mounted) {
                                   bool isCurrentlyFavorite = favoriteController.isFavorite(event.id);

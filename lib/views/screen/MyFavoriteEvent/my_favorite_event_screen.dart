@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:get/get.dart';
-import 'package:involved/controller/favorite_event_controller.dart';
 import 'package:involved/controller/favorite_controller.dart';
 import 'package:involved/service/api_constants.dart';
 import 'package:involved/utils/app_colors.dart';
@@ -22,13 +21,12 @@ class MyFavoriteEventScreen extends StatefulWidget {
 }
 
 class _MyFavoriteEventScreenState extends State<MyFavoriteEventScreen> {
-  late FavoriteEventController _favoriteEventController;
   late FavoriteController _favoriteController;
 
   @override
   void initState() {
     super.initState();
-    _favoriteEventController = Get.put(FavoriteEventController());
+    _favoriteController = Get.put(FavoriteController());
     try {
       _favoriteController = Get.find<FavoriteController>();
     } catch (e) {
@@ -43,11 +41,12 @@ class _MyFavoriteEventScreenState extends State<MyFavoriteEventScreen> {
       body: Padding(
         padding: EdgeInsets.symmetric(horizontal: 20.w),
         child: Obx(() {
-          if (_favoriteEventController.isLoading.value && _favoriteEventController.favoriteEvents.isEmpty) {
+          if (_favoriteController.isLoading.value &&
+              _favoriteController.favoriteEvents.isEmpty) {
             return const Center(child: CircularProgressIndicator());
           }
 
-          if (_favoriteEventController.favoriteEvents.isEmpty) {
+          if (_favoriteController.favoriteEvents.isEmpty) {
             return Center(
               child: CustomText(
                 text: 'No favorite events found',
@@ -62,27 +61,32 @@ class _MyFavoriteEventScreenState extends State<MyFavoriteEventScreen> {
               Expanded(
                 child: NotificationListener<ScrollNotification>(
                   onNotification: (ScrollNotification scrollInfo) {
-                    if (scrollInfo.metrics.pixels == scrollInfo.metrics.maxScrollExtent &&
-                        !_favoriteEventController.isLoadingMore.value &&
-                        _favoriteEventController.hasMoreData.value) {
-                      _favoriteEventController.loadMore();
+                    if (scrollInfo.metrics.pixels ==
+                            scrollInfo.metrics.maxScrollExtent &&
+                        !_favoriteController.isLoadingMore.value &&
+                        _favoriteController.hasMoreData.value) {
+                      _favoriteController.loadMore();
                     }
                     return false;
                   },
                   child: ListView.builder(
                     padding: EdgeInsets.symmetric(vertical: 8.h),
-                    itemCount: _favoriteEventController.favoriteEvents.length + 
-                              (_favoriteEventController.isLoadingMore.value ? 1 : 0),
+                    itemCount:
+                        _favoriteController.favoriteEvents.length +
+                        (_favoriteController.isLoadingMore.value ? 1 : 0),
                     itemBuilder: (context, index) {
                       // Show loading indicator at the end if loading more
-                      if (index >= _favoriteEventController.favoriteEvents.length) {
+                      if (index >= _favoriteController.favoriteEvents.length) {
                         return Container(
                           padding: EdgeInsets.symmetric(vertical: 10.h),
-                          child: const Center(child: CircularProgressIndicator()),
+                          child: const Center(
+                            child: CircularProgressIndicator(),
+                          ),
                         );
                       }
 
-                      final favoriteEvent = _favoriteEventController.favoriteEvents[index];
+                      final favoriteEvent =
+                          _favoriteController.favoriteEvents[index];
                       final event = favoriteEvent.event;
 
                       return Container(
@@ -95,10 +99,12 @@ class _MyFavoriteEventScreenState extends State<MyFavoriteEventScreen> {
                             borderRadius: BorderRadius.circular(12.r),
                             onTap: () => showEventDetailsDialog(
                               context: context,
-                              imageUrl: '${ApiConstants.imageBaseUrl}${event.image}',
+                              imageUrl:
+                                  '${ApiConstants.imageBaseUrl}${event.image}',
                               title: event.title,
                               location: event.address,
-                              dateTime: '${event.startDate.day}/${event.startDate.month}/${event.startDate.year} ${event.startDate.hour.toString().padLeft(2, '0')}:${event.startDate.minute.toString().padLeft(2, '0')}',
+                              dateTime:
+                                  '${event.startDate.day}/${event.startDate.month}/${event.startDate.year} ${event.startDate.hour.toString().padLeft(2, '0')}:${event.startDate.minute.toString().padLeft(2, '0')}',
                               venue: event.address,
                               description: event.description,
                             ),
@@ -106,7 +112,8 @@ class _MyFavoriteEventScreenState extends State<MyFavoriteEventScreen> {
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
                                 CustomNetworkImage(
-                                  imageUrl: '${ApiConstants.imageBaseUrl}${event.image}',
+                                  imageUrl:
+                                      '${ApiConstants.imageBaseUrl}${event.image}',
                                   height: 240.h,
                                   width: double.infinity,
                                   borderRadius: BorderRadius.only(
@@ -117,7 +124,8 @@ class _MyFavoriteEventScreenState extends State<MyFavoriteEventScreen> {
                                 Padding(
                                   padding: EdgeInsets.all(8.w),
                                   child: Row(
-                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
                                     children: [
                                       Expanded(
                                         child: Column(
@@ -127,14 +135,16 @@ class _MyFavoriteEventScreenState extends State<MyFavoriteEventScreen> {
                                             CustomText(
                                               text: event.title,
                                               maxLine: 2,
-                                              textOverflow: TextOverflow.ellipsis,
+                                              textOverflow:
+                                                  TextOverflow.ellipsis,
                                               fontWeight: FontWeight.w500,
                                             ),
                                             SizedBox(height: 4.h),
                                             CustomText(
                                               text: event.address,
                                               maxLine: 1,
-                                              textOverflow: TextOverflow.ellipsis,
+                                              textOverflow:
+                                                  TextOverflow.ellipsis,
                                               fontSize: 12.sp,
                                             ),
                                           ],
@@ -142,25 +152,34 @@ class _MyFavoriteEventScreenState extends State<MyFavoriteEventScreen> {
                                       ),
                                       GestureDetector(
                                         onTap: () async {
-                                          final favoriteEvent = _favoriteEventController.favoriteEvents[index];
-                                          // Remove the event from the list optimistically
-                                          _favoriteEventController.favoriteEvents.removeAt(index);
-                                          
-                                          // Also update the global favorite state
-                                          bool success = await _favoriteController.removeFavorite(favoriteEvent.event.id);
-                                          
+                                          final favoriteEvent =
+                                              _favoriteController
+                                                  .favoriteEvents[index];
+                                          _favoriteController.favoriteEvents
+                                              .removeAt(index);
+                                          bool success =
+                                              await _favoriteController
+                                                  .removeFavorite(
+                                                    favoriteEvent.event.id,
+                                                  );
                                           // Show feedback
                                           if (success && mounted) {
-                                            WidgetsBinding.instance.addPostFrameCallback((_) {
-                                              if (mounted) {
-                                                ScaffoldMessenger.of(context).showSnackBar(
-                                                  SnackBar(
-                                                    content: Text('Removed from favorites!'),
-                                                    backgroundColor: Colors.green,
-                                                  ),
-                                                );
-                                              }
-                                            });
+                                            WidgetsBinding.instance
+                                                .addPostFrameCallback((_) {
+                                                  if (mounted) {
+                                                    ScaffoldMessenger.of(
+                                                      context,
+                                                    ).showSnackBar(
+                                                      SnackBar(
+                                                        content: Text(
+                                                          'Removed from favorites!',
+                                                        ),
+                                                        backgroundColor:
+                                                            Colors.green,
+                                                      ),
+                                                    );
+                                                  }
+                                                });
                                           }
                                         },
                                         child: Icon(
