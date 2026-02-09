@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:get/get.dart';
+import 'package:involved/controller/favorite_event_controller.dart';
+import 'package:involved/service/api_constants.dart';
 import 'package:involved/utils/app_colors.dart';
 import 'package:involved/utils/app_icons.dart';
 import 'package:involved/utils/app_strings.dart';
@@ -19,7 +21,13 @@ class MyFavoriteEventScreen extends StatefulWidget {
 }
 
 class _MyFavoriteEventScreenState extends State<MyFavoriteEventScreen> {
-  final List<bool> bookmarkedList = List.generate(8, (_) => false);
+  late FavoriteEventController _favoriteEventController;
+
+  @override
+  void initState() {
+    super.initState();
+    _favoriteEventController = Get.put(FavoriteEventController());
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -27,106 +35,113 @@ class _MyFavoriteEventScreenState extends State<MyFavoriteEventScreen> {
       appBar: CustomAppBar(title: AppStrings.myFavoriteEventList.tr),
       body: Padding(
         padding: EdgeInsets.symmetric(horizontal: 20.w),
-        child: Column(
-          children: [
-            Expanded(
-              child: GridView.builder(
-                padding: EdgeInsets.symmetric(vertical: 8.h),
-                itemCount: bookmarkedList.length,
-                gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                  crossAxisCount: 2,
-                  mainAxisSpacing: 12.h,
-                  crossAxisSpacing: 12.w,
-                  childAspectRatio: 0.57,
-                ),
-                itemBuilder: (context, index) {
-                  final isBookmarked = bookmarkedList[index];
+        child: Obx(() {
+          if (_favoriteEventController.isLoading.value) {
+            return const Center(child: CircularProgressIndicator());
+          }
 
-                  return Material(
-                    color: Colors.white,
-                    elevation: 2,
-                    borderRadius: BorderRadius.circular(12.r),
-                    child: InkWell(
-                      borderRadius: BorderRadius.circular(12.r),
-                      onTap: () => showEventDetailsDialog(
-                        context: context,
-                        imageUrl:
-                            'https://images.unsplash.com/photo-1546069901-ba9599a7e63c',
-                        title: 'Pasta Making Class',
-                        location: 'Dhaka, Bangladesh',
-                        dateTime: '18/06/25 08:30PM',
-                        venue: 'Rampura Town Hall Dhaka, Bangladesh',
-                        description:
-                            "The event is live as soon as it's posted. You can explore various categories and locations...",
-                      ),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          CustomNetworkImage(
-                            imageUrl:
-                                'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSeei1bJZYTGM66KOeKixxKnAAaGXqNATMBTS2Q7sBlERDOqPYHStLAXuTOXb3mn9aKFEw&usqp=CAU',
-                            height: 240.h,
-                            width: double.infinity,
-                            borderRadius: BorderRadius.only(
-                              topLeft: Radius.circular(12.r),
-                              topRight: Radius.circular(12.r),
-                            ),
-                          ),
-                          Padding(
-                            padding: EdgeInsets.all(8.w),
-                            child: Row(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Expanded(
-                                  child: Column(
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.start,
-                                    children: [
-                                      CustomText(
-                                        text: 'Pasta Making Class',
-                                        maxLine: 2,
-                                        textOverflow: TextOverflow.ellipsis,
-                                        fontWeight: FontWeight.w500,
-                                      ),
-                                      SizedBox(height: 4.h),
-                                      CustomText(
-                                        text: 'Dhaka, Bangladesh',
-                                        maxLine: 1,
-                                        textOverflow: TextOverflow.ellipsis,
-                                        fontSize: 12.sp,
-                                      ),
-                                    ],
-                                  ),
-                                ),
-                                GestureDetector(
-                                  onTap: () {
-                                    setState(() {
-                                      bookmarkedList[index] =
-                                          !bookmarkedList[index];
-                                    });
-                                  },
-                                  child: Icon(
-                                    isBookmarked
-                                        ? Icons.bookmark
-                                        : Icons.bookmark_border,
-                                    color: isBookmarked
-                                        ? AppColors.primaryColor
-                                        : Colors.grey,
-                                    size: 22.sp,
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                  );
-                },
+          if (_favoriteEventController.favoriteEvents.isEmpty) {
+            return Center(
+              child: CustomText(
+                text: 'No favorite events found',
+                fontSize: 16.sp,
+                fontWeight: FontWeight.w500,
               ),
-            ),
-          ],
-        ),
+            );
+          }
+
+          return Column(
+            children: [
+              Expanded(
+                child: GridView.builder(
+                  padding: EdgeInsets.symmetric(vertical: 8.h),
+                  itemCount: _favoriteEventController.favoriteEvents.length,
+                  gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                    crossAxisCount: 2,
+                    mainAxisSpacing: 12.h,
+                    crossAxisSpacing: 12.w,
+                    childAspectRatio: 0.57,
+                  ),
+                  itemBuilder: (context, index) {
+                    final favoriteEvent = _favoriteEventController.favoriteEvents[index];
+                    final event = favoriteEvent.event;
+
+                    return Material(
+                      color: Colors.white,
+                      elevation: 2,
+                      borderRadius: BorderRadius.circular(12.r),
+                      child: InkWell(
+                        borderRadius: BorderRadius.circular(12.r),
+                        onTap: () => showEventDetailsDialog(
+                          context: context,
+                          imageUrl: '${ApiConstants.imageBaseUrl}${event.image}',
+                          title: event.title,
+                          location: event.address,
+                          dateTime: '${event.startDate.day}/${event.startDate.month}/${event.startDate.year} ${event.startDate.hour.toString().padLeft(2, '0')}:${event.startDate.minute.toString().padLeft(2, '0')}',
+                          venue: event.address,
+                          description: event.description,
+                        ),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            CustomNetworkImage(
+                              imageUrl: '${ApiConstants.imageBaseUrl}${event.image}',
+                              height: 240.h,
+                              width: double.infinity,
+                              borderRadius: BorderRadius.only(
+                                topLeft: Radius.circular(12.r),
+                                topRight: Radius.circular(12.r),
+                              ),
+                            ),
+                            Padding(
+                              padding: EdgeInsets.all(8.w),
+                              child: Row(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Expanded(
+                                    child: Column(
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
+                                      children: [
+                                        CustomText(
+                                          text: event.title,
+                                          maxLine: 2,
+                                          textOverflow: TextOverflow.ellipsis,
+                                          fontWeight: FontWeight.w500,
+                                        ),
+                                        SizedBox(height: 4.h),
+                                        CustomText(
+                                          text: event.address,
+                                          maxLine: 1,
+                                          textOverflow: TextOverflow.ellipsis,
+                                          fontSize: 12.sp,
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                  GestureDetector(
+                                    onTap: () {
+                                      // Handle removing favorite here
+                                    },
+                                    child: Icon(
+                                      Icons.bookmark,
+                                      color: AppColors.primaryColor,
+                                      size: 22.sp,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    );
+                  },
+                ),
+              ),
+            ],
+          );
+        }),
       ),
     );
   }
