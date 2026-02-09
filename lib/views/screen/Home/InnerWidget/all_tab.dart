@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:get/get.dart';
+import 'package:involved/controller/favorite_controller.dart';
 import 'package:involved/utils/app_colors.dart';
 import 'package:involved/utils/app_icons.dart';
 import 'package:involved/utils/app_strings.dart';
@@ -26,8 +27,9 @@ class AllTab extends StatefulWidget {
 class _AllTabState extends State<AllTab> {
   // Unique controller for each tab to maintain independent lists/loading states
   late EventController eventController;
+  late FavoriteController favoriteController;
 
-  final CollectionController collectionController = Get.put(CollectionController());
+  late CollectionController collectionController;
   final TextEditingController newAlbumCTRL = TextEditingController();
 
   @override
@@ -35,8 +37,21 @@ class _AllTabState extends State<AllTab> {
     super.initState();
 
     eventController = Get.put(EventController(), tag: widget.eventType);
+    try {
+      favoriteController = Get.find<FavoriteController>();
+    } catch (e) {
+      favoriteController = Get.put(FavoriteController());
+    }
+    
+    try {
+      collectionController = Get.find<CollectionController>();
+    } catch (e) {
+      collectionController = Get.put(CollectionController());
+    }
 
-    WidgetsBinding.instance.addPostFrameCallback((_) {
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
+      // Load favorites first to ensure correct status display
+      await favoriteController.loadFavoritedEvents();
       // Pass the eventType directly.
       // If widget.eventType is "", our new controller logic will
       // automatically skip adding "type=" to the URL.
@@ -70,8 +85,6 @@ class _AllTabState extends State<AllTab> {
           ),
           itemBuilder: (context, index) {
             final event = eventController.eventsList[index];
-            // Assuming you'll handle bookmarking logic later via a controller/API
-            bool isBookmarked = false;
             String fullImageUrl = event.image.startsWith('http')
                 ? event.image
                 : "${ApiConstants.imageBaseUrl}${event.image}";
@@ -129,11 +142,19 @@ class _AllTabState extends State<AllTab> {
                               ],
                             ),
                           ),
-                          Icon(
-                            isBookmarked ? Icons.bookmark : Icons.bookmark_border,
-                            color: isBookmarked ? AppColors.primaryColor : Colors.grey,
-                            size: 22.sp,
-                          ),
+                          Obx(() {
+                            bool isCurrentlyFavorite = favoriteController.isFavorite(event.id);
+                            return GestureDetector(
+                              onTap: () {
+                                favoriteController.toggleFavorite(event.id);
+                              },
+                              child: Icon(
+                                isCurrentlyFavorite ? Icons.favorite : Icons.favorite_border,
+                                color: isCurrentlyFavorite ? AppColors.primaryColor : Colors.grey,
+                                size: 22.sp,
+                              ),
+                            );
+                          }),
                         ],
                       ),
                     ),

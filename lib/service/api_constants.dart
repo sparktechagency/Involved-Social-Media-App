@@ -27,5 +27,7 @@ class ApiConstants {
   static const String saveCollection = "/collection/save";
   static const String collectionGrouped = "/collection/grouped";
   static const String filterWithCollectionName = "/collection";
-
+  static const String getFavoriteEndPoint = "/favorite/my";
+  static const String addFavoriteEndPoint = "/favorite";
+  static String deleteFavoriteEndPoint ( String eventId) => "/favorite/$eventId";
 }
