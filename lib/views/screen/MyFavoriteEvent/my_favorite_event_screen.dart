@@ -36,7 +36,7 @@ class _MyFavoriteEventScreenState extends State<MyFavoriteEventScreen> {
       body: Padding(
         padding: EdgeInsets.symmetric(horizontal: 20.w),
         child: Obx(() {
-          if (_favoriteEventController.isLoading.value) {
+          if (_favoriteEventController.isLoading.value && _favoriteEventController.favoriteEvents.isEmpty) {
             return const Center(child: CircularProgressIndicator());
           }
 
@@ -53,90 +53,106 @@ class _MyFavoriteEventScreenState extends State<MyFavoriteEventScreen> {
           return Column(
             children: [
               Expanded(
-                child: GridView.builder(
-                  padding: EdgeInsets.symmetric(vertical: 8.h),
-                  itemCount: _favoriteEventController.favoriteEvents.length,
-                  gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                    crossAxisCount: 2,
-                    mainAxisSpacing: 12.h,
-                    crossAxisSpacing: 12.w,
-                    childAspectRatio: 0.57,
-                  ),
-                  itemBuilder: (context, index) {
-                    final favoriteEvent = _favoriteEventController.favoriteEvents[index];
-                    final event = favoriteEvent.event;
-
-                    return Material(
-                      color: Colors.white,
-                      elevation: 2,
-                      borderRadius: BorderRadius.circular(12.r),
-                      child: InkWell(
-                        borderRadius: BorderRadius.circular(12.r),
-                        onTap: () => showEventDetailsDialog(
-                          context: context,
-                          imageUrl: '${ApiConstants.imageBaseUrl}${event.image}',
-                          title: event.title,
-                          location: event.address,
-                          dateTime: '${event.startDate.day}/${event.startDate.month}/${event.startDate.year} ${event.startDate.hour.toString().padLeft(2, '0')}:${event.startDate.minute.toString().padLeft(2, '0')}',
-                          venue: event.address,
-                          description: event.description,
-                        ),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            CustomNetworkImage(
-                              imageUrl: '${ApiConstants.imageBaseUrl}${event.image}',
-                              height: 240.h,
-                              width: double.infinity,
-                              borderRadius: BorderRadius.only(
-                                topLeft: Radius.circular(12.r),
-                                topRight: Radius.circular(12.r),
-                              ),
-                            ),
-                            Padding(
-                              padding: EdgeInsets.all(8.w),
-                              child: Row(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Expanded(
-                                    child: Column(
-                                      crossAxisAlignment:
-                                          CrossAxisAlignment.start,
-                                      children: [
-                                        CustomText(
-                                          text: event.title,
-                                          maxLine: 2,
-                                          textOverflow: TextOverflow.ellipsis,
-                                          fontWeight: FontWeight.w500,
-                                        ),
-                                        SizedBox(height: 4.h),
-                                        CustomText(
-                                          text: event.address,
-                                          maxLine: 1,
-                                          textOverflow: TextOverflow.ellipsis,
-                                          fontSize: 12.sp,
-                                        ),
-                                      ],
-                                    ),
-                                  ),
-                                  GestureDetector(
-                                    onTap: () {
-                                      // Handle removing favorite here
-                                    },
-                                    child: Icon(
-                                      Icons.bookmark,
-                                      color: AppColors.primaryColor,
-                                      size: 22.sp,
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                    );
+                child: NotificationListener<ScrollNotification>(
+                  onNotification: (ScrollNotification scrollInfo) {
+                    if (scrollInfo.metrics.pixels == scrollInfo.metrics.maxScrollExtent &&
+                        !_favoriteEventController.isLoadingMore.value &&
+                        _favoriteEventController.hasMoreData.value) {
+                      _favoriteEventController.loadMore();
+                    }
+                    return false;
                   },
+                  child: ListView.builder(
+                    padding: EdgeInsets.symmetric(vertical: 8.h),
+                    itemCount: _favoriteEventController.favoriteEvents.length + 
+                              (_favoriteEventController.isLoadingMore.value ? 1 : 0),
+                    itemBuilder: (context, index) {
+                      // Show loading indicator at the end if loading more
+                      if (index >= _favoriteEventController.favoriteEvents.length) {
+                        return Container(
+                          padding: EdgeInsets.symmetric(vertical: 10.h),
+                          child: const Center(child: CircularProgressIndicator()),
+                        );
+                      }
+
+                      final favoriteEvent = _favoriteEventController.favoriteEvents[index];
+                      final event = favoriteEvent.event;
+
+                      return Container(
+                        margin: EdgeInsets.only(bottom: 12.h),
+                        child: Material(
+                          color: Colors.white,
+                          elevation: 2,
+                          borderRadius: BorderRadius.circular(12.r),
+                          child: InkWell(
+                            borderRadius: BorderRadius.circular(12.r),
+                            onTap: () => showEventDetailsDialog(
+                              context: context,
+                              imageUrl: '${ApiConstants.imageBaseUrl}${event.image}',
+                              title: event.title,
+                              location: event.address,
+                              dateTime: '${event.startDate.day}/${event.startDate.month}/${event.startDate.year} ${event.startDate.hour.toString().padLeft(2, '0')}:${event.startDate.minute.toString().padLeft(2, '0')}',
+                              venue: event.address,
+                              description: event.description,
+                            ),
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                CustomNetworkImage(
+                                  imageUrl: '${ApiConstants.imageBaseUrl}${event.image}',
+                                  height: 240.h,
+                                  width: double.infinity,
+                                  borderRadius: BorderRadius.only(
+                                    topLeft: Radius.circular(12.r),
+                                    topRight: Radius.circular(12.r),
+                                  ),
+                                ),
+                                Padding(
+                                  padding: EdgeInsets.all(8.w),
+                                  child: Row(
+                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    children: [
+                                      Expanded(
+                                        child: Column(
+                                          crossAxisAlignment:
+                                              CrossAxisAlignment.start,
+                                          children: [
+                                            CustomText(
+                                              text: event.title,
+                                              maxLine: 2,
+                                              textOverflow: TextOverflow.ellipsis,
+                                              fontWeight: FontWeight.w500,
+                                            ),
+                                            SizedBox(height: 4.h),
+                                            CustomText(
+                                              text: event.address,
+                                              maxLine: 1,
+                                              textOverflow: TextOverflow.ellipsis,
+                                              fontSize: 12.sp,
+                                            ),
+                                          ],
+                                        ),
+                                      ),
+                                      GestureDetector(
+                                        onTap: () {
+                                          // Handle removing favorite here
+                                        },
+                                        child: Icon(
+                                          Icons.bookmark,
+                                          color: AppColors.primaryColor,
+                                          size: 22.sp,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
+                      );
+                    },
+                  ),
                 ),
               ),
             ],
