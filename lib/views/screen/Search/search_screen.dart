@@ -92,16 +92,19 @@ class _SearchScreenState extends State<SearchScreen> {
                     controller: searchCTRL,
                     prefixIcon: Icon(Icons.search_rounded, color: AppColors.primaryColor),
                     hintText: AppStrings.searchEvent.tr,
+                    // ADD THIS:
+                    onChanged: (val) {
+                      eventController.filterSearch(val);
+                    },
                     suffixIcon: IconButton(
                       onPressed: () {
                         searchCTRL.clear();
-                        eventController.filterSearch("");
+                        eventController.filterSearch(""); // Reset list when cleared
                       },
                       icon: const Icon(Icons.clear, color: Colors.grey),
                     ),
                   ),
                 ),
-                SizedBox(width: 12.w),
                 GestureDetector(
                   onTap: () => showFilterBottomSheet(context),
                   child: Container(
