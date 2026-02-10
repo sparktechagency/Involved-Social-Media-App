@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:get/get.dart';
+import 'package:involved/controller/collection_name_controller.dart';
 import 'package:involved/controller/favorite_controller.dart';
 import 'package:involved/service/api_constants.dart';
 import 'package:involved/utils/app_colors.dart';
@@ -12,6 +13,7 @@ import 'package:involved/views/base/custom_button.dart';
 import 'package:involved/views/base/custom_list_tile.dart';
 import 'package:involved/views/base/custom_network_image.dart';
 import 'package:involved/views/base/custom_text.dart';
+import 'package:involved/views/base/custom_text_field.dart';
 
 class MyFavoriteEventScreen extends StatefulWidget {
   const MyFavoriteEventScreen({super.key});
@@ -21,17 +23,29 @@ class MyFavoriteEventScreen extends StatefulWidget {
 }
 
 class _MyFavoriteEventScreenState extends State<MyFavoriteEventScreen> {
+  final TextEditingController newAlbumCTRL = TextEditingController();
   late FavoriteController _favoriteController;
+  late CollectionController collectionController;
 
   @override
   void initState() {
     super.initState();
     _favoriteController = Get.put(FavoriteController());
+    collectionController = Get.put(CollectionController());
     try {
       _favoriteController = Get.find<FavoriteController>();
+      collectionController = Get.find<CollectionController>();
     } catch (e) {
       _favoriteController = Get.put(FavoriteController());
+      collectionController = Get.put(CollectionController());
     }
+  }
+
+  @override
+  void dispose() {
+    _favoriteController.dispose();
+    collectionController.dispose();
+    super.dispose();
   }
 
   @override
@@ -99,14 +113,13 @@ class _MyFavoriteEventScreenState extends State<MyFavoriteEventScreen> {
                             borderRadius: BorderRadius.circular(12.r),
                             onTap: () => showEventDetailsDialog(
                               context: context,
-                              imageUrl:
-                                  '${ApiConstants.imageBaseUrl}${event.image}',
-                              title: event.title,
-                              location: event.address,
-                              dateTime:
-                                  '${event.startDate.day}/${event.startDate.month}/${event.startDate.year} ${event.startDate.hour.toString().padLeft(2, '0')}:${event.startDate.minute.toString().padLeft(2, '0')}',
-                              venue: event.address,
-                              description: event.description,
+                              imageUrl: '${ApiConstants.imageBaseUrl}${event.image}',
+                                title: event.title,
+                                dateTime: "${event.startDate.day}/${event.startDate.month}/${event.startDate.year}",
+                                venue: event.address,
+                                description: event.description,
+                                status: event.status,
+                                eventId: event.id.toString()
                             ),
                             child: Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
@@ -193,10 +206,11 @@ class _MyFavoriteEventScreenState extends State<MyFavoriteEventScreen> {
     required BuildContext context,
     required String imageUrl,
     required String title,
-    required String location,
     required String dateTime,
     required String venue,
     required String description,
+    required String status,
+    required String eventId,
   }) {
     showDialog(
       context: context,
@@ -235,24 +249,31 @@ class _MyFavoriteEventScreenState extends State<MyFavoriteEventScreen> {
                                   text: title,
                                   fontSize: 16.sp,
                                   fontWeight: FontWeight.w500,
+                                  color: AppColors.primaryColor,
                                 ),
                                 SizedBox(height: 4.h),
-                                CustomText(text: location, fontSize: 12.sp),
                               ],
                             ),
                           ),
-                          Column(
-                            crossAxisAlignment: CrossAxisAlignment.end,
-                            children: [
-                              CustomText(text: dateTime),
-                              SizedBox(height: 4.h),
-                              CustomText(
-                                text: AppStrings.eventTime.tr,
-                                fontSize: 12.sp,
-                              ),
-                            ],
-                          ),
+                          Icon(Icons.share, color: AppColors.primaryColor,)
                         ],
+                      ),
+                      SizedBox(height: 20.h),
+                      Align(
+                        alignment: Alignment.centerLeft,
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            CustomText(
+                              text: 'Event Date & Time'.tr,
+                              fontSize: 12.sp,
+                              color: AppColors.primaryColor,
+                            ),
+                            SizedBox(height: 4.h),
+                            CustomText(text: dateTime,
+                                color: AppColors.primaryColor),
+                          ],
+                        ),
                       ),
                       SizedBox(height: 20.h),
                       Align(
@@ -261,29 +282,29 @@ class _MyFavoriteEventScreenState extends State<MyFavoriteEventScreen> {
                           text: AppStrings.description.tr,
                           fontWeight: FontWeight.w500,
                           fontSize: 16.sp,
+                          color: AppColors.primaryColor,
                         ),
                       ),
                       SizedBox(height: 8.h),
                       CustomText(
                         text: description,
+                        color: AppColors.primaryColor,
                         maxLine: 20,
                         textAlign: TextAlign.start,
                       ),
-                      SizedBox(height: 20.h),
+                      SizedBox(height: 16.h),
+                      //================================> Location Container <==============================
                       Container(
                         width: double.infinity,
                         padding: EdgeInsets.all(12.w),
                         decoration: BoxDecoration(
-                          color: Colors.white,
+                          color: Color(0xffffefd1),
                           borderRadius: BorderRadius.circular(12.r),
-                          border: Border.all(color: AppColors.primaryColor),
                         ),
                         child: Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
                           children: [
-                            Icon(
-                              Icons.location_on,
-                              color: AppColors.primaryColor,
-                            ),
+                            Icon(Icons.location_on, color: AppColors.primaryColor),
                             SizedBox(width: 8.w),
                             Expanded(
                               child: CustomText(
@@ -297,33 +318,66 @@ class _MyFavoriteEventScreenState extends State<MyFavoriteEventScreen> {
                           ],
                         ),
                       ),
+                      SizedBox(height: 16.h),
+                      //================================> Live Container <==============================
+                      Container(
+                        width: double.infinity,
+                        padding: EdgeInsets.all(12.w),
+                        decoration: BoxDecoration(
+                          color: const Color(0xffffefd1),
+                          borderRadius: BorderRadius.circular(12.r),
+                        ),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            // Dynamic Color applied here
+                            Icon(
+                                Icons.circle,
+                                color: getStatusColor(status),
+                                size: 12.h
+                            ),
+                            SizedBox(width: 8.w),
+                            CustomText(
+                              text: status,
+                              // Using the same color for the text looks professional
+                              color: getStatusColor(status),
+                              fontWeight: FontWeight.w700,
+                              maxLine: 3,
+                            ),
+                          ],
+                        ),
+                      ),
                       SizedBox(height: 20.h),
+                      //================================> Interested, Going and Add Button <==============================
                       Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
                           Expanded(
                             child: CustomButton(
-                              onTap: () {},
+                              onTap: () => showPlanConfirmation(context, eventId, "Interested"),
                               text: AppStrings.interested.tr,
-                            ),
-                          ),
-                          SizedBox(width: 8.w),
-                          Expanded(
-                            child: CustomButton(
-                              onTap: () {},
-                              text: AppStrings.going.tr,
-                              color: Colors.white,
+                              color: const Color(0xffffefd1),
+                              broderColor: const Color(0xffffefd1),
                               textColor: AppColors.primaryColor,
                             ),
                           ),
                           SizedBox(width: 8.w),
                           Expanded(
                             child: CustomButton(
-                              onTap: () {
-                                addFolderDialog();
-                              },
+                              onTap: () => showPlanConfirmation(context, eventId, "Going"),
+                              text: AppStrings.going.tr,
+                              broderColor: const Color(0xffffefd1),
+                              textColor: AppColors.primaryColor,
+                              color: const Color(0xffffefd1),
+                            ),
+                          ),
+                          SizedBox(width: 8.w),
+                          Expanded(
+                            child: CustomButton(
+                              onTap: () => addFolderDialog(eventId),
                               text: AppStrings.add.tr,
-                              color: Colors.white,
+                              color: const Color(0xffffefd1),
+                              broderColor: const Color(0xffffefd1),
                               textColor: AppColors.primaryColor,
                             ),
                           ),
@@ -334,13 +388,13 @@ class _MyFavoriteEventScreenState extends State<MyFavoriteEventScreen> {
                 ),
               ),
               Positioned(
-                top: -12,
-                right: -12,
+                top: -8,
+                right: -8,
                 child: GestureDetector(
                   onTap: () => Navigator.of(context).pop(),
                   child: CircleAvatar(
                     radius: 16.r,
-                    backgroundColor: Colors.red,
+                    backgroundColor: AppColors.primaryColor,
                     child: Icon(Icons.close, color: Colors.white, size: 16.sp),
                   ),
                 ),
@@ -353,101 +407,212 @@ class _MyFavoriteEventScreenState extends State<MyFavoriteEventScreen> {
   }
 
   //==============================> Event Details Dialog <==============================
-  void addFolderDialog() {
+  void addFolderDialog(String eventId) {
+    bool isCreatingNew = false; // Local state to toggle UI
+
     showDialog(
       context: context,
       barrierDismissible: true,
-      builder: (_) {
-        return Dialog(
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(24.r),
-          ),
-          insetPadding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 24.h),
-          backgroundColor: Colors.white,
-          child: Stack(
-            clipBehavior: Clip.none,
-            children: [
-              Padding(
-                padding: EdgeInsets.all(16.w),
-                child: SingleChildScrollView(
-                  child: Column(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          InkWell(
+      builder: (context) {
+        // We use StatefulBuilder to update UI (TextField toggle) inside the dialog
+        return StatefulBuilder(builder: (context, setModalState) {
+          return Dialog(
+            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24.r)),
+            insetPadding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 24.h),
+            backgroundColor: Colors.white,
+            child: Padding(
+              padding: EdgeInsets.all(16.w),
+              child: SingleChildScrollView(
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        InkWell(
                             onTap: () => Navigator.of(context).pop(),
-                            child: Icon(
-                              Icons.arrow_back_ios_new_outlined,
-                              size: 16.w,
+                            child: Icon(Icons.arrow_back_ios_new_outlined, size: 16.w)),
+                        InkWell(
+                            onTap: () => Navigator.of(context).pop(),
+                            child: CustomText(text: AppStrings.save, fontSize: 16.sp, fontWeight: FontWeight.w500)),
+                      ],
+                    ),
+                    SizedBox(height: 20.h),
+                    Align(
+                      alignment: Alignment.centerLeft,
+                      child: CustomText(
+                        text: AppStrings.addToAlbum.tr,
+                        fontWeight: FontWeight.w500,
+                        fontSize: 16.sp,
+                      ),
+                    ),
+                    SizedBox(height: 8.h),
+
+                    // --- Toggle between Button and TextField ---
+                    if (!isCreatingNew)
+                      GestureDetector(
+                        onTap: () => setModalState(() => isCreatingNew = true),
+                        child: Container(
+                          width: double.infinity,
+                          padding: EdgeInsets.all(12.w),
+                          decoration: BoxDecoration(
+                            color: Colors.white,
+                            borderRadius: BorderRadius.circular(12.r),
+                            border: Border.all(color: AppColors.greyColor),
+                          ),
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Icon(Icons.add_circle_outlined, color: AppColors.primaryColor),
+                              SizedBox(width: 8.w),
+                              CustomText(
+                                text: AppStrings.createNewAlbum.tr,
+                                color: AppColors.greyColor,
+                                fontWeight: FontWeight.w500,
+                              ),
+                            ],
+                          ),
+                        ),
+                      )
+                    else
+                      Row(
+                        children: [
+                          Expanded(
+                            child: CustomTextField(
+                              controller: newAlbumCTRL,
+                              hintText: "Enter album name...",
                             ),
                           ),
-                          CustomText(
-                            text: AppStrings.save,
-                            fontSize: 16.sp,
-                            fontWeight: FontWeight.w500,
-                          ),
+                          SizedBox(width: 8.w),
+                          // --- The Save (+) Icon Button ---
+                          IconButton(
+                            onPressed: () {
+                              if (newAlbumCTRL.text.isNotEmpty) {
+                                collectionController.saveToCollection(
+                                  albumName: newAlbumCTRL.text.trim(),
+                                  eventId: eventId,
+                                  status: "Added", // Passing Added as status
+                                );
+                                newAlbumCTRL.clear();
+                              }
+                            },
+                            icon: Icon(Icons.add_box, color: AppColors.primaryColor, size: 32.sp),
+                          )
                         ],
                       ),
-                      SizedBox(height: 20.h),
-                      Align(
-                        alignment: Alignment.centerLeft,
-                        child: CustomText(
-                          text: AppStrings.addToAlbum.tr,
-                          fontWeight: FontWeight.w500,
-                          fontSize: 16.sp,
-                        ),
-                      ),
-                      SizedBox(height: 8.h),
-                      Container(
-                        width: double.infinity,
-                        padding: EdgeInsets.all(12.w),
-                        decoration: BoxDecoration(
-                          color: Colors.white,
-                          borderRadius: BorderRadius.circular(12.r),
-                          border: Border.all(color: AppColors.greyColor),
-                        ),
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            Icon(
-                              Icons.add_circle_outlined,
-                              color: AppColors.primaryColor,
-                            ),
-                            SizedBox(width: 8.w),
-                            CustomText(
-                              text: AppStrings.createNewAlbum.tr,
-                              color: AppColors.greyColor,
-                              fontWeight: FontWeight.w500,
-                              maxLine: 3,
-                              textAlign: TextAlign.start,
-                            ),
-                          ],
-                        ),
-                      ),
-                      SizedBox(height: 8.h),
-                      CustomListTile(
-                        title: AppStrings.bACHELORETTEPARTY.tr,
-                        suffixIcon: SvgPicture.asset(AppIcons.rightArrow),
-                      ),
-                      CustomListTile(
-                        title: AppStrings.bESTDATENIGHTPLACE.tr,
-                        suffixIcon: SvgPicture.asset(AppIcons.rightArrow),
-                      ),
-                      CustomListTile(
-                        title: AppStrings.fAVORITES.tr,
-                        suffixIcon: SvgPicture.asset(AppIcons.rightArrow),
-                      ),
-                      SizedBox(height: 20.h),
-                    ],
-                  ),
+
+                    SizedBox(height: 16.h),
+
+                    // --- Existing Collection List ---
+                    Obx(() {
+                      if (collectionController.isLoading.value) {
+                        return const Center(child: CircularProgressIndicator());
+                      }
+
+                      return Column(
+                        children: collectionController.collectionList.map((album) {
+                          return CustomListTile(
+                            title: album,
+                            suffixIcon: SvgPicture.asset(AppIcons.rightArrow),
+                            onTap: () {
+                              collectionController.saveToCollection(
+                                albumName: album,
+                                eventId: eventId,
+                                status: "Added",
+                              );
+                            },
+                          );
+                        }).toList(),
+                      );
+                    }),
+                    SizedBox(height: 20.h),
+                  ],
                 ),
               ),
-            ],
+            ),
+          );
+        });
+      },
+    );
+  }
+
+
+  void showPlanConfirmation(BuildContext context, String eventId, String planStatus) {
+    showDialog(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          backgroundColor: Colors.white, // Strictly white background
+          surfaceTintColor: Colors.white, // Prevents Material 3 tinting
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16.r)),
+          title: CustomText(
+            text: "Add to My Plans?",
+            fontSize: 18.sp,
+            fontWeight: FontWeight.bold,
+            color: AppColors.primaryColor,
           ),
+          content: CustomText(
+            text: "Would you like to mark this event as '$planStatus' in your plans?",
+            maxLine: 2,
+            color: Colors.black87,
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context),
+              child: CustomText(
+                  text: "Cancel",
+                  color: Colors.grey,
+                  fontWeight: FontWeight.w500
+              ),
+            ),
+            // Using a more prominent style for the Confirm action
+            TextButton(
+              style: TextButton.styleFrom(
+                backgroundColor: const Color(0xffffefd1), // Match your button theme
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8.r)),
+              ),
+              onPressed: () {
+                Navigator.pop(context); // Close confirmation dialog
+
+                collectionController.saveToCollection(
+                  albumName: "MY PLANS",
+                  eventId: eventId,
+                  status: planStatus,
+                );
+              },
+              child: Padding(
+                padding: EdgeInsets.symmetric(horizontal: 8.w),
+                child: CustomText(
+                  text: "Confirm",
+                  color: AppColors.primaryColor,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+            ),
+          ],
         );
       },
     );
   }
+  Color getStatusColor(String status) {
+    switch (status) {
+      case "Quiet":
+        return AppColors.primaryColor; // Your Primary Color
+      case "Moderate":
+        return Colors.yellow;          // Yellow
+      case "Busy":
+        return Colors.red;             // Red
+      case "Pending":
+        return Colors.orange;          // Default/Orange
+      case "Active":
+        return Colors.green;           // Suggested Green
+      case "Expire":
+        return Colors.grey;            // Suggested Grey
+      case "Rejected":
+        return Colors.black;           // Suggested Black
+      default:
+        return AppColors.primaryColor; // Fallback
+    }
+  }
+
 }
