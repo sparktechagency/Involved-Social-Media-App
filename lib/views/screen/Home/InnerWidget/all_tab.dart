@@ -399,7 +399,9 @@ class _AllTabState extends State<AllTab> {
                         InkWell(
                             onTap: () => Navigator.of(context).pop(),
                             child: Icon(Icons.arrow_back_ios_new_outlined, size: 16.w)),
-                        CustomText(text: AppStrings.save, fontSize: 16.sp, fontWeight: FontWeight.w500),
+                        InkWell(
+                            onTap: () => Navigator.of(context).pop(),
+                            child: CustomText(text: AppStrings.save, fontSize: 16.sp, fontWeight: FontWeight.w500)),
                       ],
                     ),
                     SizedBox(height: 20.h),
