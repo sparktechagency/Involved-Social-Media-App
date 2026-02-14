@@ -215,7 +215,7 @@ class _SearchScreenState extends State<SearchScreen> {
                                         favoriteController.toggleFavorite(event.id);
                                       },
                                       child: Icon(
-                                        isCurrentlyFavorite ? Icons.favorite : Icons.favorite_border,
+                                        isCurrentlyFavorite ?Icons.bookmark : Icons.bookmark_border,
                                         color: isCurrentlyFavorite ? AppColors.primaryColor : Colors.grey,
                                         size: 22.sp,
                                       ),
@@ -286,13 +286,13 @@ class _SearchScreenState extends State<SearchScreen> {
                                   text: title,
                                   fontSize: 16.sp,
                                   fontWeight: FontWeight.w500,
+                                  maxLine: 3,
+                                  textAlign: TextAlign.start,
                                   color: AppColors.primaryColor,
                                 ),
-                                SizedBox(height: 4.h),
                               ],
                             ),
                           ),
-                          Icon(Icons.share, color: AppColors.primaryColor,)
                         ],
                       ),
                       SizedBox(height: 20.h),
