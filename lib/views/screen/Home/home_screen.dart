@@ -54,7 +54,6 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
   @override
   Widget build(BuildContext context) {
     return Obx(() {
-      // Show loader while fetching dynamic tab values
       if (fieldsController.isLoading.value || _tabController == null) {
         return const Scaffold(body: Center(child: CircularProgressIndicator()));
       }
@@ -75,16 +74,14 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
             ],
           ),
           bottom: TabBar(
-            isScrollable: true, // Set to true since dynamic lists can be long
+            padding: EdgeInsets.zero,
+            isScrollable: true,
             controller: _tabController,
             indicatorColor: AppColors.primaryColor,
             labelColor: Colors.black,
             unselectedLabelColor: Colors.grey,
             tabs: [
-              // 1. Static "All" Tab
               Tab(child: CustomText(text: AppStrings.all.tr, fontSize: 12.sp)),
-
-              // 2. Dynamic Tabs from API
               ...fieldsController.typesList.map((typeName) => Tab(
                 child: CustomText(text: typeName.tr, fontSize: 12.sp),
               )),
@@ -94,10 +91,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
         body: TabBarView(
           controller: _tabController,
           children: [
-            // Index 0: "All" - we pass empty string for type
             const AllTab(eventType: ""),
-
-            // Dynamic types from the fields controller
             ...fieldsController.typesList.map((type) => AllTab(eventType: type)),
           ],
         ),

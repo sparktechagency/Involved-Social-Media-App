@@ -174,10 +174,9 @@ class _MyFavoriteEventScreenState extends State<MyFavoriteEventScreen> {
                                               .removeFavorite(
                                                 favoriteEvent.event.id,
                                               );
-                                          // No message shown - just instant UI change
                                         },
                                         child: Icon(
-                                          Icons.favorite,
+                                          Icons.bookmark,
                                           color: AppColors.primaryColor,
                                           size: 22.sp,
                                         ),
@@ -249,13 +248,13 @@ class _MyFavoriteEventScreenState extends State<MyFavoriteEventScreen> {
                                   text: title,
                                   fontSize: 16.sp,
                                   fontWeight: FontWeight.w500,
+                                  maxLine: 3,
+                                  textAlign: TextAlign.start,
                                   color: AppColors.primaryColor,
                                 ),
-                                SizedBox(height: 4.h),
                               ],
                             ),
                           ),
-                          Icon(Icons.share, color: AppColors.primaryColor,)
                         ],
                       ),
                       SizedBox(height: 20.h),
