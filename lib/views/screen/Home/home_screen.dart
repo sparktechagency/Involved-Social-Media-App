@@ -61,18 +61,17 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
       return Scaffold(
         bottomNavigationBar: BottomMenu(0),
         appBar: AppBar(
+          centerTitle: true,
           backgroundColor: Colors.white,
           automaticallyImplyLeading: false,
-          title: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Image.asset(AppImages.logo, width: 142.w, height: 64.h),
-              InkWell(
-                onTap: () => Get.toNamed(AppRoutes.notificationsScreen),
-                child: SvgPicture.asset(AppIcons.notification),
-              ),
-            ],
-          ),
+          title: Image.asset(AppImages.logo, width: 154.w, height: 72.h),
+          actions: [
+            InkWell(
+              onTap: () => Get.toNamed(AppRoutes.notificationsScreen),
+              child: SvgPicture.asset(AppIcons.notification),
+            ),
+            SizedBox(width: 20.w)
+          ],
           bottom: TabBar(
             padding: EdgeInsets.zero,
             isScrollable: true,
