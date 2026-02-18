@@ -149,11 +149,13 @@ class _SearchScreenState extends State<SearchScreen> {
                     crossAxisCount: 2,
                     mainAxisSpacing: 12.h,
                     crossAxisSpacing: 12.w,
-                    childAspectRatio: 0.57,
+                    childAspectRatio: 0.55,
                   ),
                   itemBuilder: (context, index) {
                     final event = eventController.filteredEventsList[index];
-                    final fullImageUrl = "${ApiConstants.imageBaseUrl}${event.image}";
+                    final  fullImageUrl = event.image.startsWith('http')
+                        ? event.image
+                        : "${ApiConstants.imageBaseUrl}${event.image}";
 
                     return Material(
                       color: Colors.white,
@@ -195,6 +197,7 @@ class _SearchScreenState extends State<SearchScreen> {
                                         CustomText(
                                           text: event.title,
                                           maxLine: 2,
+                                          textAlign: TextAlign.start,
                                           textOverflow: TextOverflow.ellipsis,
                                           fontWeight: FontWeight.w500,
                                         ),
