@@ -81,7 +81,7 @@ class _AllTabState extends State<AllTab> {
             crossAxisCount: 2,
             mainAxisSpacing: 12.h,
             crossAxisSpacing: 12.w,
-            childAspectRatio: 0.57,
+            childAspectRatio: 0.55,
           ),
           itemBuilder: (context, index) {
             final event = eventController.eventsList[index];
@@ -129,6 +129,7 @@ class _AllTabState extends State<AllTab> {
                                 CustomText(
                                   text: event.title,
                                   maxLine: 2,
+                                  textAlign: TextAlign.start,
                                   textOverflow: TextOverflow.ellipsis,
                                   fontWeight: FontWeight.w500,
                                 ),
@@ -195,8 +196,12 @@ class _AllTabState extends State<AllTab> {
               Padding(
                 padding: EdgeInsets.all(16.w),
                 child: SingleChildScrollView(
-                  child: Column(
-                    mainAxisSize: MainAxisSize.min,
+                  child: ConstrainedBox(
+                    constraints: BoxConstraints(
+                      maxHeight: MediaQuery.of(context).size.height - 100.h,
+                    ),
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
                     children: [
                       CustomNetworkImage(
                         imageUrl: imageUrl,
@@ -353,6 +358,7 @@ class _AllTabState extends State<AllTab> {
                     ],
                   ),
                 ),
+              ),
               ),
               Positioned(
                 top: -8,

@@ -46,7 +46,7 @@ class BottomMenu extends StatelessWidget {
       decoration: BoxDecoration(
         color: AppColors.whiteColor,
         borderRadius: BorderRadius.circular(24.r),
-        border: Border.all(color: AppColors.primaryColor.withOpacity(0.3)),
+        border: Border.all(color: AppColors.primaryColor,  width: 1.w),
       ),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,

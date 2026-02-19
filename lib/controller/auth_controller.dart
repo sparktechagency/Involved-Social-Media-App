@@ -131,7 +131,7 @@ class AuthController extends GetxController {
     Map<String, dynamic> body = {
       'email': signInEmailCtrl.text.trim(),
       'password': signInPassCtrl.text.trim(),
-     // "fcmToken": "fcmToken..",
+      "fcmToken": "fcmToken..",
     };
     Response response = await ApiClient.postData(
         ApiConstants.signInEndPoint, json.encode(body),
