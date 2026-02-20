@@ -128,7 +128,7 @@ class _AllTabState extends State<AllTab> {
                               children: [
                                 CustomText(
                                   text: event.title,
-                                  maxLine: 2,
+                                  maxLine: 1,
                                   textAlign: TextAlign.start,
                                   textOverflow: TextOverflow.ellipsis,
                                   fontWeight: FontWeight.w500,
