@@ -70,130 +70,108 @@ class _MyFavoriteEventScreenState extends State<MyFavoriteEventScreen> {
             );
           }
 
-          return Column(
-            children: [
-              Expanded(
-                child: NotificationListener<ScrollNotification>(
-                  onNotification: (ScrollNotification scrollInfo) {
-                    if (scrollInfo.metrics.pixels ==
-                            scrollInfo.metrics.maxScrollExtent &&
-                        !_favoriteController.isLoadingMore.value &&
-                        _favoriteController.hasMoreData.value) {
-                      _favoriteController.loadMore();
-                    }
-                    return false;
-                  },
-                  child: ListView.builder(
-                    padding: EdgeInsets.symmetric(vertical: 8.h),
-                    itemCount:
-                        _favoriteController.favoriteEvents.length +
-                        (_favoriteController.isLoadingMore.value ? 1 : 0),
-                    itemBuilder: (context, index) {
-                      // Show loading indicator at the end if loading more
-                      if (index >= _favoriteController.favoriteEvents.length) {
-                        return Container(
-                          padding: EdgeInsets.symmetric(vertical: 10.h),
-                          child: const Center(
-                            child: CircularProgressIndicator(),
-                          ),
-                        );
-                      }
+          return GridView.builder(
+            shrinkWrap: false,
+            physics: const AlwaysScrollableScrollPhysics(),
+           padding: EdgeInsets.symmetric(vertical: 12.w),
+            itemCount: _favoriteController.favoriteEvents.length,
+            gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+              crossAxisCount: 2,
+              mainAxisSpacing: 12.h,
+              crossAxisSpacing: 12.w,
+              childAspectRatio: 0.65,
+            ),
+            itemBuilder: (context, index) {
+              final favoriteEvent = _favoriteController.favoriteEvents[index];
+              final event = favoriteEvent.event;
+              String fullImageUrl = event.image.startsWith('http')
+                  ? event.image
+                  : "${ApiConstants.imageBaseUrl}${event.image}";
 
-                      final favoriteEvent =
-                          _favoriteController.favoriteEvents[index];
-                      final event = favoriteEvent.event;
-
-                      return Container(
-                        margin: EdgeInsets.only(bottom: 12.h),
-                        child: Material(
-                          color: Colors.white,
-                          elevation: 2,
-                          borderRadius: BorderRadius.circular(12.r),
-                          child: InkWell(
-                            borderRadius: BorderRadius.circular(12.r),
-                            onTap: () => showEventDetailsDialog(
-                              context: context,
-                              imageUrl: '${ApiConstants.imageBaseUrl}${event.image}',
-                                title: event.title,
-                                dateTime: "${event.startDate.day}/${event.startDate.month}/${event.startDate.year}",
-                                venue: event.address,
-                                description: event.description,
-                                status: event.status,
-                                eventId: event.id.toString()
-                            ),
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                CustomNetworkImage(
-                                  imageUrl:
-                                      '${ApiConstants.imageBaseUrl}${event.image}',
-                                  height: 240.h,
-                                  width: double.infinity,
-                                  borderRadius: BorderRadius.only(
-                                    topLeft: Radius.circular(12.r),
-                                    topRight: Radius.circular(12.r),
-                                  ),
-                                ),
-                                Padding(
-                                  padding: EdgeInsets.all(8.w),
-                                  child: Row(
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.start,
-                                    children: [
-                                      Expanded(
-                                        child: Column(
-                                          crossAxisAlignment:
-                                              CrossAxisAlignment.start,
-                                          children: [
-                                            CustomText(
-                                              text: event.title,
-                                              maxLine: 2,
-                                              textOverflow:
-                                                  TextOverflow.ellipsis,
-                                              fontWeight: FontWeight.w500,
-                                            ),
-                                            SizedBox(height: 4.h),
-                                            CustomText(
-                                              text: event.address,
-                                              maxLine: 1,
-                                              textOverflow:
-                                                  TextOverflow.ellipsis,
-                                              fontSize: 12.sp,
-                                            ),
-                                          ],
-                                        ),
-                                      ),
-                                      GestureDetector(
-                                        onTap: () async {
-                                          final favoriteEvent =
-                                              _favoriteController
-                                                  .favoriteEvents[index];
-                                          _favoriteController.favoriteEvents
-                                              .removeAt(index);
-                                          await _favoriteController
-                                              .removeFavorite(
-                                                favoriteEvent.event.id,
-                                              );
-                                        },
-                                        child: Icon(
-                                          Icons.bookmark,
-                                          color: AppColors.primaryColor,
-                                          size: 22.sp,
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
+              return Material(
+                color: Colors.white,
+                elevation: 2,
+                borderRadius: BorderRadius.circular(12.r),
+                child: InkWell(
+                  borderRadius: BorderRadius.circular(12.r),
+                  onTap: () => showEventDetailsDialog(
+                    context: context,
+                    imageUrl: fullImageUrl,
+                    title: event.title,
+                    dateTime: "${event.startDate.day}/${event.startDate.month}/${event.startDate.year}",
+                    venue: event.address,
+                    description: event.description,
+                    status: event.status,
+                    eventId: event.id.toString()
+                  ),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      CustomNetworkImage(
+                        imageUrl: fullImageUrl,
+                        height: 200.h,
+                        width: double.infinity,
+                        borderRadius: BorderRadius.only(
+                          topLeft: Radius.circular(12.r),
+                          topRight: Radius.circular(12.r),
                         ),
-                      );
-                    },
+                      ),
+                      Padding(
+                        padding: EdgeInsets.all(8.w),
+                        child: Row(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Expanded(
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  CustomText(
+                                    text: event.title,
+                                    maxLine: 1,
+                                    textAlign: TextAlign.start,
+                                    textOverflow: TextOverflow.ellipsis,
+                                    fontWeight: FontWeight.w500,
+                                  ),
+                                  SizedBox(height: 4.h),
+                                  CustomText(
+                                    text: event.address,
+                                    maxLine: 1,
+                                    textOverflow: TextOverflow.ellipsis,
+                                    fontSize: 12.sp,
+                                  ),
+
+                                ],
+                              ),
+                            ),
+
+                            Align(
+                              alignment: Alignment.topRight,
+                              child: GestureDetector(
+                                onTap: () async {
+                                  final favoriteEvent =
+                                  _favoriteController.favoriteEvents[index];
+                                  _favoriteController.favoriteEvents
+                                      .removeAt(index);
+                                  await _favoriteController.removeFavorite(
+                                    favoriteEvent.event.id,
+                                  );
+                                },
+                                child: Icon(
+                                  Icons.bookmark,
+                                  color: AppColors.primaryColor,
+                                  size: 22.sp,
+                                ),
+                              ),
+                            ),
+
+                          ],
+                        ),
+                      ),
+                    ],
                   ),
                 ),
-              ),
-            ],
+              );
+            },
           );
         }),
       ),
