@@ -1,14 +1,21 @@
+import 'package:firebase_core/firebase_core.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
+import 'package:involved/helpers/notification_helpers.dart';
 import 'package:involved/themes/light_theme.dart';
 import 'package:involved/utils/app_constants.dart';
 import 'package:involved/utils/message.dart';
 import 'controller/localization_controller.dart';
 import 'controller/theme_controller.dart';
+import 'firebase_options.dart';
 import 'helpers/di.dart' as di;
 import 'helpers/route.dart';
+
+final FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin = FlutterLocalNotificationsPlugin();
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -16,18 +23,21 @@ void main() async {
     DeviceOrientation.portraitUp,
     DeviceOrientation.portraitDown,
   ]);
+  //===========================> Firebase Initialize <============================
+  await Firebase.initializeApp(
+    options: DefaultFirebaseOptions.currentPlatform,
+  );
   //===========================> Generate to FCM Token <============================
-  /* try {
+   try {
     if (GetPlatform.isMobile) {
       final RemoteMessage? remoteMessage = await FirebaseMessaging.instance.getInitialMessage();
-      if (remoteMessage != null) {
-      }
       await NotificationHelper.init(flutterLocalNotificationsPlugin);
-      FirebaseMessaging.onBackgroundMessage(NotificationHelper.firebaseMessagingBackgroundHandler);
+      FirebaseMessaging.onBackgroundMessage(
+        NotificationHelper.firebaseMessagingBackgroundHandler,
+      );
     }
   }catch(e) {}
-  NotificationHelper.getFcmToken();
-  */
+  await NotificationHelper.getFcmToken();
   Map<String, Map<String, String>> _languages = await di.init();
   runApp(MyApp(languages: _languages));
 }

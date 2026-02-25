@@ -108,13 +108,15 @@ class _AllTabState extends State<AllTab> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    CustomNetworkImage(
-                      imageUrl: fullImageUrl,
-                      height: 240.h,
-                      width: double.infinity,
-                      borderRadius: BorderRadius.only(
-                        topLeft: Radius.circular(12.r),
-                        topRight: Radius.circular(12.r),
+                    Expanded(
+                      child: CustomNetworkImage(
+                        imageUrl: fullImageUrl,
+                        height: 240.h,
+                        width: double.infinity,
+                        borderRadius: BorderRadius.only(
+                          topLeft: Radius.circular(12.r),
+                          topRight: Radius.circular(12.r),
+                        ),
                       ),
                     ),
                     Padding(

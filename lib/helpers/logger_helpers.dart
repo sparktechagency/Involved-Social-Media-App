@@ -1,4 +1,3 @@
-/*
 import 'package:logger/logger.dart';
 
 logger(Type type) => Logger(printer: CustomPrinter(type.toString()));
@@ -13,4 +12,4 @@ class CustomPrinter extends LogPrinter {
     final message = event.message;
     return [color!('$emoji $className : $message')];
   }
-}*/
+}
