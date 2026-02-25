@@ -45,7 +45,7 @@ class _CalenderScreenState extends State<CalenderScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      bottomNavigationBar: BottomMenu(3),
+      bottomNavigationBar: BottomMenu(2),
       appBar: AppBar(
         title: CustomText(
           text: AppStrings.calendar.tr,

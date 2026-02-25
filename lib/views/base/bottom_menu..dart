@@ -1,3 +1,4 @@
+/*
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/svg.dart';
@@ -113,10 +114,9 @@ class BottomMenu extends StatelessWidget {
       ),
     );
   }
-}
+}*/
 
 
-/*
 
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -158,7 +158,7 @@ class BottomMenu extends StatelessWidget {
 
     return Container(
       padding: EdgeInsets.symmetric(vertical: 18.h),
-      margin: EdgeInsets.only(left: 48.w, right: 48.w, bottom: 32.h),
+      margin: EdgeInsets.only(left: 58.w, right: 58.w, bottom: 32.h),
       decoration: BoxDecoration(
         color: AppColors.whiteColor,
         borderRadius: BorderRadius.circular(24.r),
@@ -229,4 +229,4 @@ class BottomMenu extends StatelessWidget {
       ),
     );
   }
-}*/
+}
