@@ -32,7 +32,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
     final user = _controller.userProfile.value;
     return Scaffold(
       bottomNavigationBar: BottomMenu(
-        4,
+        3,
         profileImageUrl: '${ApiConstants.imageBaseUrl}${user?.image}',
       ),
       body: SingleChildScrollView(
@@ -58,12 +58,12 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       boxShape: BoxShape.circle,
                       border: Border.all(width: 4.w, color: Color(0xffFFEFD1)),
                     ),
-                    if (user?.isEmailVerified == true || user?.isPhoneVerified == true)
+                  /*  if (user?.isEmailVerified == true || user?.isPhoneVerified == true)
                       Positioned(
                         right: 10.w,
                         top: 10.h,
                         child: SvgPicture.asset(AppIcons.verify)
-                      )
+                      )*/
                   ],
                 );
               }),
@@ -79,7 +79,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 );
               }),
               SizedBox(height: 24.h),
-              //=========================> Upgrade to Business Profile <========================
+             /* //=========================> Upgrade to Business Profile <========================
               GestureDetector(
                 onTap: (){},
                 child: Container(
@@ -97,7 +97,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   ),
                 ),
               ),
-              SizedBox(height: 24.h),
+              SizedBox(height: 24.h),*/
               //===================================> List Tile Card <==========================================
               Card(
                 elevation: 5.5,
@@ -111,7 +111,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   child: Center(
                     child: Column(
                       children: [
-                        //===================> Subscription Container <=================
+                       /* //===================> Subscription Container <=================
                         Container(
                           decoration: BoxDecoration(
                             color: AppColors.backgroundColor,
@@ -157,7 +157,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                             ),
                           ),
                         ),
-                        SizedBox(height: 16.h),
+                        SizedBox(height: 16.h),*/
                         //===================> Personal Information ListTile <=================
                         CustomListTile(
                           onTap: () {
