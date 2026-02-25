@@ -1,4 +1,3 @@
-/*
 import 'dart:convert';
 import 'dart:io';
 import 'package:app_settings/app_settings.dart';
@@ -7,9 +6,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:get/get.dart';
 import 'package:get/get_utils/get_utils.dart';
+import 'package:involved/helpers/prefs_helpers.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:http/http.dart' as http;
-import 'package:project_template/helpers/prefs_helpers.dart';
 import '../utils/app_constants.dart';
 import 'logger_helpers.dart';
 
@@ -21,15 +20,16 @@ class NotificationHelper {
   static Future<void> getFcmToken() async {
     String? fcmToken = await _firebaseMessaging.getToken();
     if (fcmToken != null) {
-     PrefsHelper.setString(AppConstants.fcmToken, fcmToken);
+      PrefsHelper.setString(AppConstants.fcmToken, fcmToken);
     }
-    print('FCM Token: $fcmToken');
+    log.i('FCM Token: $fcmToken');
   }
 
   //================================> Notification initialize <========================
 
   static Future<void> init(
-      FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin) async {
+      FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin,
+      ) async {
     //===================> Local notification initialize <==================
     await initLocalNotification(flutterLocalNotificationsPlugin);
     FirebaseMessaging.onMessage.listen((RemoteMessage message) {
@@ -37,7 +37,10 @@ class NotificationHelper {
       log.i("onMessage Message : $message");
       if (Platform.isAndroid) {
         NotificationHelper.showNotification(
-            message, flutterLocalNotificationsPlugin, false);
+          message,
+          flutterLocalNotificationsPlugin,
+          false,
+        );
       }
     });
 
@@ -47,7 +50,7 @@ class NotificationHelper {
 
       Map<String, dynamic> data = message.data;
       handleNotificationRedirection(data);
-    debugPrint("onMessageOpenedApp Message : $message");
+      debugPrint("onMessageOpenedApp Message : $message");
     });
 
     // If the app is terminated, this callback will be triggered when the user taps on the notification.
@@ -60,25 +63,31 @@ class NotificationHelper {
   }
 
   static Future<void> initLocalNotification(
-      FlutterLocalNotificationsPlugin fln) async {
-    var initializationSettingsAndroid =
-        const AndroidInitializationSettings('notification_icon');
+      FlutterLocalNotificationsPlugin fln,
+      ) async {
+    var initializationSettingsAndroid = const AndroidInitializationSettings(
+      'notification_icon',
+    );
     var initializationSettingsIOS = const DarwinInitializationSettings();
     var initializationSettings = InitializationSettings(
-        android: initializationSettingsAndroid, iOS: initializationSettingsIOS);
+      android: initializationSettingsAndroid,
+      iOS: initializationSettingsIOS,
+    );
 
     await fln.initialize(
-      initializationSettings,
-      onDidReceiveNotificationResponse: (NotificationResponse? paylod) async {
+      settings: initializationSettings,
+      onDidReceiveNotificationResponse: (NotificationResponse? payload) async {
         try {
-          Map<String, dynamic> _payloadData;
-          if (paylod != null && paylod.payload!.isNotEmpty) {
-            _payloadData = jsonDecode(paylod.payload!);
-          debugPrint("Initialize Local Notification payload : $_payloadData");
+          Map<String, dynamic> payloadData;
+          if (payload != null && payload.payload!.isNotEmpty) {
+            payloadData = jsonDecode(payload.payload!);
+            debugPrint("Initialize Local Notification payload : $payloadData");
 
-            handleNotificationRedirection(_payloadData);
+            handleNotificationRedirection(payloadData);
           }
-        } catch (e) {}
+        } catch (e) {
+          log.e("Error handling notification response: $e");
+        }
         return;
       },
     );
@@ -88,9 +97,12 @@ class NotificationHelper {
   static void notificationPermission() async {
     await FirebaseMessaging.instance
         .setForegroundNotificationPresentationOptions(
-        alert: true, badge: true, sound: true);
-    NotificationSettings settings =
-    await FirebaseMessaging.instance.requestPermission(
+      alert: true,
+      badge: true,
+      sound: true,
+    );
+    NotificationSettings settings = await FirebaseMessaging.instance
+        .requestPermission(
       alert: true,
       announcement: true,
       badge: true,
@@ -109,10 +121,12 @@ class NotificationHelper {
     }
   }
 
-
   //================================> Show Notification <========================
-  static Future<void> showNotification(RemoteMessage message,
-      FlutterLocalNotificationsPlugin fln, bool data) async {
+  static Future<void> showNotification(
+      RemoteMessage message,
+      FlutterLocalNotificationsPlugin fln,
+      bool data,
+      ) async {
     String title;
     String body;
     String? image;
@@ -121,20 +135,22 @@ class NotificationHelper {
       title = message.data["title"];
       body = message.data["body"];
       image =
-          (message.data['image'] != null && message.data['image'].isNotEmpty)
-              ? message.data['image']
-              : null;
+      (message.data['image'] != null && message.data['image'].isNotEmpty)
+          ? message.data['image']
+          : null;
     } else {
       title = message.notification!.title!;
       body = message.notification!.body!;
       if (GetPlatform.isAndroid) {
-        image = ((message.notification!.android!.imageUrl != null &&
-                message.notification!.android!.imageUrl!.isNotEmpty)
+        image =
+        ((message.notification!.android!.imageUrl != null &&
+            message.notification!.android!.imageUrl!.isNotEmpty)
             ? message.notification!.android!.imageUrl
             : null);
       } else if (GetPlatform.isIOS) {
-        image = ((message.notification!.apple!.imageUrl != null &&
-                message.notification!.apple!.imageUrl!.isNotEmpty)
+        image =
+        ((message.notification!.apple!.imageUrl != null &&
+            message.notification!.apple!.imageUrl!.isNotEmpty)
             ? message.notification!.apple!.imageUrl
             : null);
       }
@@ -142,7 +158,12 @@ class NotificationHelper {
     if (image != null && image.isNotEmpty) {
       try {
         await showBigPictureNotificationHiddenLargeIcon(
-            title, body, message.data, image, fln);
+          title,
+          body,
+          message.data,
+          image,
+          fln,
+        );
         log.i("Show Big Picture Notification ");
       } catch (e) {
         await showTextNotification(title, body, message.data, fln);
@@ -154,14 +175,15 @@ class NotificationHelper {
     }
   }
 
-//============================> Show Text Notification <==========================
+  //============================> Show Text Notification <==========================
   static Future<void> showTextNotification(
       String title,
       String body,
       Map<String, dynamic>? notificationBody,
-      FlutterLocalNotificationsPlugin fln) async {
+      FlutterLocalNotificationsPlugin fln,
+      ) async {
     const AndroidNotificationDetails androidPlatformChannelSpecifics =
-        AndroidNotificationDetails(
+    AndroidNotificationDetails(
       'notification', // meta-data android value
       'notification', // meta-data android value
       playSound: true,
@@ -179,19 +201,25 @@ class NotificationHelper {
     //   iOS: iOSPlatformChannelSpecifics,
     // );
 
-    const NotificationDetails platformChannelSpecifics =
-        NotificationDetails(android: androidPlatformChannelSpecifics);
-    await fln.show(0, title, body, platformChannelSpecifics,
-        payload:
-            notificationBody != null ? jsonEncode(notificationBody) : null);
+    const NotificationDetails platformChannelSpecifics = NotificationDetails(
+      android: androidPlatformChannelSpecifics,
+    );
+    await fln.show(
+      id: 0,
+      title: title,
+      body: body,
+      notificationDetails: platformChannelSpecifics,
+      payload: notificationBody != null ? jsonEncode(notificationBody) : null,
+    );
   }
 
-//===========================> Show Big Text Notification <============================
+  //===========================> Show Big Text Notification <============================
   static Future<void> showBigTextNotification(
       String title,
       String body,
       Map<String, dynamic>? notificationBody,
-      FlutterLocalNotificationsPlugin fln) async {
+      FlutterLocalNotificationsPlugin fln,
+      ) async {
     BigTextStyleInformation bigTextStyleInformation = BigTextStyleInformation(
       body,
       htmlFormatBigText: true,
@@ -199,7 +227,7 @@ class NotificationHelper {
       htmlFormatContentTitle: true,
     );
     AndroidNotificationDetails androidPlatformChannelSpecifics =
-        AndroidNotificationDetails(
+    AndroidNotificationDetails(
       'notification',
       'notification',
       importance: Importance.max,
@@ -207,28 +235,38 @@ class NotificationHelper {
       priority: Priority.max,
       icon: "notification_icon",
       playSound: true,
-      sound: const RawResourceAndroidNotificationSound('notification_sound'),
+      sound: const RawResourceAndroidNotificationSound(
+        'notification_sound',
+      ),
     );
-    NotificationDetails platformChannelSpecifics =
-        NotificationDetails(android: androidPlatformChannelSpecifics);
-    await fln.show(0, title, body, platformChannelSpecifics,
-        payload:
-            notificationBody != null ? jsonEncode(notificationBody) : null);
+    NotificationDetails platformChannelSpecifics = NotificationDetails(
+      android: androidPlatformChannelSpecifics,
+    );
+    await fln.show(
+      id: 0,
+      title: title,
+      body: body,
+      notificationDetails: platformChannelSpecifics,
+      payload: notificationBody != null ? jsonEncode(notificationBody) : null,
+    );
   }
 
-//==========================> Show Big Picture Notification Hidden largeIcon <=============================
+  //==========================> Show Big Picture Notification Hidden largeIcon <=============================
 
   static Future<void> showBigPictureNotificationHiddenLargeIcon(
       String title,
       String body,
       Map<String, dynamic>? notificationBody,
       String image,
-      FlutterLocalNotificationsPlugin fln) async {
+      FlutterLocalNotificationsPlugin fln,
+      ) async {
     final String largeIconPath = await _downloadAndSaveFile(image, 'largeIcon');
-    final String bigPicturePath =
-        await _downloadAndSaveFile(image, 'bigPicture');
+    final String bigPicturePath = await _downloadAndSaveFile(
+      image,
+      'bigPicture',
+    );
     final BigPictureStyleInformation bigPictureStyleInformation =
-        BigPictureStyleInformation(
+    BigPictureStyleInformation(
       FilePathAndroidBitmap(bigPicturePath),
       hideExpandedLargeIcon: true,
       contentTitle: title,
@@ -237,7 +275,7 @@ class NotificationHelper {
       htmlFormatSummaryText: true,
     );
     final AndroidNotificationDetails androidPlatformChannelSpecifics =
-        AndroidNotificationDetails(
+    AndroidNotificationDetails(
       'notification',
       'notification',
       largeIcon: FilePathAndroidBitmap(largeIconPath),
@@ -246,16 +284,26 @@ class NotificationHelper {
       styleInformation: bigPictureStyleInformation,
       importance: Importance.max,
       icon: "notification_icon",
-      sound: const RawResourceAndroidNotificationSound('notification_sound'),
+      sound: const RawResourceAndroidNotificationSound(
+        'notification_sound',
+      ),
     );
-    final NotificationDetails platformChannelSpecifics =
-        NotificationDetails(android: androidPlatformChannelSpecifics);
-    await fln.show(0, title, body, platformChannelSpecifics,
-        payload: notificationBody != null ? jsonEncode(notificationBody) : null);
+    final NotificationDetails platformChannelSpecifics = NotificationDetails(
+      android: androidPlatformChannelSpecifics,
+    );
+    await fln.show(
+      id: 0,
+      title: title,
+      body: body,
+      notificationDetails: platformChannelSpecifics,
+      payload: notificationBody != null ? jsonEncode(notificationBody) : null,
+    );
   }
 
   static Future<String> _downloadAndSaveFile(
-      String url, String fileName) async {
+      String url,
+      String fileName,
+      ) async {
     final Directory directory = await getApplicationDocumentsDirectory();
     final String filePath = '${directory.path}/$fileName';
     final http.Response response = await http.get(Uri.parse(url));
@@ -264,19 +312,19 @@ class NotificationHelper {
     return filePath;
   }
 
-//=============================> On Click Notification Screen Route <=============================
+  //=============================> On Click Notification Screen Route <=============================
 
   static void handleNotificationRedirection(Map<String, dynamic> data) {
-   // Get.toNamed(AppRoutes.videoScreen, parameters: {'url':data['videoUrl']});
-   // Get.toNamed(AppRoutes.videoScreen,);
+    // Get.toNamed(AppRoutes.videoScreen, parameters: {'url':data['videoUrl']});
+    // Get.toNamed(AppRoutes.videoScreen,);
   }
 
   //===============================> Background Notification Service <==========================
 
   @pragma('vm:entry-point')
   static Future<void> firebaseMessagingBackgroundHandler(
-    RemoteMessage message,
-  ) async {
+      RemoteMessage message,
+      ) async {
     // await Firebase.initializeApp();
     // var androidInitialize =
     //     const AndroidInitializationSettings('notification_icon');
@@ -292,4 +340,3 @@ class NotificationHelper {
     //     message, flutterLocalNotificationsPlugin, false);
   }
 }
-*/

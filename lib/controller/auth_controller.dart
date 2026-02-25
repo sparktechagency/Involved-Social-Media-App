@@ -126,12 +126,13 @@ class AuthController extends GetxController {
   var signInLoading = false.obs;
 
   handleSignIn() async {
+    var fcmToken = await PrefsHelper.getString(AppConstants.fcmToken);
     signInLoading(true);
     var headers = {'Content-Type': 'application/json'};
     Map<String, dynamic> body = {
       'email': signInEmailCtrl.text.trim(),
       'password': signInPassCtrl.text.trim(),
-      "fcmToken": "fcmToken..",
+      "fcmToken": fcmToken.isNotEmpty ? fcmToken : "test",
     };
     Response response = await ApiClient.postData(
         ApiConstants.signInEndPoint, json.encode(body),
