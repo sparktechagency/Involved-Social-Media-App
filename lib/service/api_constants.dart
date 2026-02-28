@@ -29,5 +29,6 @@ class ApiConstants {
   static const String filterWithCollectionName = "/collection";
   static const String getFavoriteEndPoint = "/favorite/my";
   static const String addFavoriteEndPoint = "/favorite";
+  static const String notificationEndPoint = "/notification";
   static String deleteFavoriteEndPoint ( String eventId) => "/favorite/$eventId";
 }

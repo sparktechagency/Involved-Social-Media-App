@@ -77,7 +77,7 @@ class AppRoutes{
     GetPage(name:privacyPolicyScreen, page: ()=>const PrivacyPolicyScreen()),
     GetPage(name:contactUsScreen, page: ()=>const ContactUsScreen()),
     GetPage(name:termsServicesScreen, page: ()=>const TermsServicesScreen()),
-    GetPage(name:notificationsScreen, page: ()=> NotificationsScreen()),
+    GetPage(name:notificationsScreen, page: ()=> const NotificationsScreen()),
     GetPage(name:subscriptionScreen, page: ()=> SubscriptionScreen()),
     GetPage(name:eventDetailsScreen, page: ()=> EventDetailsScreen()),
     GetPage(name:interestScreen, page: ()=> InterestScreen()),
