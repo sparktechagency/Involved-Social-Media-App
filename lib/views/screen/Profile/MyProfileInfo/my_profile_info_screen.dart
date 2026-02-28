@@ -49,11 +49,11 @@ class MyProfileInfoScreen extends StatelessWidget {
                             boxShape: BoxShape.circle,
                             border: Border.all(width: 4.w, color: const Color(0xffFFEFD1)),
                           ),
-                          if (user?.isEmailVerified == true || user?.isPhoneVerified == true)
+                          /*if (user?.isEmailVerified == true || user?.isPhoneVerified == true)
                             Positioned(
                                 right: 10.w,
                                 top: 10.h,
-                                child: SvgPicture.asset(AppIcons.verify))
+                                child: SvgPicture.asset(AppIcons.verify))*/
                         ],
                       );
                     }),
